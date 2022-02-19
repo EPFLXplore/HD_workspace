@@ -1,0 +1,8 @@
+prefix=/home/xplore/control_software/HD_workspace/Control/install
+
+Name: motor_control
+Description: Description of motor_control
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

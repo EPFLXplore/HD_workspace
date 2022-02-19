@@ -1,2 +1,0 @@
-hd_controller_motors:video_stream_opencv:xplore_msg
--DCATKIN_DEVEL_PREFIX=/media/xplore/etienne_vol/Xplore/HD_workspace/devel -DCMAKE_INSTALL_PREFIX=/media/xplore/etienne_vol/Xplore/HD_workspace/install -G Unix Makefiles

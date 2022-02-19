@@ -1,8 +1,0 @@
-prefix=/media/xplore/etienne_vol/Xplore/HD_workspace/devel
-
-Name: xplore_msg
-Description: Description of xplore_msg
-Version: 0.0.0
-Cflags: -I/media/xplore/etienne_vol/Xplore/HD_workspace/devel/include -I/media/xplore/etienne_vol/Xplore/HD_workspace/src/xplore_msg/include
-Libs: -L${prefix}/lib -lxplore_msg
-Requires: roscpp std_msgs message_runtime

@@ -1,8 +1,0 @@
-prefix=/media/xplore/etienne_vol/Xplore/HD_workspace/devel
-
-Name: video_stream_opencv
-Description: Description of video_stream_opencv
-Version: 1.1.6
-Cflags: -I/media/xplore/etienne_vol/Xplore/HD_workspace/devel/include
-Libs: -L${prefix}/lib 
-Requires: 

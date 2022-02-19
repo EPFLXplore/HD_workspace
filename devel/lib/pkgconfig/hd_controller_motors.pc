@@ -1,8 +1,0 @@
-prefix=/media/xplore/etienne_vol/Xplore/HD_workspace/devel
-
-Name: hd_controller_motors
-Description: Description of hd_controller_motors
-Version: 0.0.0
-Cflags: -I/media/xplore/etienne_vol/Xplore/HD_workspace/devel/include
-Libs: -L${prefix}/lib 
-Requires: rospy roscpp message_runtime

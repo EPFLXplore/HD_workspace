@@ -1,0 +1,8 @@
+prefix=/home/aloksha/Desktop/HD_workspace/catkin_ws/install
+
+Name: vision
+Description: Description of vision
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

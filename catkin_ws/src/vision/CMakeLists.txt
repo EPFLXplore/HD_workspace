@@ -3,7 +3,7 @@ project(vision)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
-
+set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.0.1\\5.0.1\\msvc2010\\")
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -12,8 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   roscpp
   rospy
-  sensor_msg
-  std_msg
+  sensor_msgs
+  std_msgs
 )
 
 ## System dependencies are found with CMake's conventions

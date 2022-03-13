@@ -324,6 +324,19 @@ rosgraph_msgs_generate_messages_cpp/fast:
 .PHONY : rosgraph_msgs_generate_messages_cpp/fast
 
 #=============================================================================
+# Target rules for targets named vision_node
+
+# Build rule for target.
+vision_node: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 vision_node
+.PHONY : vision_node
+
+# fast build rule for target.
+vision_node/fast:
+	$(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/build
+.PHONY : vision_node/fast
+
+#=============================================================================
 # Target rules for targets named roscpp_generate_messages_eus
 
 # Build rule for target.
@@ -634,6 +647,7 @@ help:
 	@echo "... rosgraph_msgs_generate_messages_lisp"
 	@echo "... rosgraph_msgs_generate_messages_eus"
 	@echo "... rosgraph_msgs_generate_messages_cpp"
+	@echo "... vision_node"
 	@echo "... roscpp_generate_messages_eus"
 	@echo "... sensor_msgs_generate_messages_py"
 	@echo "... geometry_msgs_generate_messages_lisp"

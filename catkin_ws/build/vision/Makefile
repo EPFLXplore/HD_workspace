@@ -213,6 +213,21 @@ rosgraph_msgs_generate_messages_cpp/fast:
 .PHONY : rosgraph_msgs_generate_messages_cpp/fast
 
 # Convenience name for target.
+vision/CMakeFiles/vision_node.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision/CMakeFiles/vision_node.dir/rule
+.PHONY : vision/CMakeFiles/vision_node.dir/rule
+
+# Convenience name for target.
+vision_node: vision/CMakeFiles/vision_node.dir/rule
+
+.PHONY : vision_node
+
+# fast build rule for target.
+vision_node/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/build
+.PHONY : vision_node/fast
+
+# Convenience name for target.
 vision/CMakeFiles/roscpp_generate_messages_eus.dir/rule:
 	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision/CMakeFiles/roscpp_generate_messages_eus.dir/rule
 .PHONY : vision/CMakeFiles/roscpp_generate_messages_eus.dir/rule
@@ -542,6 +557,60 @@ std_msgs_generate_messages_nodejs/fast:
 	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/std_msgs_generate_messages_nodejs.dir/build.make vision/CMakeFiles/std_msgs_generate_messages_nodejs.dir/build
 .PHONY : std_msgs_generate_messages_nodejs/fast
 
+src/depth_node.o: src/depth_node.cpp.o
+
+.PHONY : src/depth_node.o
+
+# target to build an object file
+src/depth_node.cpp.o:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/src/depth_node.cpp.o
+.PHONY : src/depth_node.cpp.o
+
+src/depth_node.i: src/depth_node.cpp.i
+
+.PHONY : src/depth_node.i
+
+# target to preprocess a source file
+src/depth_node.cpp.i:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/src/depth_node.cpp.i
+.PHONY : src/depth_node.cpp.i
+
+src/depth_node.s: src/depth_node.cpp.s
+
+.PHONY : src/depth_node.s
+
+# target to generate assembly for a file
+src/depth_node.cpp.s:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/src/depth_node.cpp.s
+.PHONY : src/depth_node.cpp.s
+
+src/image_conversion.o: src/image_conversion.cpp.o
+
+.PHONY : src/image_conversion.o
+
+# target to build an object file
+src/image_conversion.cpp.o:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o
+.PHONY : src/image_conversion.cpp.o
+
+src/image_conversion.i: src/image_conversion.cpp.i
+
+.PHONY : src/image_conversion.i
+
+# target to preprocess a source file
+src/image_conversion.cpp.i:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.i
+.PHONY : src/image_conversion.cpp.i
+
+src/image_conversion.s: src/image_conversion.cpp.s
+
+.PHONY : src/image_conversion.s
+
+# target to generate assembly for a file
+src/image_conversion.cpp.s:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.s
+.PHONY : src/image_conversion.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -554,6 +623,7 @@ help:
 	@echo "... install"
 	@echo "... rosgraph_msgs_generate_messages_eus"
 	@echo "... rosgraph_msgs_generate_messages_cpp"
+	@echo "... vision_node"
 	@echo "... roscpp_generate_messages_eus"
 	@echo "... sensor_msgs_generate_messages_py"
 	@echo "... test"
@@ -580,6 +650,12 @@ help:
 	@echo "... sensor_msgs_generate_messages_eus"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... std_msgs_generate_messages_nodejs"
+	@echo "... src/depth_node.o"
+	@echo "... src/depth_node.i"
+	@echo "... src/depth_node.s"
+	@echo "... src/image_conversion.o"
+	@echo "... src/image_conversion.i"
+	@echo "... src/image_conversion.s"
 .PHONY : help
 
 

@@ -149,9 +149,13 @@ vision_node_EXTERNAL_OBJECTS =
 /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: /usr/lib/x86_64-linux-gnu/libpthread.so
 /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4
 /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: /usr/local/lib/libopencv_highgui.so.4.5.5
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: /usr/local/lib/libopencv_aruco.so.4.5.5
 /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: /usr/local/lib/libopencv_videoio.so.4.5.5
 /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: /usr/local/lib/libopencv_imgcodecs.so.4.5.5
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: /usr/local/lib/libopencv_calib3d.so.4.5.5
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: /usr/local/lib/libopencv_features2d.so.4.5.5
 /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: /usr/local/lib/libopencv_imgproc.so.4.5.5
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: /usr/local/lib/libopencv_flann.so.4.5.5
 /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: /usr/local/lib/libopencv_core.so.4.5.5
 /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node: vision/CMakeFiles/vision_node.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node"

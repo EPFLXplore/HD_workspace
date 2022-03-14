@@ -76,61 +76,96 @@ int main(int argc, char** argv)
 
 */
 
-//#include <ros/ros.h>
-//#include <image_transport/image_transport.h>
-//#include <opencv2/highgui/highgui.hpp>
-//#include<sensor_msgs/image_encodings.h>
-////#include<sensor_msgs/ImageMessage.h>
-//#include <cv_bridge/cv_bridge.h>
-//#include <iostream>
-//using namespace std;
-//using namespace cv;
+
+
+#include <ros/ros.h>
+#include <image_transport/image_transport.h>
+#include<sensor_msgs/image_encodings.h>
+//#include<sensor_msgs/ImageMessage.h>
+#include <cv_bridge/cv_bridge.h>
+#include <iostream>
+#include <cstdlib>
+# include <opencv2/aruco.hpp>
+# include <opencv2/highgui.hpp>
+# include <opencv2/imgproc.hpp>
+# include <opencv2/imgcodecs.hpp>
+#include <opencv2/videoio.hpp>
+#include <opencv2/opencv.hpp>
+# include <vector>
+# include <iostream>
+#include <unistd.h>
+#include <string>
+using namespace std;
+using namespace cv;
+using namespace cv::aruco;
+
+Ptr<Dictionary> dictionary = getPredefinedDictionary(DICT_5X5_250);
+static cv:: Mat cameraFeed, output_display;  // make it static
+void imageCallback(const sensor_msgs::ImageConstPtr& msg){  //`imageCallback(boost::shared_ptr<sensor_msgs::Image_<std::allocator<void> > const> const&)'
+    
+        cv_bridge::CvImagePtr cv_ptr;
+    try{
+         cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);  
+        //cameraFeed = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8)->image;
+        //cameraFeed = cv_bridge::toCvCopy(msg)->image;
+    }
+    catch (cv_bridge::Exception& e){
+        ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
+        return;
+    }
+
+    // If the frame is empty, will get seg fault ...
+    if (cv_ptr->image.empty())
+      cout << "frame is empty " << endl;
 //
-//cv:: Mat cameraFeed;
-//void imageCallback(const sensor_msgs::ImageConstPtr& msg)
-//{
-//    try
-//    {
-//        cameraFeed = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8)->image;
-//    }
-//    catch (cv_bridge::Exception& e)
-//    {
-//        ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
-//        return;
-//    }
-//
-//    // If the frame is empty, break immediately
-//    if (cameraFeed.empty())
-//      cout << "frame is empty " << endl;
-//
-//    // Display the resulting frame
-//    else {
-//      //
-//        //if(cameraFeed.rows > 60 && cameraFeed.cols > 60){
-//          //circle(cameraFeed, cv::Point(50, 50), 10, CV_RGB(255,0,0));
-//       //}  check how to draw on this, matybe crete a copy...
-//      imshow( "Frame", cameraFeed );
-//    }
-//
-//    // Press  ESC on keyboard to exit
-//    char c=(char)waitKey(25);
-//
-//    //cv::waitKey(1);
-//}
-//
-//int main(int argc, char **argv)
-//{
-//  ros::init(argc, argv, "image_listener");
-//  ros::NodeHandle nh;
-//  //cv::namedWindow("view");
-//
-//  image_transport::ImageTransport it(nh);
-//  image_transport::Subscriber sub = it.subscribe("/camera/color/image_raw", 10, imageCallback);
-//  ros::spin();
-//  // When everything done, release the video capture object
-//    destroyAllWindows();
-//  
-//  //cv::destroyWindow("view");
-//}
-//
-//
+   // // Display the resulting frame
+    else {
+      //cameraFeed.copyTo(output_display);
+      Point center (40,40);
+      cameraFeed = cv_ptr->image;
+      //cv::drawMarker(cv_ptr->image, cv::Point(cv_ptr->image.cols/2, cv_ptr->image.rows/2),  cv::Scalar(0, 0, 255), cv::MARKER_CROSS, 10, 1);
+      //if (cv_ptr->image.rows > 60 && cv_ptr->image.cols > 60)
+      //cv::circle(cv_ptr->image, cv::Point(50, 50), 10, CV_RGB(255,0,0));
+      //cv::circle(cv_ptr->image,center,1,Scalar(0, 0, 255));
+      vector<int> ids;
+      vector<vector<Point2f> > corners;  //each tag has 4 courners each corner is a 2d points so we get a vector vector two ints matrix to store all of that// the small red square is the top left corner of the marker
+      //cv::aruco::detectMarkers(cameraFeed,dictionary,corners,ids);
+
+      //drawDetectedMarkers(cameraFeed, corners, ids);
+      cv::drawMarker(cameraFeed, cv::Point(cameraFeed.cols/2, cameraFeed.rows/2),  cv::Scalar(0, 0, 255), cv::MARKER_CROSS, 10, 1);
+      imshow( "Frame",cameraFeed);
+      cv::waitKey(3);
+      
+    
+      
+      if (ids.size() > 0){
+      output_display = cameraFeed.clone();
+      drawDetectedMarkers(output_display, corners, ids);
+      imshow( "new_Frame",output_display);
+      
+      cv::waitKey(3);
+
+      }
+    }
+
+    // Press  ESC on keyboard to exit
+    //char c=(char)waitKey(25);
+
+}
+
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "image_listener");
+  ros::NodeHandle nh;
+  //cv::namedWindow("view");
+
+  image_transport::ImageTransport it(nh);
+  image_transport::Subscriber sub = it.subscribe("/camera/color/image_raw", 1, imageCallback);
+  ros::spin();
+  // When everything done, release the video capture object
+    destroyAllWindows();
+  
+  //cv::destroyWindow("view");
+}
+
+

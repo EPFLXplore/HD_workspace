@@ -6,6 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision/src/depth_node.cpp" "/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision/CMakeFiles/vision_node.dir/src/depth_node.cpp.o"
   "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision/src/image_conversion.cpp" "/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision/src/no_bridge_test.cpp" "/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision/CMakeFiles/vision_node.dir/src/no_bridge_test.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

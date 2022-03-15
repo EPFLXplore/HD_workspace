@@ -550,7 +550,7 @@ clean: vision/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/clean
 vision/CMakeFiles/vision_node.dir/all:
 	$(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/depend
 	$(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=12,13,14 "Built target vision_node"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=12,13,14,15 "Built target vision_node"
 .PHONY : vision/CMakeFiles/vision_node.dir/all
 
 # Include target in all.
@@ -560,7 +560,7 @@ all: vision/CMakeFiles/vision_node.dir/all
 
 # Build rule for subdir invocation for target.
 vision/CMakeFiles/vision_node.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 vision/CMakeFiles/vision_node.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles 0
 .PHONY : vision/CMakeFiles/vision_node.dir/rule

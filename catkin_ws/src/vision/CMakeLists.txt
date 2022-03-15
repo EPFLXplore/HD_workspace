@@ -116,7 +116,7 @@ catkin_package(
 ###########
 
 set(OpenCV_DIR "/usr/lib/opencv")
-find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui aruco)
+find_package(OpenCV 4 REQUIRED COMPONENTS core imgproc highgui aruco videoio imgcodecs)  ## amybe remove the 4 (version 4 of opencv)
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
@@ -138,7 +138,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
- add_executable(${PROJECT_NAME}_node src/image_conversion.cpp src/depth_node.cpp)
+ add_executable(${PROJECT_NAME}_node src/image_conversion.cpp src/depth_node.cpp src/no_bridge_test.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

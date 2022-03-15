@@ -76,10 +76,9 @@ int main(int argc, char** argv)
 
 */
 
-
-
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
+//#include <image_transport/compressed_image_transport.h>
 #include<sensor_msgs/image_encodings.h>
 //#include<sensor_msgs/ImageMessage.h>
 #include <cv_bridge/cv_bridge.h>
@@ -90,67 +89,81 @@ int main(int argc, char** argv)
 # include <opencv2/imgproc.hpp>
 # include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 # include <vector>
 # include <iostream>
 #include <unistd.h>
 #include <string>
+//#include <ros/console.h>
 using namespace std;
 using namespace cv;
 using namespace cv::aruco;
 
 Ptr<Dictionary> dictionary = getPredefinedDictionary(DICT_5X5_250);
 static cv:: Mat cameraFeed, output_display;  // make it static
-void imageCallback(const sensor_msgs::ImageConstPtr& msg){  //`imageCallback(boost::shared_ptr<sensor_msgs::Image_<std::allocator<void> > const> const&)'
-    
-        cv_bridge::CvImagePtr cv_ptr;
-    try{
-         cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);  
+static Point center (40,40);
+static Point pt1;
+static Point pt2;
+static vector<int> ids;
+static vector<vector<Point2f> > corners;  //each tag has 4 courners each corner is a 2d points so we get a vector vector two ints matrix to store all of that// the small red square is the top left corner of the marker
+
+//ROS_DEBUG("Hello %s", "World");
+//ROS_DEBUG_STREAM("Hello " << "World");
+
+void imageCallback(const sensor_msgs::Image::ConstPtr& msg){  //`imageCallback(boost::shared_ptr<sensor_msgs::Image_<std::allocator<void> > const> const&)'
+  cv_bridge::CvImagePtr cv_ptr;
+  try{
+    cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);  
         //cameraFeed = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8)->image;
         //cameraFeed = cv_bridge::toCvCopy(msg)->image;
-    }
-    catch (cv_bridge::Exception& e){
-        ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
-        return;
-    }
-
     // If the frame is empty, will get seg fault ...
+    cv_ptr->encoding = "bgr8";
     if (cv_ptr->image.empty())
       cout << "frame is empty " << endl;
-//
    // // Display the resulting frame
     else {
       //cameraFeed.copyTo(output_display);
-      Point center (40,40);
+     
       cameraFeed = cv_ptr->image;
+      pt1  = {cameraFeed.cols/4,cameraFeed.rows/4};
+      pt2 = {cameraFeed.cols/2,cameraFeed.rows/2};
       //cv::drawMarker(cv_ptr->image, cv::Point(cv_ptr->image.cols/2, cv_ptr->image.rows/2),  cv::Scalar(0, 0, 255), cv::MARKER_CROSS, 10, 1);
       //if (cv_ptr->image.rows > 60 && cv_ptr->image.cols > 60)
       //cv::circle(cv_ptr->image, cv::Point(50, 50), 10, CV_RGB(255,0,0));
       //cv::circle(cv_ptr->image,center,1,Scalar(0, 0, 255));
-      vector<int> ids;
-      vector<vector<Point2f> > corners;  //each tag has 4 courners each corner is a 2d points so we get a vector vector two ints matrix to store all of that// the small red square is the top left corner of the marker
-      //cv::aruco::detectMarkers(cameraFeed,dictionary,corners,ids);
+      
+      cv::aruco::detectMarkers(cameraFeed,dictionary,corners,ids);
 
       //drawDetectedMarkers(cameraFeed, corners, ids);
       cv::drawMarker(cameraFeed, cv::Point(cameraFeed.cols/2, cameraFeed.rows/2),  cv::Scalar(0, 0, 255), cv::MARKER_CROSS, 10, 1);
+      output_display = cameraFeed.clone();
+      //cv::line(output_display,pt1,pt2,cv::Scalar(0, 0, 255));
+      cv::rectangle(cameraFeed,Rect(Point(0,0),pt2),cv::Scalar(0, 0, 255));
       imshow( "Frame",cameraFeed);
-      cv::waitKey(3);
+      cv::waitKey(1);
       
-    
+      //cout << cameraFeed.dims << endl;
       
       if (ids.size() > 0){
-      output_display = cameraFeed.clone();
-      drawDetectedMarkers(output_display, corners, ids);
-      imshow( "new_Frame",output_display);
-      
-      cv::waitKey(3);
-
+        output_display = cameraFeed.clone();
+        drawDetectedMarkers(output_display, corners, ids);
+        imshow("new_Frame",output_display);
+        cv::waitKey(1);
       }
+      
+      cameraFeed.release();
+      output_display.release();
+      cv_ptr = NULL;
+    
     }
-
+  }
+  catch (cv_bridge::Exception& e){
+    ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
+    cv_ptr = NULL;
+    return;
+  }
     // Press  ESC on keyboard to exit
     //char c=(char)waitKey(25);
-
 }
 
 int main(int argc, char **argv)
@@ -160,12 +173,40 @@ int main(int argc, char **argv)
   //cv::namedWindow("view");
 
   image_transport::ImageTransport it(nh);
-  image_transport::Subscriber sub = it.subscribe("/camera/color/image_raw", 1, imageCallback);
+  image_transport::Subscriber sub = it.subscribe("/camera/color/image_raw", 1000, imageCallback);
   ros::spin();
   // When everything done, release the video capture object
-    destroyAllWindows();
+  destroyAllWindows();
   
   //cv::destroyWindow("view");
 }
 
 
+/*
+int main( int argc, const char** argv ){
+    Ptr<Dictionary> dictionary = getPredefinedDictionary(DICT_5X5_250);// will need to redifine the dict for the competition
+    VideoCapture input_vid(0);//webcam is 0 intel RGB is 5 intel depth is 3 //that was on the old VM
+    //input_vid.set(CAP_PROP_AUTOFOCUS, 0);
+    //input_vid.set(3,1280);     // not sure what those 2 lines do
+    //input_vid.set(4,720);
+    if(!input_vid.isOpened()){
+        cerr << "No camera detected on this system" << endl;
+        return -1;
+    }
+    Mat image, imageCopy;
+    int counter (0); //to provide distance margin 
+    double max_distance(0), min_distance(5000),max_tolerance(0),min_tolerance(0),average_distance(0),sum_distance(0);// define the constants again
+    while(true){
+        input_vid >> image;
+         if(!(image.empty())){
+        //    cerr << "Frame invalid and skipped!" << endl;
+        //    continue;
+        //}
+        imshow("camera view", image);
+        waitKey(1);
+
+        }
+    }
+}
+
+*/

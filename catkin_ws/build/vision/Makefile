@@ -611,6 +611,33 @@ src/image_conversion.cpp.s:
 	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.s
 .PHONY : src/image_conversion.cpp.s
 
+src/no_bridge_test.o: src/no_bridge_test.cpp.o
+
+.PHONY : src/no_bridge_test.o
+
+# target to build an object file
+src/no_bridge_test.cpp.o:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/src/no_bridge_test.cpp.o
+.PHONY : src/no_bridge_test.cpp.o
+
+src/no_bridge_test.i: src/no_bridge_test.cpp.i
+
+.PHONY : src/no_bridge_test.i
+
+# target to preprocess a source file
+src/no_bridge_test.cpp.i:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/src/no_bridge_test.cpp.i
+.PHONY : src/no_bridge_test.cpp.i
+
+src/no_bridge_test.s: src/no_bridge_test.cpp.s
+
+.PHONY : src/no_bridge_test.s
+
+# target to generate assembly for a file
+src/no_bridge_test.cpp.s:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision/CMakeFiles/vision_node.dir/build.make vision/CMakeFiles/vision_node.dir/src/no_bridge_test.cpp.s
+.PHONY : src/no_bridge_test.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -656,6 +683,9 @@ help:
 	@echo "... src/image_conversion.o"
 	@echo "... src/image_conversion.i"
 	@echo "... src/image_conversion.s"
+	@echo "... src/no_bridge_test.o"
+	@echo "... src/no_bridge_test.i"
+	@echo "... src/no_bridge_test.s"
 .PHONY : help
 
 

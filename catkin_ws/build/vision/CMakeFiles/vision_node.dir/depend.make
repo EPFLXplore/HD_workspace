@@ -197,7 +197,6 @@ vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /opt/ros/melodic/i
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/include/opencv/cxcore.h
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/./imgproc/segmentation.hpp
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/aruco.hpp
-vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/aruco/charuco.hpp
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/aruco/dictionary.hpp
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/core.hpp
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/core/base.hpp
@@ -234,13 +233,11 @@ vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/highgui.hpp
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/highgui/highgui.hpp
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/imgcodecs.hpp
-vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/imgcodecs/imgcodecs.hpp
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/imgproc.hpp
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/imgproc/imgproc.hpp
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/imgproc/types_c.h
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/opencv_modules.hpp
 vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/videoio.hpp
-vision/CMakeFiles/vision_node.dir/src/image_conversion.cpp.o: /usr/local/include/opencv4/opencv2/videoio/videoio.hpp
 
 vision/CMakeFiles/vision_node.dir/src/no_bridge_test.cpp.o: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision/src/no_bridge_test.cpp
 

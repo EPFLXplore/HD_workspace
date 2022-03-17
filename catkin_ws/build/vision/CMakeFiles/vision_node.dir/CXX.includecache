@@ -39,21 +39,23 @@ image_transport/image_transport.h
 -
 sensor_msgs/image_encodings.h
 -
+sensor_msgs/Image.h
+-
 cv_bridge/cv_bridge.h
 -
 iostream
 -
 cstdlib
 -
-opencv2/aruco/charuco.hpp
+opencv2/aruco.hpp
 -
-opencv2/highgui/highgui.hpp
+opencv2/highgui.hpp
 -
-opencv2/imgproc/imgproc.hpp
+opencv2/imgproc.hpp
 -
-opencv2/imgcodecs/imgcodecs.hpp
+opencv2/imgcodecs.hpp
 -
-opencv2/videoio/videoio.hpp
+opencv2/videoio.hpp
 -
 vector
 -
@@ -62,6 +64,18 @@ iostream
 unistd.h
 -
 string
+-
+ros/ros.h
+-
+image_transport/image_transport.h
+-
+cv_bridge/cv_bridge.h
+-
+sensor_msgs/image_encodings.h
+-
+opencv2/imgproc/imgproc.hpp
+-
+opencv2/highgui/highgui.hpp
 -
 
 /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision/src/no_bridge_test.cpp
@@ -930,14 +944,6 @@ vector
 opencv2/aruco/dictionary.hpp
 /usr/local/include/opencv4/opencv2/opencv2/aruco/dictionary.hpp
 
-/usr/local/include/opencv4/opencv2/aruco/charuco.hpp
-opencv2/core.hpp
--
-vector
--
-opencv2/aruco.hpp
--
-
 /usr/local/include/opencv4/opencv2/aruco/dictionary.hpp
 opencv2/core.hpp
 -
@@ -1308,10 +1314,6 @@ opencv2/highgui.hpp
 opencv2/core.hpp
 /usr/local/include/opencv4/opencv2/opencv2/core.hpp
 
-/usr/local/include/opencv4/opencv2/imgcodecs/imgcodecs.hpp
-opencv2/imgcodecs.hpp
-/usr/local/include/opencv4/opencv2/imgcodecs/opencv2/imgcodecs.hpp
-
 /usr/local/include/opencv4/opencv2/imgproc.hpp
 opencv2/core.hpp
 /usr/local/include/opencv4/opencv2/opencv2/core.hpp
@@ -1331,8 +1333,4 @@ opencv2/core/core_c.h
 /usr/local/include/opencv4/opencv2/videoio.hpp
 opencv2/core.hpp
 /usr/local/include/opencv4/opencv2/opencv2/core.hpp
-
-/usr/local/include/opencv4/opencv2/videoio/videoio.hpp
-opencv2/videoio.hpp
-/usr/local/include/opencv4/opencv2/videoio/opencv2/videoio.hpp
 

@@ -403,7 +403,7 @@ hardware_interface_DIR:PATH=/opt/ros/melodic/share/hardware_interface/cmake
 image_transport_DIR:PATH=/opt/ros/melodic/share/image_transport/cmake
 
 //Path to a library.
-lib:FILEPATH=/opt/ros/melodic/lib/librospack.so
+lib:FILEPATH=/opt/ros/melodic/lib/libxmlrpcpp.so
 
 //The directory containing a CMake configuration file for message_filters.
 message_filters_DIR:PATH=/opt/ros/melodic/share/message_filters/cmake
@@ -458,6 +458,12 @@ vision_BINARY_DIR:STATIC=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/visi
 
 //Value Computed by CMake
 vision_SOURCE_DIR:STATIC=/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision
+
+//Value Computed by CMake
+vision_no_ros_BINARY_DIR:STATIC=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros
+
+//Value Computed by CMake
+vision_no_ros_SOURCE_DIR:STATIC=/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros
 
 //The directory containing a CMake configuration file for xmlrpcpp.
 xmlrpcpp_DIR:PATH=/opt/ros/melodic/share/xmlrpcpp/cmake
@@ -572,7 +578,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=5
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=6
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -614,7 +620,7 @@ CMAKE_UNAME:INTERNAL=/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding OpenCV
-FIND_PACKAGE_MESSAGE_DETAILS_OpenCV:INTERNAL=[/usr/local][cfound components:  core imgproc highgui aruco videoio imgcodecs ][v4.5.5(4)]
+FIND_PACKAGE_MESSAGE_DETAILS_OpenCV:INTERNAL=[/usr/local][cfound components:  core imgproc highgui aruco videoio imgcodecs ][v4.5.5()]
 //Details about finding PythonInterp
 FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[/usr/bin/python2][v2.7.17()]
 //Details about finding Threads

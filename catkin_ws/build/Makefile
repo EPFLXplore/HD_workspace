@@ -622,6 +622,19 @@ std_msgs_generate_messages_nodejs/fast:
 	$(MAKE) -f vision/CMakeFiles/std_msgs_generate_messages_nodejs.dir/build.make vision/CMakeFiles/std_msgs_generate_messages_nodejs.dir/build
 .PHONY : std_msgs_generate_messages_nodejs/fast
 
+#=============================================================================
+# Target rules for targets named vision_no_ros_node
+
+# Build rule for target.
+vision_no_ros_node: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 vision_no_ros_node
+.PHONY : vision_no_ros_node
+
+# fast build rule for target.
+vision_no_ros_node/fast:
+	$(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_node.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_node.dir/build
+.PHONY : vision_no_ros_node/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -670,6 +683,7 @@ help:
 	@echo "... sensor_msgs_generate_messages_eus"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... std_msgs_generate_messages_nodejs"
+	@echo "... vision_no_ros_node"
 .PHONY : help
 
 

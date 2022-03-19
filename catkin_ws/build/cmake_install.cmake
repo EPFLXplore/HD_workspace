@@ -132,6 +132,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/aloksha/Desktop/HD_workspace/catkin_ws/build/gtest/cmake_install.cmake")
   include("/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision/cmake_install.cmake")
+  include("/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros/cmake_install.cmake")
 
 endif()
 

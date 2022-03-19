@@ -15,9 +15,13 @@ set(CMAKE_MAKEFILE_DEPENDS
   "catkin_generated/order_packages.cmake"
   "vision/catkin_generated/ordered_paths.cmake"
   "vision/catkin_generated/package.cmake"
+  "vision_no_ros/catkin_generated/ordered_paths.cmake"
+  "vision_no_ros/catkin_generated/package.cmake"
   "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/CMakeLists.txt"
   "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision/CMakeLists.txt"
   "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision/package.xml"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/CMakeLists.txt"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/package.xml"
   "/opt/ros/melodic/share/catkin/cmake/../package.xml"
   "/opt/ros/melodic/share/catkin/cmake/all.cmake"
   "/opt/ros/melodic/share/catkin/cmake/assert.cmake"
@@ -202,6 +206,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "gtest/googlemock/CMakeFiles/CMakeDirectoryInformation.cmake"
   "gtest/googlemock/gtest/CMakeFiles/CMakeDirectoryInformation.cmake"
   "vision/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "vision_no_ros/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -241,4 +246,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "vision/CMakeFiles/sensor_msgs_generate_messages_eus.dir/DependInfo.cmake"
   "vision/CMakeFiles/std_msgs_generate_messages_lisp.dir/DependInfo.cmake"
   "vision/CMakeFiles/std_msgs_generate_messages_nodejs.dir/DependInfo.cmake"
+  "vision_no_ros/CMakeFiles/vision_no_ros_node.dir/DependInfo.cmake"
   )

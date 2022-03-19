@@ -100,7 +100,7 @@ using namespace cv;
 using namespace cv::aruco;
 
 Ptr<Dictionary> dictionary = getPredefinedDictionary(DICT_5X5_250);
-static cv:: Mat cameraFeed, output_display;  // make it static
+ // make it static
 static Point center (40,40);
 static Point pt1;
 static Point pt2;
@@ -112,6 +112,7 @@ static vector<vector<Point2f> > corners;  //each tag has 4 courners each corner 
 
 void imageCallback(const sensor_msgs::ImageConstPtr& msg){  //`imageCallback(boost::shared_ptr<sensor_msgs::Image_<std::allocator<void> > const> const&)'
   cv_bridge::CvImagePtr cv_ptr;
+  //static cv:: Mat cameraFeed, output_display; 
   try{
     cv_ptr = cv_bridge::toCvCopy(msg,"bgr8");  
         //cameraFeed = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8)->image;
@@ -123,8 +124,9 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg){  //`imageCallback(boo
    // // Display the resulting frame
     else {
       //cameraFeed.copyTo(output_display);
-     
-      cameraFeed = cv_ptr->image.clone();
+      static cv:: Mat cameraFeed, output_display; 
+      cameraFeed = cv_ptr->image;
+      //cv::Mat subImg = cameraFeed(cv::Range(0, 100), cv::Range(0, 100));
       pt1  = {cameraFeed.cols/4,cameraFeed.rows/4};
       pt2 = {cameraFeed.cols/2,cameraFeed.rows/2};
       //cv::drawMarker(cv_ptr->image, cv::Point(cv_ptr->image.cols/2, cv_ptr->image.rows/2),  cv::Scalar(0, 0, 255), cv::MARKER_CROSS, 10, 1);
@@ -132,15 +134,17 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg){  //`imageCallback(boo
       //cv::circle(cv_ptr->image, cv::Point(50, 50), 10, CV_RGB(255,0,0));
       //cv::circle(cv_ptr->image,center,1,Scalar(0, 0, 255));
       
-      cv::aruco::detectMarkers(cameraFeed,dictionary,corners,ids);
+      //cv::aruco::detectMarkers(cameraFeed,dictionary,corners,ids);
 
       //drawDetectedMarkers(cameraFeed, corners, ids);
-      cv::drawMarker(cameraFeed, cv::Point(cameraFeed.cols/2, cameraFeed.rows/2),  cv::Scalar(0, 0, 255), cv::MARKER_CROSS, 10, 1);
-      output_display = cameraFeed.clone();
+      //cv::drawMarker(cameraFeed, cv::Point(cameraFeed.cols/2, cameraFeed.rows/2),  cv::Scalar(0, 0, 255), cv::MARKER_CROSS, 10, 1);
+      //imshow( "Frame 1",cameraFeed);
+        
+      //output_display = subImg.clone();
       //cv::line(output_display,pt1,pt2,cv::Scalar(0, 0, 255));
-      cv::rectangle(cameraFeed,Rect(Point(0,0),pt2),cv::Scalar(0, 0, 255));
-      imshow( "Frame",cameraFeed);
-      cv::waitKey(1);
+      //cv::rectangle(output_display,Rect(Point(0,0),pt2),cv::Scalar(0, 0, 255));
+      //imshow( "Frame 2",output_display);
+      cv::waitKey(30);
       
       //cout << cameraFeed.dims << endl;
       
@@ -176,7 +180,7 @@ int main(int argc, char **argv)
   image_transport::Subscriber sub = it.subscribe("/camera/color/image_raw", 1, imageCallback);
   ros::spin();
   // When everything done, release the video capture object
-  //destroyAllWindows();
+  cv::destroyAllWindows();
   
   //cv::destroyWindow("view");
 }

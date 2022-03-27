@@ -6,6 +6,14 @@
 
 #IncludeRegexTransform: 
 
+/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/include/vision_no_ros/cntrl_pnl.h
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+
 /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/include/vision_no_ros/cv-helpers.hpp
 librealsense2/rs.hpp
 -
@@ -22,6 +30,8 @@ opencv2/opencv.hpp
 opencv2/aruco.hpp
 -
 vector
+-
+vision_no_ros/cntrl_pnl.h
 -
 vision_no_ros/cv-helpers.hpp
 -

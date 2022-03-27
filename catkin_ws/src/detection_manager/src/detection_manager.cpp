@@ -12,10 +12,10 @@
 #include <iostream>
 #include <sstream>
 
-enum CtrlTasks {void, MANUAL, NAVIGATION, MAINTENANCE, SCIENCE}
-enum CtrlCommands {void, LAUNCH, ABORT, WAIT, RESUME, RETRY}
-enum States {void, INACTIVE, INITIALISATION, WAITING, MEASUREMENT, ERROR}
-enum Element_IDs {ELEMENT1, ELEMENT2, ELEMENT3}
+enum CtrlTasks {void, MANUAL, NAVIGATION, MAINTENANCE, SCIENCE};
+enum CtrlCommands {void, LAUNCH, ABORT, WAIT, RESUME, RETRY};
+enum States {void, INACTIVE, INITIALISATION, WAITING, MEASUREMENT, ERROR};
+enum Element_IDs {ELEMENT1, ELEMENT2, ELEMENT3};
 
 using namespace std;
 
@@ -24,7 +24,7 @@ static uint8_t ctrl_command;
 
 uint8_t taskCallback(const std_msgs::Int8MultiArray::ConstPtr& task_array)
 {
-    task = task_array->data[0];
+    ctrl_task = task_array->data[0];
     ctrl_command = task_array->data[1];
 
     ROS_INFO("task = %i", task);

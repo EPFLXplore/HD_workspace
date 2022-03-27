@@ -11,7 +11,7 @@ ros/ros.h
 -
 std_msgs/String.h
 -
-std_msg/Int8.msg
+std_msgs/Int8.msg
 -
 std_msgs/UInt8.msg
 -

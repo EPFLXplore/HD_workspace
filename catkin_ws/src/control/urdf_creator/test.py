@@ -14,7 +14,7 @@ class Test(RobotURDF):
         self.box_link_dim("link1", (0.083,0.156,0.140))
         self.box_link_origin("link1",
                              btm_shift=(0,0,self.link1_dim_z/2),
-                             top_shift=(0,0,self.link1_dim_z/2-0.09))
+                             top_shift=(0,0,self.link1_dim_z/2-0.05))
 
         self.box_link_dim("link2", (0.096,0.062,0.425))
         self.box_link_origin("link2",
@@ -26,12 +26,21 @@ class Test(RobotURDF):
                              btm_shift=(0.01615-self.link3_dim_x/2,0,-(0.096328-self.link3_dim_z/2)),
                              top_shift=(-(0.0415-self.link3_dim_x/2),0,self.link3_dim_z/2))
 
-        self.box_link_dim("link4", (0.173, 0.080, 0.120))
+        self.box_link_dim("link4", (0.080, 0.173, 0.120))
         self.box_link_origin("link4",
                              btm_shift=(0,0,self.link4_dim_z/2),
-                             top_shift=(0,0,0))
+                             top_shift=(0,0,self.link4_dim_z/2-0.029))
+        
+        self.box_link_dim("link5", (0.047, 0.056, 0.08625))
+        self.box_link_origin("link5",
+                             btm_shift=(0,0,self.link5_dim_z/2-0.0235),
+                             top_shift=(0,0,self.link5_dim_z/2))
 
-        names = ["base_link", "link1", "link2", "link3", "link4"]
+        self.box_link_dim("gripper_base", (0.1196, 0.1105, 0.062))
+        self.box_link_origin("gripper_base",
+                             btm_shift=(self.gripper_base_dim_x/2-0.03,0,self.gripper_base_dim_z/2),
+                             top_shift=(0,0,0))
+        names = ["base_link", "link1", "link2", "link3", "link4", "link5", "gripper_base"]
 
         self.blank_lines(1)
         self.separation()
@@ -50,6 +59,8 @@ class Test(RobotURDF):
         self.classic_revolute_joint("joint2", parent="link1", child="link2", axis="0 1 0")
         self.classic_revolute_joint("joint3", parent="link2", child="link3", axis="0 1 0")
         self.classic_revolute_joint("joint4", parent="link3", child="link4", axis="0 0 1")
+        self.classic_revolute_joint("joint5", parent="link4", child="link5", axis="0 1 0")
+        self.classic_revolute_joint("joint6", parent="link5", child="gripper_base", axis="0 0 1")
 
     def box_link_dim(self, name, dim):
         self.blank_lines(3)

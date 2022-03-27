@@ -1,3 +1,6 @@
 {
-    "cmake.sourceDirectory": "${workspaceFolder}/catkin_ws/src/vision"
+    "cmake.sourceDirectory": "${workspaceFolder}/catkin_ws/src/detection_manager",
+    "files.associations": {
+        "cstdlib": "cpp"
+    }
 }

@@ -1,8 +1,8 @@
-# Install script for directory: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision
+# Install script for directory: /home/ben18/xplore/HD_workspace/catkin_ws/src/vision
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/aloksha/Desktop/HD_workspace/catkin_ws/install")
+  set(CMAKE_INSTALL_PREFIX "/home/ben18/xplore/HD_workspace/catkin_ws/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -38,17 +38,17 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision/catkin_generated/installspace/vision.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/ben18/xplore/HD_workspace/catkin_ws/build/vision/catkin_generated/installspace/vision.pc")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/vision/cmake" TYPE FILE FILES
-    "/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision/catkin_generated/installspace/visionConfig.cmake"
-    "/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision/catkin_generated/installspace/visionConfig-version.cmake"
+    "/home/ben18/xplore/HD_workspace/catkin_ws/build/vision/catkin_generated/installspace/visionConfig.cmake"
+    "/home/ben18/xplore/HD_workspace/catkin_ws/build/vision/catkin_generated/installspace/visionConfig-version.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/vision" TYPE FILE FILES "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/vision" TYPE FILE FILES "/home/ben18/xplore/HD_workspace/catkin_ws/src/vision/package.xml")
 endif()
 

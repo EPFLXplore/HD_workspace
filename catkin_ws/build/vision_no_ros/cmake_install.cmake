@@ -1,8 +1,8 @@
-# Install script for directory: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros
+# Install script for directory: /home/ben18/xplore/HD_workspace/catkin_ws/src/vision_no_ros
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/aloksha/Desktop/HD_workspace/catkin_ws/install")
+  set(CMAKE_INSTALL_PREFIX "/home/ben18/xplore/HD_workspace/catkin_ws/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -38,17 +38,17 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros/catkin_generated/installspace/vision_no_ros.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/ben18/xplore/HD_workspace/catkin_ws/build/vision_no_ros/catkin_generated/installspace/vision_no_ros.pc")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/vision_no_ros/cmake" TYPE FILE FILES
-    "/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros/catkin_generated/installspace/vision_no_rosConfig.cmake"
-    "/home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros/catkin_generated/installspace/vision_no_rosConfig-version.cmake"
+    "/home/ben18/xplore/HD_workspace/catkin_ws/build/vision_no_ros/catkin_generated/installspace/vision_no_rosConfig.cmake"
+    "/home/ben18/xplore/HD_workspace/catkin_ws/build/vision_no_ros/catkin_generated/installspace/vision_no_rosConfig-version.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/vision_no_ros" TYPE FILE FILES "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/vision_no_ros" TYPE FILE FILES "/home/ben18/xplore/HD_workspace/catkin_ws/src/vision_no_ros/package.xml")
 endif()
 

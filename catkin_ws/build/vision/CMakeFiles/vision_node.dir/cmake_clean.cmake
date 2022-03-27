@@ -2,8 +2,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/vision_node.dir/src/image_conversion.cpp.o"
   "CMakeFiles/vision_node.dir/src/depth_node.cpp.o"
   "CMakeFiles/vision_node.dir/src/no_bridge_test.cpp.o"
-  "/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node.pdb"
-  "/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/vision/vision_node"
+  "/home/ben18/xplore/HD_workspace/catkin_ws/devel/lib/vision/vision_node.pdb"
+  "/home/ben18/xplore/HD_workspace/catkin_ws/devel/lib/vision/vision_node"
 )
 
 # Per-language clean rules from dependency scanning.

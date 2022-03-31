@@ -3,6 +3,6 @@ prefix=/home/aloksha/Desktop/HD_workspace/catkin_ws/devel
 Name: vision_no_ros
 Description: Description of vision_no_ros
 Version: 0.0.0
-Cflags: 
+Cflags: -I/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/include
 Libs: -L${prefix}/lib 
-Requires: 
+Requires: roscpp rospy std_msgs message_runtime

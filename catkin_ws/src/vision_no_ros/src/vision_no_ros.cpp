@@ -5,12 +5,22 @@
 
 #include <vision_no_ros/cntrl_pnl.h>
 #include <vision_no_ros/cv-helpers.hpp>
+#include <ros/ros.h>
+//#include <geometry_msgs/Point.h>
+#include <vision_no_ros/vector_msg.h> //even though this file doesnt exist, the .msg one does
 
 using namespace std;
+ using namespace cv;
 
 cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_7X7_250);
+void publisher_setup();//add argc and argv to it
+void publisher_refresh(ros::Publisher& pub,const int& id,const cv::Vec3d& rvecs,const cv::Vec3d& tvecs,const vector<Point2f>& corner,const cntrl_pnl::ControlPanel& my_panel);// this publisher will be only for one specific topic
 
-int main(int argc, char * argv[]) try {   
+int main(int argc, char **argv) try {   
+    //publisher_setup();
+    ros::init(argc, argv, "detected_elements_publisher");
+    ros::NodeHandle n;
+    ros::Publisher pub = n.advertise<vision_no_ros::vector_msg>("detected_elements", 1);
     cntrl_pnl::ControlPanel my_panel;
     cntrl_pnl::setup_control_panel(my_panel);
     // Declare RealSense pipeline, encapsulating the actual device and sensors
@@ -18,7 +28,7 @@ int main(int argc, char * argv[]) try {
     // Start streaming with default recommended configuration
     pipe.start(); //maybe should try to optimze the start parameters for bandwidth gains and other stuff when integratingg
 
-    using namespace cv;
+   
     const auto window_name = "Display Image";
     namedWindow(window_name, WINDOW_AUTOSIZE);
 
@@ -66,10 +76,11 @@ int main(int argc, char * argv[]) try {
                 //float dist_to_center=depth.get_distance(int(corners[i][0].x),int(corners[i][0].y));
                 //std::cout << "The camera is facing an object " << dist_to_center << " meters away \r"<< std::endl;
                 //std::cout <<"difference is : "<<tvecs[i][2]-dist_to_center <<std::endl;
-                cntrl_pnl::Position offset = cntrl_pnl::distance_from_ARtag(my_panel.panelA.artg1,my_panel.panelA.switch1);
+                //cntrl_pnl::Position offset = cntrl_pnl::distance_from_ARtag(my_panel.panelA.artg1,my_panel.panelA.switch1);
                 //std::cout << "distance to the on the x axis is : " <<tvecs[i][0]<< std::endl;// /////////////////////////////////////the axis axis is actually drawn in the wrong direction so switch the signs of the expression using tvecs in the following two lines
-                std::cout << "distance to the first switch on the x axis is : " <<offset.x_coor+tvecs[i][0]*1000<<" mm "<< std::endl; //no x is ni iverted, it's just that im getting clodet to the object when I goto the negative x so tvecs and offset should have opposite sighns so when 
-                std::cout << "distance to the first switch on the y axis is : " <<offset.y_coor-tvecs[i][1]*1000<<" mm "<< std::endl;
+                //std::cout << "distance to the first switch on the x axis is : " <<offset.x_coor+tvecs[i][0]*1000<<" mm "<< std::endl; //no x is ni iverted, it's just that im getting clodet to the object when I goto the negative x so tvecs and offset should have opposite sighns so when 
+                //std::cout << "distance to the first switch on the y axis is : " <<offset.y_coor-tvecs[i][1]*1000<<" mm "<< std::endl;
+                publisher_refresh(pub,ids[i],rvecs[i],tvecs[i],corners[i],my_panel);
             }
             imshow(window_name, output_image);
         }
@@ -110,3 +121,33 @@ catch (const std::exception& e)
 //    return EXIT_SUCCESS;
 //}
 
+/*
+void publisher_setup() {
+ 
+  ros::init(argc, argv, "detected_elements_publisher");
+  ros::NodeHandle n;
+  ros::Publisher pub = n.advertise<vision_no_ros::vector_msg>("detected_elements", 1);
+ // ros::Rate loop_rate(0.5);
+}
+*/
+void publisher_refresh(ros::Publisher& pub,const int& id,const cv::Vec3d& rvecs,const cv::Vec3d& tvecs,const vector<Point2f>& corners,const cntrl_pnl::ControlPanel& my_panel){
+//add a for loop for ids .size then modify the msg so it can be a vector of size detected ids of the ints we specified
+
+ // the message to be published
+  vision_no_ros::vector_msg msg;
+  msg.id = id; //this should be the object id no the ar tag... each objects position will be deduced from a specific ar tag
+  msg.reliability=100;
+  cntrl_pnl::Position offset = cntrl_pnl::distance_from_ARtag(my_panel.panelA.artg1,my_panel.panelA.switch1);
+  msg.x_pos =offset.x_coor+tvecs[0]*1000; //casting and representing the foats with ints cf bens idea...
+  msg.y_pos =offset.y_coor-tvecs[1]*1000;
+  msg.z_pos =tvecs[2]*1000;//need to add condition on the depth source!(my algo or the intel's depth frame)
+  msg.x_rot =500; //will give the ar tags rotations then the gripper can stay at that angle need to test which units though
+  msg.y_rot =600; //need dims
+  msg.z_rot =700; //need dims
+
+
+  pub.publish(msg);
+  ros::spinOnce();
+
+
+}

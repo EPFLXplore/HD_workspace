@@ -91,9 +91,9 @@ endif()
 # flag project as catkin-based to distinguish if a find_package()-ed project is a catkin project
 set(vision_no_ros_FOUND_CATKIN_PROJECT TRUE)
 
-if(NOT " " STREQUAL " ")
+if(NOT "/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/include " STREQUAL " ")
   set(vision_no_ros_INCLUDE_DIRS "")
-  set(_include_dirs "")
+  set(_include_dirs "/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/include")
   if(NOT " " STREQUAL " ")
     set(_report "Check the issue tracker '' and consider creating a ticket if the problem has not been reported yet.")
   elseif(NOT " " STREQUAL " ")
@@ -177,7 +177,7 @@ foreach(library ${libraries})
   endif()
 endforeach()
 
-set(vision_no_ros_EXPORTED_TARGETS "")
+set(vision_no_ros_EXPORTED_TARGETS "vision_no_ros_generate_messages_cpp;vision_no_ros_generate_messages_eus;vision_no_ros_generate_messages_lisp;vision_no_ros_generate_messages_nodejs;vision_no_ros_generate_messages_py")
 # create dummy targets for exported code generation targets to make life of users easier
 foreach(t ${vision_no_ros_EXPORTED_TARGETS})
   if(NOT TARGET ${t})
@@ -185,7 +185,7 @@ foreach(t ${vision_no_ros_EXPORTED_TARGETS})
   endif()
 endforeach()
 
-set(depends "")
+set(depends "roscpp;rospy;std_msgs;message_runtime")
 foreach(depend ${depends})
   string(REPLACE " " ";" depend_list ${depend})
   # the package name of the dependency must be kept in a unique variable so that it is not overwritten in recursive calls
@@ -214,7 +214,7 @@ foreach(depend ${depends})
   list(APPEND vision_no_ros_EXPORTED_TARGETS ${${vision_no_ros_dep}_EXPORTED_TARGETS})
 endforeach()
 
-set(pkg_cfg_extras "")
+set(pkg_cfg_extras "vision_no_ros-msg-extras.cmake")
 foreach(extra ${pkg_cfg_extras})
   if(NOT IS_ABSOLUTE ${extra})
     set(extra ${vision_no_ros_DIR}/${extra})

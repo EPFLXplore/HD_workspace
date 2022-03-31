@@ -80,16 +80,17 @@ install/local/fast: preinstall/fast
 	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
 .PHONY : install/local/fast
 
-# Special rule for the target test
-test:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
-	/usr/bin/ctest --force-new-ctest-process $(ARGS)
-.PHONY : test
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
 
-# Special rule for the target test
-test/fast: test
-
-.PHONY : test/fast
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
 
 # Special rule for the target list_install_components
 list_install_components:
@@ -101,16 +102,16 @@ list_install_components/fast: list_install_components
 
 .PHONY : list_install_components/fast
 
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
 
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
+# Special rule for the target test
+test/fast: test
 
-.PHONY : rebuild_cache/fast
+.PHONY : test/fast
 
 # Special rule for the target edit_cache
 edit_cache:
@@ -123,17 +124,16 @@ edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
 
-# Special rule for the target install
-install: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
 
-# Special rule for the target install
-install/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install/fast
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -166,6 +166,186 @@ preinstall/fast:
 depend:
 	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/vision_no_ros_geneus.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/vision_no_ros_geneus.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/vision_no_ros_geneus.dir/rule
+
+# Convenience name for target.
+vision_no_ros_geneus: vision_no_ros/CMakeFiles/vision_no_ros_geneus.dir/rule
+
+.PHONY : vision_no_ros_geneus
+
+# fast build rule for target.
+vision_no_ros_geneus/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_geneus.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_geneus.dir/build
+.PHONY : vision_no_ros_geneus/fast
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_cpp.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_cpp.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_cpp.dir/rule
+
+# Convenience name for target.
+vision_no_ros_generate_messages_cpp: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_cpp.dir/rule
+
+.PHONY : vision_no_ros_generate_messages_cpp
+
+# fast build rule for target.
+vision_no_ros_generate_messages_cpp/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_cpp.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_cpp.dir/build
+.PHONY : vision_no_ros_generate_messages_cpp/fast
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/_vision_no_ros_generate_messages_check_deps_vector_msg.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/_vision_no_ros_generate_messages_check_deps_vector_msg.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/_vision_no_ros_generate_messages_check_deps_vector_msg.dir/rule
+
+# Convenience name for target.
+_vision_no_ros_generate_messages_check_deps_vector_msg: vision_no_ros/CMakeFiles/_vision_no_ros_generate_messages_check_deps_vector_msg.dir/rule
+
+.PHONY : _vision_no_ros_generate_messages_check_deps_vector_msg
+
+# fast build rule for target.
+_vision_no_ros_generate_messages_check_deps_vector_msg/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/_vision_no_ros_generate_messages_check_deps_vector_msg.dir/build.make vision_no_ros/CMakeFiles/_vision_no_ros_generate_messages_check_deps_vector_msg.dir/build
+.PHONY : _vision_no_ros_generate_messages_check_deps_vector_msg/fast
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/vision_no_ros_genlisp.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/vision_no_ros_genlisp.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/vision_no_ros_genlisp.dir/rule
+
+# Convenience name for target.
+vision_no_ros_genlisp: vision_no_ros/CMakeFiles/vision_no_ros_genlisp.dir/rule
+
+.PHONY : vision_no_ros_genlisp
+
+# fast build rule for target.
+vision_no_ros_genlisp/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_genlisp.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_genlisp.dir/build
+.PHONY : vision_no_ros_genlisp/fast
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs.dir/rule
+
+# Convenience name for target.
+vision_no_ros_generate_messages_nodejs: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs.dir/rule
+
+.PHONY : vision_no_ros_generate_messages_nodejs
+
+# fast build rule for target.
+vision_no_ros_generate_messages_nodejs/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs.dir/build
+.PHONY : vision_no_ros_generate_messages_nodejs/fast
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/vision_no_ros_gennodejs.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/vision_no_ros_gennodejs.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/vision_no_ros_gennodejs.dir/rule
+
+# Convenience name for target.
+vision_no_ros_gennodejs: vision_no_ros/CMakeFiles/vision_no_ros_gennodejs.dir/rule
+
+.PHONY : vision_no_ros_gennodejs
+
+# fast build rule for target.
+vision_no_ros_gennodejs/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_gennodejs.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_gennodejs.dir/build
+.PHONY : vision_no_ros_gennodejs/fast
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/vision_no_ros_gencpp.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/vision_no_ros_gencpp.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/vision_no_ros_gencpp.dir/rule
+
+# Convenience name for target.
+vision_no_ros_gencpp: vision_no_ros/CMakeFiles/vision_no_ros_gencpp.dir/rule
+
+.PHONY : vision_no_ros_gencpp
+
+# fast build rule for target.
+vision_no_ros_gencpp/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_gencpp.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_gencpp.dir/build
+.PHONY : vision_no_ros_gencpp/fast
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_lisp.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_lisp.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_lisp.dir/rule
+
+# Convenience name for target.
+vision_no_ros_generate_messages_lisp: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_lisp.dir/rule
+
+.PHONY : vision_no_ros_generate_messages_lisp
+
+# fast build rule for target.
+vision_no_ros_generate_messages_lisp/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_lisp.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_lisp.dir/build
+.PHONY : vision_no_ros_generate_messages_lisp/fast
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/vision_no_ros_generate_messages.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/vision_no_ros_generate_messages.dir/rule
+
+# Convenience name for target.
+vision_no_ros_generate_messages: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages.dir/rule
+
+.PHONY : vision_no_ros_generate_messages
+
+# fast build rule for target.
+vision_no_ros_generate_messages/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_generate_messages.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_generate_messages.dir/build
+.PHONY : vision_no_ros_generate_messages/fast
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py.dir/rule
+
+# Convenience name for target.
+vision_no_ros_generate_messages_py: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py.dir/rule
+
+.PHONY : vision_no_ros_generate_messages_py
+
+# fast build rule for target.
+vision_no_ros_generate_messages_py/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py.dir/build
+.PHONY : vision_no_ros_generate_messages_py/fast
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus.dir/rule
+
+# Convenience name for target.
+vision_no_ros_generate_messages_eus: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus.dir/rule
+
+.PHONY : vision_no_ros_generate_messages_eus
+
+# fast build rule for target.
+vision_no_ros_generate_messages_eus/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus.dir/build
+.PHONY : vision_no_ros_generate_messages_eus/fast
+
+# Convenience name for target.
+vision_no_ros/CMakeFiles/vision_no_ros_genpy.dir/rule:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 vision_no_ros/CMakeFiles/vision_no_ros_genpy.dir/rule
+.PHONY : vision_no_ros/CMakeFiles/vision_no_ros_genpy.dir/rule
+
+# Convenience name for target.
+vision_no_ros_genpy: vision_no_ros/CMakeFiles/vision_no_ros_genpy.dir/rule
+
+.PHONY : vision_no_ros_genpy
+
+# fast build rule for target.
+vision_no_ros_genpy/fast:
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build && $(MAKE) -f vision_no_ros/CMakeFiles/vision_no_ros_genpy.dir/build.make vision_no_ros/CMakeFiles/vision_no_ros_genpy.dir/build
+.PHONY : vision_no_ros_genpy/fast
 
 # Convenience name for target.
 vision_no_ros/CMakeFiles/vision_no_ros_node.dir/rule:
@@ -217,12 +397,24 @@ help:
 	@echo "... depend"
 	@echo "... install/strip"
 	@echo "... install/local"
-	@echo "... test"
+	@echo "... vision_no_ros_geneus"
+	@echo "... vision_no_ros_generate_messages_cpp"
+	@echo "... _vision_no_ros_generate_messages_check_deps_vector_msg"
+	@echo "... vision_no_ros_genlisp"
+	@echo "... vision_no_ros_generate_messages_nodejs"
+	@echo "... vision_no_ros_gennodejs"
+	@echo "... vision_no_ros_gencpp"
+	@echo "... vision_no_ros_generate_messages_lisp"
+	@echo "... install"
+	@echo "... vision_no_ros_generate_messages"
 	@echo "... list_install_components"
+	@echo "... vision_no_ros_generate_messages_py"
+	@echo "... vision_no_ros_generate_messages_eus"
+	@echo "... vision_no_ros_genpy"
+	@echo "... test"
+	@echo "... edit_cache"
 	@echo "... vision_no_ros_node"
 	@echo "... rebuild_cache"
-	@echo "... edit_cache"
-	@echo "... install"
 	@echo "... src/vision_no_ros.o"
 	@echo "... src/vision_no_ros.i"
 	@echo "... src/vision_no_ros.s"

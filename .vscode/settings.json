@@ -1,7 +1,0 @@
-{
-    "cmake.sourceDirectory": "${workspaceFolder}/catkin_ws/src/detection_manager",
-    "files.associations": {
-        "cstdlib": "cpp"
-    },
-    "C_Cpp.errorSquiggles": "Enabled"
-}

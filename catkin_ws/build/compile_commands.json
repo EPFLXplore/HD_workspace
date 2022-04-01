@@ -1,7 +1,7 @@
 [
 {
   "directory": "/home/ben18/xplore/HD_workspace/catkin_ws/build",
-  "command": "/usr/bin/x86_64-linux-gnu-g++-7  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"detection_manager\\\" -I/opt/ros/melodic/include -I/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp  -g   -o CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o -c /home/ben18/xplore/HD_workspace/catkin_ws/src/detection_manager/src/detection_manager.cpp",
+  "command": "/usr/bin/x86_64-linux-gnu-g++-7  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"detection_manager\\\" -I/opt/ros/melodic/include -I/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp  -g   -o CMakeFiles/detection_manager_node.dir/src/detection_manager.cpp.o -c /home/ben18/xplore/HD_workspace/catkin_ws/src/detection_manager/src/detection_manager.cpp",
   "file": "/home/ben18/xplore/HD_workspace/catkin_ws/src/detection_manager/src/detection_manager.cpp"
 },
 {

@@ -35,7 +35,7 @@ void taskCallback(const std_msgs::Int8MultiArray::ConstPtr& task_array)
 
 int main(int argc, char **argv)
 {
-    ros::init(argc,argv, "HD_detection_manager");
+    ros::init(argc,argv, "detection_manager_node");
     ros::NodeHandle manager;
 
     //Publishers setup

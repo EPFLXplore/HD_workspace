@@ -311,19 +311,6 @@ roscpp_generate_messages_eus/fast:
 .PHONY : roscpp_generate_messages_eus/fast
 
 #=============================================================================
-# Target rules for targets named detection_manager
-
-# Build rule for target.
-detection_manager: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 detection_manager
-.PHONY : detection_manager
-
-# fast build rule for target.
-detection_manager/fast:
-	$(MAKE) -f CMakeFiles/detection_manager.dir/build.make CMakeFiles/detection_manager.dir/build
-.PHONY : detection_manager/fast
-
-#=============================================================================
 # Target rules for targets named std_msgs_generate_messages_py
 
 # Build rule for target.
@@ -361,6 +348,19 @@ roscpp_generate_messages_py: cmake_check_build_system
 roscpp_generate_messages_py/fast:
 	$(MAKE) -f CMakeFiles/roscpp_generate_messages_py.dir/build.make CMakeFiles/roscpp_generate_messages_py.dir/build
 .PHONY : roscpp_generate_messages_py/fast
+
+#=============================================================================
+# Target rules for targets named detection_manager_node
+
+# Build rule for target.
+detection_manager_node: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 detection_manager_node
+.PHONY : detection_manager_node
+
+# fast build rule for target.
+detection_manager_node/fast:
+	$(MAKE) -f CMakeFiles/detection_manager_node.dir/build.make CMakeFiles/detection_manager_node.dir/build
+.PHONY : detection_manager_node/fast
 
 #=============================================================================
 # Target rules for targets named rosgraph_msgs_generate_messages_cpp
@@ -498,7 +498,7 @@ src/detection_manager.o: src/detection_manager.cpp.o
 
 # target to build an object file
 src/detection_manager.cpp.o:
-	$(MAKE) -f CMakeFiles/detection_manager.dir/build.make CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o
+	$(MAKE) -f CMakeFiles/detection_manager_node.dir/build.make CMakeFiles/detection_manager_node.dir/src/detection_manager.cpp.o
 .PHONY : src/detection_manager.cpp.o
 
 src/detection_manager.i: src/detection_manager.cpp.i
@@ -507,7 +507,7 @@ src/detection_manager.i: src/detection_manager.cpp.i
 
 # target to preprocess a source file
 src/detection_manager.cpp.i:
-	$(MAKE) -f CMakeFiles/detection_manager.dir/build.make CMakeFiles/detection_manager.dir/src/detection_manager.cpp.i
+	$(MAKE) -f CMakeFiles/detection_manager_node.dir/build.make CMakeFiles/detection_manager_node.dir/src/detection_manager.cpp.i
 .PHONY : src/detection_manager.cpp.i
 
 src/detection_manager.s: src/detection_manager.cpp.s
@@ -516,7 +516,7 @@ src/detection_manager.s: src/detection_manager.cpp.s
 
 # target to generate assembly for a file
 src/detection_manager.cpp.s:
-	$(MAKE) -f CMakeFiles/detection_manager.dir/build.make CMakeFiles/detection_manager.dir/src/detection_manager.cpp.s
+	$(MAKE) -f CMakeFiles/detection_manager_node.dir/build.make CMakeFiles/detection_manager_node.dir/src/detection_manager.cpp.s
 .PHONY : src/detection_manager.cpp.s
 
 # Help Target
@@ -541,11 +541,11 @@ help:
 	@echo "... edit_cache"
 	@echo "... roscpp_generate_messages_lisp"
 	@echo "... roscpp_generate_messages_eus"
-	@echo "... detection_manager"
 	@echo "... std_msgs_generate_messages_py"
 	@echo "... roscpp_generate_messages_nodejs"
 	@echo "... list_install_components"
 	@echo "... roscpp_generate_messages_py"
+	@echo "... detection_manager_node"
 	@echo "... rosgraph_msgs_generate_messages_cpp"
 	@echo "... install"
 	@echo "... rosgraph_msgs_generate_messages_eus"

@@ -412,43 +412,6 @@ clean: CMakeFiles/roscpp_generate_messages_eus.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/detection_manager.dir
-
-# All Build rule for target.
-CMakeFiles/detection_manager.dir/all:
-	$(MAKE) -f CMakeFiles/detection_manager.dir/build.make CMakeFiles/detection_manager.dir/depend
-	$(MAKE) -f CMakeFiles/detection_manager.dir/build.make CMakeFiles/detection_manager.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ben18/xplore/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=1,2 "Built target detection_manager"
-.PHONY : CMakeFiles/detection_manager.dir/all
-
-# Include target in all.
-all: CMakeFiles/detection_manager.dir/all
-
-.PHONY : all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/detection_manager.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ben18/xplore/HD_workspace/catkin_ws/build/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/detection_manager.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ben18/xplore/HD_workspace/catkin_ws/build/CMakeFiles 0
-.PHONY : CMakeFiles/detection_manager.dir/rule
-
-# Convenience name for target.
-detection_manager: CMakeFiles/detection_manager.dir/rule
-
-.PHONY : detection_manager
-
-# clean rule for target.
-CMakeFiles/detection_manager.dir/clean:
-	$(MAKE) -f CMakeFiles/detection_manager.dir/build.make CMakeFiles/detection_manager.dir/clean
-.PHONY : CMakeFiles/detection_manager.dir/clean
-
-# clean rule for target.
-clean: CMakeFiles/detection_manager.dir/clean
-
-.PHONY : clean
-
-#=============================================================================
 # Target rules for target CMakeFiles/std_msgs_generate_messages_py.dir
 
 # All Build rule for target.
@@ -541,6 +504,43 @@ CMakeFiles/roscpp_generate_messages_py.dir/clean:
 
 # clean rule for target.
 clean: CMakeFiles/roscpp_generate_messages_py.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/detection_manager_node.dir
+
+# All Build rule for target.
+CMakeFiles/detection_manager_node.dir/all:
+	$(MAKE) -f CMakeFiles/detection_manager_node.dir/build.make CMakeFiles/detection_manager_node.dir/depend
+	$(MAKE) -f CMakeFiles/detection_manager_node.dir/build.make CMakeFiles/detection_manager_node.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ben18/xplore/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=1,2 "Built target detection_manager_node"
+.PHONY : CMakeFiles/detection_manager_node.dir/all
+
+# Include target in all.
+all: CMakeFiles/detection_manager_node.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/detection_manager_node.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ben18/xplore/HD_workspace/catkin_ws/build/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/detection_manager_node.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ben18/xplore/HD_workspace/catkin_ws/build/CMakeFiles 0
+.PHONY : CMakeFiles/detection_manager_node.dir/rule
+
+# Convenience name for target.
+detection_manager_node: CMakeFiles/detection_manager_node.dir/rule
+
+.PHONY : detection_manager_node
+
+# clean rule for target.
+CMakeFiles/detection_manager_node.dir/clean:
+	$(MAKE) -f CMakeFiles/detection_manager_node.dir/build.make CMakeFiles/detection_manager_node.dir/clean
+.PHONY : CMakeFiles/detection_manager_node.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/detection_manager_node.dir/clean
 
 .PHONY : clean
 

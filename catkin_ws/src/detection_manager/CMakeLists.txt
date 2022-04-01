@@ -104,7 +104,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES detection_manager
-#  CATKIN_DEPENDS roscpp std_msgs
+CATKIN_DEPENDS roscpp std_msgs
 #  DEPENDS system_lib
 )
 
@@ -132,7 +132,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/detection_manager_node.cpp)
+add_executable(${PROJECT_NAME}_node src/detection_manager.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -203,8 +203,8 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-add_executable(detection_manager src/detection_manager.cpp)
-target_link_libraries(detection_manager ${catkin_LIBRARIES})
+#add_executable(detection_manager src/detection_manager.cpp)
+target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES} ${DEPENDENCIES})
 
 #add_executable(ctrl_sim src/ctrl_sim.cpp)
 #target_link_libraries(ctrl_sim $(catkin_LIBRARIES))

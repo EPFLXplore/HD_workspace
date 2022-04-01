@@ -58,7 +58,13 @@ detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: 
 detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/ros/wall_timer.h
 detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/ros/wall_timer_options.h
 detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/rosconsole/macros_generated.h
+detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/std_msgs/Int16MultiArray.h
+detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/std_msgs/Int8.h
+detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/std_msgs/Int8MultiArray.h
+detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/std_msgs/MultiArrayDimension.h
+detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/std_msgs/MultiArrayLayout.h
 detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/std_msgs/String.h
+detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/std_msgs/UInt8.h
 detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/xmlrpcpp/XmlRpcDecl.h
 detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o: /opt/ros/melodic/include/xmlrpcpp/XmlRpcValue.h
 

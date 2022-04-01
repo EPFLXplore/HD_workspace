@@ -48,7 +48,7 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ben18/xplore/HD_workspace/catkin_ws/src
+CMAKE_SOURCE_DIR = /home/ben18/xplore/HD_workspace/catkin_ws/src/detection_manager
 
 # The top-level build directory on which CMake was run.
 CMAKE_BINARY_DIR = /home/ben18/xplore/HD_workspace/catkin_ws/build

@@ -1,0 +1,8 @@
+prefix=/home/ben18/xplore/HD_workspace/catkin_ws/build/devel
+
+Name: detection_manager
+Description: Description of detection_manager
+Version: 0.0.1
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

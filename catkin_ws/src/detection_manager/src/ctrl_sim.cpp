@@ -1,20 +1,20 @@
 //ros includes
 #include <ros/ros.h>
-#include <std_msgs/Int8.msg>
-#include <std_msgs/UInt8.msg>
-#include <std_msgs/Int8MultiArray.msg>
-#include <std_msgs/Int16MultiArray.msg>
-#include <std_msgs/Image.msg>
+#include <std_msgs/String.h>
+#include <std_msgs/Int8.h>
+#include <std_msgs/UInt8.h>
+#include <std_msgs/Int8MultiArray.h>
+#include <std_msgs/Int16MultiArray.h>
 #include <std_msgs/String.h>
 
 //c++ includes
 #include <iostream>
 #include <sstream>
 
-enum CtrlTasks {void, MANUAL, NAVIGATION, MAINTENANCE, SCIENCE}
-enum CtrlCommands {void, LAUNCH, ABORT, WAIT, RESUME, RETRY}
-enum States {void, INACTIVE, INITIALISATION, WAITING, MEASUREMENT, ERROR}
-enum Element_IDs {ELEMENT1, ELEMENT2, ELEMENT3}
+enum CtrlTasks {MANUAL = 1, NAVIGATION, MAINTENANCE, SCIENCE};
+enum CtrlCommands {LAUNCH = 1, ABORT, WAIT, RESUME, RETRY};
+enum States {INACTIVE = 1, INITIALISATION, WAITING, MEASUREMENT, ERROR};
+enum Element_IDs {ELEMENT1, ELEMENT2, ELEMENT3};
 
 using namespace std;
 
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     ros::NodeHandle ctrl;
 
     //Publishers setup
-    ros::Publisher task_pub = ctrl.advertise<std_msgs/Int8MultiArray.msg>("Task",100);
+    ros::Publisher task_pub = ctrl.advertise<std_msgs::Int8MultiArray>("Task",100);
 
     int count = 0;
     while (ros::ok())

@@ -204,7 +204,7 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 add_executable(detection_manager src/detection_manager.cpp)
-target_link_libraries(detection_manager $(catkin_LIBRARIES))
+target_link_libraries(detection_manager ${catkin_LIBRARIES})
 
 #add_executable(ctrl_sim src/ctrl_sim.cpp)
 #target_link_libraries(ctrl_sim $(catkin_LIBRARIES))

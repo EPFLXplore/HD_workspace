@@ -1,2 +1,2 @@
 - setup-file:
-    local-name: /home/ben18/xplore/HD_workspace/catkin_ws/install/setup.sh
+    local-name: /usr/local/setup.sh

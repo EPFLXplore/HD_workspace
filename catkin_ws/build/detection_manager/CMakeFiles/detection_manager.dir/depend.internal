@@ -59,6 +59,12 @@ detection_manager/CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o
  /opt/ros/melodic/include/ros/wall_timer.h
  /opt/ros/melodic/include/ros/wall_timer_options.h
  /opt/ros/melodic/include/rosconsole/macros_generated.h
+ /opt/ros/melodic/include/std_msgs/Int16MultiArray.h
+ /opt/ros/melodic/include/std_msgs/Int8.h
+ /opt/ros/melodic/include/std_msgs/Int8MultiArray.h
+ /opt/ros/melodic/include/std_msgs/MultiArrayDimension.h
+ /opt/ros/melodic/include/std_msgs/MultiArrayLayout.h
  /opt/ros/melodic/include/std_msgs/String.h
+ /opt/ros/melodic/include/std_msgs/UInt8.h
  /opt/ros/melodic/include/xmlrpcpp/XmlRpcDecl.h
  /opt/ros/melodic/include/xmlrpcpp/XmlRpcValue.h

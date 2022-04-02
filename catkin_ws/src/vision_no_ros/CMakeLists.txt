@@ -51,8 +51,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
  add_message_files(
    FILES
-   vector_msg.msg
-#   Message2.msg
+   panel_object.msg
+   object_list.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -142,7 +142,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
- add_executable(${PROJECT_NAME}_node src/vision_no_ros.cpp include/vision_no_ros/cv-helpers.hpp include/vision_no_ros/cntrl_pnl.h)
+ add_executable(${PROJECT_NAME}_node src/vision_no_ros.cpp include/vision_no_ros/cv-helpers.hpp include/vision_no_ros/cntrl_pnl.h include/vision_no_ros/object_refresh.h)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

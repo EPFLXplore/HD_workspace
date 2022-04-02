@@ -53,16 +53,24 @@ CMAKE_BINARY_DIR = /home/aloksha/Desktop/HD_workspace/catkin_ws/build
 # Include the progress variables for this target.
 include vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs.dir/progress.make
 
-vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/vector_msg.js
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/panel_object.js
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/object_list.js
 
 
-/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/vector_msg.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
-/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/vector_msg.js: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Javascript code from vision_no_ros/vector_msg.msg"
-	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg -Ivision_no_ros:/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg -p vision_no_ros -o /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/panel_object.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/panel_object.js: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Javascript code from vision_no_ros/panel_object.msg"
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg -Ivision_no_ros:/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg -p vision_no_ros -o /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg
+
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/object_list.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/object_list.js: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/object_list.js: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Javascript code from vision_no_ros/object_list.msg"
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg -Ivision_no_ros:/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg -p vision_no_ros -o /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg
 
 vision_no_ros_generate_messages_nodejs: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs
-vision_no_ros_generate_messages_nodejs: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/vector_msg.js
+vision_no_ros_generate_messages_nodejs: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/panel_object.js
+vision_no_ros_generate_messages_nodejs: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/gennodejs/ros/vision_no_ros/msg/object_list.js
 vision_no_ros_generate_messages_nodejs: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_nodejs.dir/build.make
 
 .PHONY : vision_no_ros_generate_messages_nodejs

@@ -1,3 +1,5 @@
+#ifndef CNTRL_PNL_H
+#define CNTRL_PNL_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,13 +23,14 @@ namespace cntrl_pnl {
     
         char name[6];
         Position pos;
+        int id;       //this shold be the id of the closest ar tag
     };
 
     struct ArTag { //Structure for ArTags
     
         char name[6];
         Position pos;
-        float width;
+        float width;  // this will be neede to modify hte estimateposesinglemarkere function's ar tag dimension parameter !! some ar tags might have different sizes !!
         int id;
     };
 
@@ -192,3 +195,4 @@ namespace cntrl_pnl {
     }
 
 }
+#endif

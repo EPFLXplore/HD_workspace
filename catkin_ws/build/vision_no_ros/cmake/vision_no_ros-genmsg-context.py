@@ -1,6 +1,6 @@
 # generated from genmsg/cmake/pkg-genmsg.context.in
 
-messages_str = "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg"
+messages_str = "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg;/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg"
 services_str = ""
 pkg_name = "vision_no_ros"
 dependencies_str = ""

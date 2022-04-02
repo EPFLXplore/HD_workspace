@@ -53,22 +53,31 @@ CMAKE_BINARY_DIR = /home/aloksha/Desktop/HD_workspace/catkin_ws/build
 # Include the progress variables for this target.
 include vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py.dir/progress.make
 
-vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_vector_msg.py
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_panel_object.py
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_object_list.py
 vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/__init__.py
 
 
-/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_vector_msg.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
-/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_vector_msg.py: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Python from MSG vision_no_ros/vector_msg"
-	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg -Ivision_no_ros:/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg -p vision_no_ros -o /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_panel_object.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_panel_object.py: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Python from MSG vision_no_ros/panel_object"
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg -Ivision_no_ros:/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg -p vision_no_ros -o /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg
+
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_object_list.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_object_list.py: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_object_list.py: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Python from MSG vision_no_ros/object_list"
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg -Ivision_no_ros:/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg -p vision_no_ros -o /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg
 
 /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/__init__.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
-/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/__init__.py: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_vector_msg.py
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Python msg __init__.py for vision_no_ros"
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/__init__.py: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_panel_object.py
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/__init__.py: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_object_list.py
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating Python msg __init__.py for vision_no_ros"
 	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py -o /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg --initpy
 
 vision_no_ros_generate_messages_py: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py
-vision_no_ros_generate_messages_py: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_vector_msg.py
+vision_no_ros_generate_messages_py: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_panel_object.py
+vision_no_ros_generate_messages_py: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_object_list.py
 vision_no_ros_generate_messages_py: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/__init__.py
 vision_no_ros_generate_messages_py: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_py.dir/build.make
 

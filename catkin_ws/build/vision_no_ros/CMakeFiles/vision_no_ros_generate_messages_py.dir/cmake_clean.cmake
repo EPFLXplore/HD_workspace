@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/vision_no_ros_generate_messages_py"
-  "/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_vector_msg.py"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_panel_object.py"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/_object_list.py"
   "/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/lib/python2.7/dist-packages/vision_no_ros/msg/__init__.py"
 )
 

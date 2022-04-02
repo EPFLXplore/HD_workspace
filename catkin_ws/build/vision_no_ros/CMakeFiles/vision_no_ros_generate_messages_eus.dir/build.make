@@ -53,21 +53,29 @@ CMAKE_BINARY_DIR = /home/aloksha/Desktop/HD_workspace/catkin_ws/build
 # Include the progress variables for this target.
 include vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus.dir/progress.make
 
-vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/vector_msg.l
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/panel_object.l
+vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/object_list.l
 vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/manifest.l
 
 
-/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/vector_msg.l: /opt/ros/melodic/lib/geneus/gen_eus.py
-/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/vector_msg.l: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating EusLisp code from vision_no_ros/vector_msg.msg"
-	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg -Ivision_no_ros:/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg -p vision_no_ros -o /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/panel_object.l: /opt/ros/melodic/lib/geneus/gen_eus.py
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/panel_object.l: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating EusLisp code from vision_no_ros/panel_object.msg"
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg -Ivision_no_ros:/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg -p vision_no_ros -o /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg
+
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/object_list.l: /opt/ros/melodic/lib/geneus/gen_eus.py
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/object_list.l: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg
+/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/object_list.l: /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating EusLisp code from vision_no_ros/object_list.msg"
+	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg -Ivision_no_ros:/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg -p vision_no_ros -o /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg
 
 /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/manifest.l: /opt/ros/melodic/lib/geneus/gen_eus.py
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating EusLisp manifest code for vision_no_ros"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aloksha/Desktop/HD_workspace/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating EusLisp manifest code for vision_no_ros"
 	cd /home/aloksha/Desktop/HD_workspace/catkin_ws/build/vision_no_ros && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py -m -o /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros vision_no_ros
 
 vision_no_ros_generate_messages_eus: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus
-vision_no_ros_generate_messages_eus: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/vector_msg.l
+vision_no_ros_generate_messages_eus: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/panel_object.l
+vision_no_ros_generate_messages_eus: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/msg/object_list.l
 vision_no_ros_generate_messages_eus: /home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/roseus/ros/vision_no_ros/manifest.l
 vision_no_ros_generate_messages_eus: vision_no_ros/CMakeFiles/vision_no_ros_generate_messages_eus.dir/build.make
 

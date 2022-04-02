@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/vision_no_ros_generate_messages_lisp"
-  "/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/common-lisp/ros/vision_no_ros/msg/vector_msg.lisp"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/common-lisp/ros/vision_no_ros/msg/panel_object.lisp"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/devel/share/common-lisp/ros/vision_no_ros/msg/object_list.lisp"
 )
 
 # Per-language clean rules from dependency scanning.

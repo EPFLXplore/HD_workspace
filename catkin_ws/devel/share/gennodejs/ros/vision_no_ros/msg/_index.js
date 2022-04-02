@@ -1,8 +1,10 @@
 
 "use strict";
 
-let vector_msg = require('./vector_msg.js');
+let panel_object = require('./panel_object.js');
+let object_list = require('./object_list.js');
 
 module.exports = {
-  vector_msg: vector_msg,
+  panel_object: panel_object,
+  object_list: object_list,
 };

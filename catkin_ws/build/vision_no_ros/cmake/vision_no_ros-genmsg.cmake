@@ -1,6 +1,6 @@
 # generated from genmsg/cmake/pkg-genmsg.cmake.em
 
-message(STATUS "vision_no_ros: 1 messages, 0 services")
+message(STATUS "vision_no_ros: 2 messages, 0 services")
 
 set(MSG_I_FLAGS "-Ivision_no_ros:/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg")
 
@@ -17,9 +17,14 @@ add_custom_target(vision_no_ros_generate_messages ALL)
 
 
 
-get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg" NAME_WE)
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg" NAME_WE)
 add_custom_target(_vision_no_ros_generate_messages_check_deps_${_filename}
-  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "vision_no_ros" "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg" ""
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "vision_no_ros" "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg" ""
+)
+
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg" NAME_WE)
+add_custom_target(_vision_no_ros_generate_messages_check_deps_${_filename}
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "vision_no_ros" "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg" "vision_no_ros/panel_object"
 )
 
 #
@@ -29,9 +34,15 @@ add_custom_target(_vision_no_ros_generate_messages_check_deps_${_filename}
 ### Section generating for lang: gencpp
 ### Generating Messages
 _generate_msg_cpp(vision_no_ros
-  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg"
   "${MSG_I_FLAGS}"
   ""
+  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/vision_no_ros
+)
+_generate_msg_cpp(vision_no_ros
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg"
+  "${MSG_I_FLAGS}"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg"
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/vision_no_ros
 )
 
@@ -49,7 +60,9 @@ add_custom_target(vision_no_ros_generate_messages_cpp
 add_dependencies(vision_no_ros_generate_messages vision_no_ros_generate_messages_cpp)
 
 # add dependencies to all check dependencies targets
-get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg" NAME_WE)
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg" NAME_WE)
+add_dependencies(vision_no_ros_generate_messages_cpp _vision_no_ros_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg" NAME_WE)
 add_dependencies(vision_no_ros_generate_messages_cpp _vision_no_ros_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
@@ -62,9 +75,15 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS vision_no_ros_generate_messages_cpp
 ### Section generating for lang: geneus
 ### Generating Messages
 _generate_msg_eus(vision_no_ros
-  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg"
   "${MSG_I_FLAGS}"
   ""
+  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/vision_no_ros
+)
+_generate_msg_eus(vision_no_ros
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg"
+  "${MSG_I_FLAGS}"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg"
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/vision_no_ros
 )
 
@@ -82,7 +101,9 @@ add_custom_target(vision_no_ros_generate_messages_eus
 add_dependencies(vision_no_ros_generate_messages vision_no_ros_generate_messages_eus)
 
 # add dependencies to all check dependencies targets
-get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg" NAME_WE)
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg" NAME_WE)
+add_dependencies(vision_no_ros_generate_messages_eus _vision_no_ros_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg" NAME_WE)
 add_dependencies(vision_no_ros_generate_messages_eus _vision_no_ros_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
@@ -95,9 +116,15 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS vision_no_ros_generate_messages_eus
 ### Section generating for lang: genlisp
 ### Generating Messages
 _generate_msg_lisp(vision_no_ros
-  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg"
   "${MSG_I_FLAGS}"
   ""
+  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/vision_no_ros
+)
+_generate_msg_lisp(vision_no_ros
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg"
+  "${MSG_I_FLAGS}"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg"
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/vision_no_ros
 )
 
@@ -115,7 +142,9 @@ add_custom_target(vision_no_ros_generate_messages_lisp
 add_dependencies(vision_no_ros_generate_messages vision_no_ros_generate_messages_lisp)
 
 # add dependencies to all check dependencies targets
-get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg" NAME_WE)
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg" NAME_WE)
+add_dependencies(vision_no_ros_generate_messages_lisp _vision_no_ros_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg" NAME_WE)
 add_dependencies(vision_no_ros_generate_messages_lisp _vision_no_ros_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
@@ -128,9 +157,15 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS vision_no_ros_generate_messages_lis
 ### Section generating for lang: gennodejs
 ### Generating Messages
 _generate_msg_nodejs(vision_no_ros
-  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg"
   "${MSG_I_FLAGS}"
   ""
+  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/vision_no_ros
+)
+_generate_msg_nodejs(vision_no_ros
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg"
+  "${MSG_I_FLAGS}"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg"
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/vision_no_ros
 )
 
@@ -148,7 +183,9 @@ add_custom_target(vision_no_ros_generate_messages_nodejs
 add_dependencies(vision_no_ros_generate_messages vision_no_ros_generate_messages_nodejs)
 
 # add dependencies to all check dependencies targets
-get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg" NAME_WE)
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg" NAME_WE)
+add_dependencies(vision_no_ros_generate_messages_nodejs _vision_no_ros_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg" NAME_WE)
 add_dependencies(vision_no_ros_generate_messages_nodejs _vision_no_ros_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
@@ -161,9 +198,15 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS vision_no_ros_generate_messages_nod
 ### Section generating for lang: genpy
 ### Generating Messages
 _generate_msg_py(vision_no_ros
-  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg"
   "${MSG_I_FLAGS}"
   ""
+  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/vision_no_ros
+)
+_generate_msg_py(vision_no_ros
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg"
+  "${MSG_I_FLAGS}"
+  "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg"
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/vision_no_ros
 )
 
@@ -181,7 +224,9 @@ add_custom_target(vision_no_ros_generate_messages_py
 add_dependencies(vision_no_ros_generate_messages vision_no_ros_generate_messages_py)
 
 # add dependencies to all check dependencies targets
-get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/vector_msg.msg" NAME_WE)
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/panel_object.msg" NAME_WE)
+add_dependencies(vision_no_ros_generate_messages_py _vision_no_ros_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/aloksha/Desktop/HD_workspace/catkin_ws/src/vision_no_ros/msg/object_list.msg" NAME_WE)
 add_dependencies(vision_no_ros_generate_messages_py _vision_no_ros_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility

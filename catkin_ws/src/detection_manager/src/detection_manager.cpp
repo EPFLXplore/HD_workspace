@@ -32,15 +32,14 @@ void taskCallback(const std_msgs::Int8MultiArray::ConstPtr& task_array)//const s
     ctrl_command = task_array->data[1];
 
     ROS_INFO("task = %i", ctrl_task);
-    //ROS_INFO("command = %i", ctrl_command);
+    ROS_INFO("command = %i", ctrl_command);
 }
 
 int main(int argc, char **argv)
 {
     cout << "main started" << endl;
-    ros::init(argc,argv, "idek");
+    ros::init(argc,argv, "listener_node");
     ros::NodeHandle manager;
-    ROS_INFO("ros started");
     ros::Rate loop_rate(10);
 
     //Publishers setup

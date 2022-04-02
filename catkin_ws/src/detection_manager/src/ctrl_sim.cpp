@@ -18,8 +18,8 @@ enum Element_IDs {ALL, ELEMENT1, ELEMENT2, ELEMENT3};
 
 using namespace std;
 
-static uint8_t ctrl_task;
-static uint8_t ctrl_command;
+static uint8_t ctrl_task = MAINTENANCE;
+static uint8_t ctrl_command = WAIT;
 
 int main(int argc, char **argv)
 {
@@ -29,17 +29,19 @@ int main(int argc, char **argv)
     //Publishers setup
     ros::Publisher task_pub = ctrl.advertise<std_msgs::Int8MultiArray>("Task",100);
     ros::Rate loop_rate(10);
+        
+    std_msgs::Int8MultiArray task;
 
 
     int count = 0;
     while (ros::ok())
     {
-        std_msgs::Int8MultiArray task;
 
-        task.data[0] = ctrl_task;
-        task.data[1] = ctrl_command;
 
-        task_pub.publish(ctrl_task);
+        task.data.push_back(ctrl_command);
+        task.data.push_back(ctrl_task);
+
+        task_pub.publish(task);
         ROS_INFO("published the task!");
         ros::spinOnce();
         loop_rate.sleep();

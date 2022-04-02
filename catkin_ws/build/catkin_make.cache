@@ -1,2 +1,0 @@
-detection_manager
--DCATKIN_DEVEL_PREFIX=/home/ben18/xplore/HD_workspace/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ben18/xplore/HD_workspace/catkin_ws/install -G Unix Makefiles

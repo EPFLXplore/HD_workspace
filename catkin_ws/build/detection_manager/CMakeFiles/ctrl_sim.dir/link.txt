@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic CMakeFiles/ctrl_sim.dir/src/ctrl_sim.cpp.o  -o /home/ben18/xplore/HD_workspace/catkin_ws/devel/lib/detection_manager/ctrl_sim $(catkin_LIBRARIES) 

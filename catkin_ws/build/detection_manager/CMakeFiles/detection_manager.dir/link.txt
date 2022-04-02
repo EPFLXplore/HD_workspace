@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic CMakeFiles/detection_manager.dir/src/detection_manager.cpp.o  -o /home/ben18/xplore/HD_workspace/catkin_ws/devel/lib/detection_manager/detection_manager $(catkin_LIBRARIES) 

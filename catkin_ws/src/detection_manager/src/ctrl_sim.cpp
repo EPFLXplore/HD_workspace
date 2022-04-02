@@ -14,32 +14,44 @@
 enum CtrlTasks {MANUAL = 1, NAVIGATION, MAINTENANCE, SCIENCE};
 enum CtrlCommands {LAUNCH = 1, ABORT, WAIT, RESUME, RETRY};
 enum States {INACTIVE = 1, INITIALISATION, WAITING, MEASUREMENT, ERROR};
-enum Element_IDs {ELEMENT1, ELEMENT2, ELEMENT3};
+enum Element_IDs {ALL, ELEMENT1, ELEMENT2, ELEMENT3};
 
 using namespace std;
 
-static uint8_t ctrl_task;
-static uint8_t ctrl_command;
+std_msgs::UInt8 ctrl_task;
+//static uint8_t ctrl_command;
 
 int main(int argc, char **argv)
 {
     ros::init(argc,argv, "ctrl_sim");
     ros::NodeHandle ctrl;
+    ROS_INFO("ros started");
+    cout << "aaaaaaaaa " << endl;
 
     //Publishers setup
-    ros::Publisher task_pub = ctrl.advertise<std_msgs::Int8MultiArray>("Task",100);
+    //ros::Publisher task_pub = ctrl.advertise<std_msgs::Int8MultiArray>("Task",100);
+    //ros::Publisher task_pub = ctrl.advertise<std_msgs::UInt8>("Task",100);
+    ros::Publisher task_pub = ctrl.advertise<std_msgs::UInt8>("Task",1000);
+    ros::Rate loop_rate(10);
+
+
+    ctrl_task.data = MAINTENANCE;
+    //ctrl_command = LAUNCH;
 
     int count = 0;
     while (ros::ok())
     {
-        std_msgs::Int8MultiArray task;
+        //std_msgs::Int8MultiArray task;
 
-        task->data[0] = ctrl_task;
-        task->data[1] = ctrl_command;
+        //task.data[0] = ctrl_task;
+        //task.data[1] = ctrl_command;
 
-        task_pub.publish(task);
+        task_pub.publish(ctrl_task);
         ROS_INFO("published the task!");
         ros::spinOnce();
+        loop_rate.sleep();
+        
 
     }
+    return 0;
 }

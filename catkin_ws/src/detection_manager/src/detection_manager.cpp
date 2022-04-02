@@ -26,11 +26,10 @@ static uint8_t ctrl_command;
 
 
 //callbacks need to return void, value changes should affect global static variables
-void taskCallback(const std_msgs::UInt8::ConstPtr& task_array)//const std_msgs::Int8MultiArray::ConstPtr& task_array)
+void taskCallback(const std_msgs::Int8MultiArray::ConstPtr& task_array)//const std_msgs::Int8MultiArray::ConstPtr& task_array)
 {
-    ctrl_task = task_array->data;
-    //ctrl_task = task_array->data[0];
-    //ctrl_command = task_array->data[1];
+    ctrl_task = task_array->data[0];
+    ctrl_command = task_array->data[1];
 
     ROS_INFO("task = %i", ctrl_task);
     //ROS_INFO("command = %i", ctrl_command);

@@ -25,24 +25,48 @@ using namespace ethercatcpp;
 using namespace pid;
 using namespace xcontrol;
 
-#define MOTOR_COUNT 7
+#define MOTOR_COUNT 1
 #define PRINT_STATE true
 #define QC_SPEED_CONVERSION 4000
 #define RAD_TO_QC_CONVERSION 10000
 
-double current_pos[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
+/*double current_pos[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
 double target_pos[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
 double target_vel[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
 bool active[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
-double max_current[MOTOR_COUNT] = {0.155, 4.255, 2.195, 0.135, 0.652, 0.652, 2.120};
+double max_current[MOTOR_COUNT] = {0.155, 4.255, 2.195, 0.135, 0.652, 0.652, 2.120};  // TODO
 float step_size[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
 Epos4::control_mode_t control_mode(Epos4::position_CSP);
 
 static const int period = 25; // [ms]
 static const int security_qc = 1000;    // change this
-static const float reference_step_size[MOTOR_COUNT] = {60.0*period, 100.0*period, 40.0*period, 60.0*period, 200.0*period, 200.0*period, 80.0*period};
-static const float max_qc[MOTOR_COUNT] = {2*M_PI, 2*M_PI, 1000000000, 2*M_PI, 2*M_PI, 2*M_PI, 2*M_PI};
-static const float min_qc[MOTOR_COUNT] = {-474270, 0, -1000000000, 0, 0, 0, 0};
+static const float reference_step_size[MOTOR_COUNT] = {60.0*period, 100.0*period, 40.0*period, 60.0*period, 200.0*period, 200.0*period, 80.0*period};   // TODO
+static const float max_qc[MOTOR_COUNT] = {2*M_PI, 2*M_PI, 1000000000, 2*M_PI, 2*M_PI, 2*M_PI, 2*M_PI};  // TODO
+static const float min_qc[MOTOR_COUNT] = {-474270, 0, -1000000000, 0, 0, 0, 0}; // TODO
+static const double max_velocity[MOTOR_COUNT] = {60, 60, 60, 60, 60, 60, 60};    // [rpm]    TODO
+static const double reduction[MOTOR_COUNT] = {70, 70, 70, 70, 70, 70, 70};    // TODO*/
+
+
+
+//====================================================================================================
+double current_pos[MOTOR_COUNT] = {0};
+double target_pos[MOTOR_COUNT] = {0};
+double target_vel[MOTOR_COUNT] = {0};
+bool active[MOTOR_COUNT] = {0};
+double max_current[MOTOR_COUNT] = {0.155};
+float step_size[MOTOR_COUNT] = {0};
+Epos4::control_mode_t control_mode(Epos4::velocity_CSV);
+
+static const int period = 25;
+static const int security_qc = 1000;
+static const float reference_step_size[MOTOR_COUNT] = {60.0*period};
+static const float max_qc[MOTOR_COUNT] = {2*M_PI};
+static const float min_qc[MOTOR_COUNT] = {-474270};
+static const double max_velocity[MOTOR_COUNT] = {60};
+static const double reduction[MOTOR_COUNT] = {70};
+//====================================================================================================
+
+
 
 
 void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
@@ -52,12 +76,12 @@ void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
         vel = msg->data[it];    // between -1 and 1
         empty_command = empty_command && (vel == 0);
         active[it] = (vel != 0);
-        target_vel[it] = double(vel*QC_SPEED_CONVERSION);
+        target_vel[it] = double(vel*max_velocity[it]*reduction[it]);
         step_size[it] = double(vel*reference_step_size[it]);
     }
 
     if (!empty_command) {
-        control_mode = Epos4::position_CSP; // velocity_CSV
+        control_mode = Epos4::velocity_CSV;
     }
 }
 
@@ -66,7 +90,7 @@ void stateCommandCallback(const sensor_msgs::JointState::ConstPtr& msg) {
     control_mode = Epos4::profile_position_PPM;
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
         target_pos[it] = double(msg->position[it]*RAD_TO_QC_CONVERSION);
-        target_vel[it] = double(msg->velocity[it]*RAD_TO_QC_CONVERSION); // maybe I need a different conversion constant here
+        target_vel[it] = double(msg->velocity[it]*RAD_TO_QC_CONVERSION); // TODO: maybe I need a different conversion constant here
     }
 }
 
@@ -138,6 +162,7 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain){
                         break;
 
                     case Epos4::velocity_CSV:
+                        ROS_WARN("wwwwwwwwwwww");
                         chain[it]->set_Target_Velocity_In_Rpm(target_vel[it]);
                         break;
 
@@ -153,7 +178,7 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain){
 
 int main(int argc, char **argv) {
 
-    std::string network_interface_name("eth1");
+    std::string network_interface_name("eth0");
     ros::init(argc, argv, "hd_controller_motors");
     ros::NodeHandle n;
     ros::Subscriber man_cmd_sub = n.subscribe<std_msgs::Float32MultiArray>("/arm_control/manual_cmd", 10, manualCommandCallback);
@@ -165,9 +190,9 @@ int main(int argc, char **argv) {
     // Device definition
     // 3-axis: 1st slot next to ETHERNET-IN
     xcontrol::OneAxisSlot epos_1(true);
-    xcontrol::ThreeAxisSlot epos_2(true), epos_3(true), epos_4(true);
-    xcontrol::ThreeAxisSlot epos_5(true), epos_6(true), epos_7(true);
-    vector<xcontrol::Epos4Extended*> chain = {&epos_1, &epos_2, &epos_3, &epos_4, &epos_5, &epos_6, &epos_7};
+    //xcontrol::ThreeAxisSlot epos_2(true), epos_3(true), epos_4(true);
+    //xcontrol::ThreeAxisSlot epos_5(true), epos_6(true), epos_7(true);
+    vector<xcontrol::Epos4Extended*> chain = {&epos_1};//, &epos_2, &epos_3, &epos_4, &epos_5, &epos_6, &epos_7};
 
     bool is_scanning = true;
 
@@ -195,7 +220,7 @@ int main(int argc, char **argv) {
                     if (is_scanning) {
                         target_pos[it] = current_pos[it];
                     }
-                    if (PRINT_STATE) {
+                    if (PRINT_STATE) { 
                         cout << "Actual position : " << std::dec << chain[it]->get_Actual_Position_In_Qc() << " qc" << "\n";
                         cout << "Actual current value = " << chain[it]->get_Actual_Current_In_A() << "A" << "\n";
                         cout << "\n";

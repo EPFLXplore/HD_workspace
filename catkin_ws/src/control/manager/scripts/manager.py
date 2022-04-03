@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import time
 import rospy
 from std_msgs.msg import Float32MultiArray, Int8MultiArray, Float32, Int8
@@ -12,36 +14,48 @@ class Manager:
     def __init__(self):
         self.velocity = 0
         self.received_velocity_at = time.time()
-        self.velocity_expiration = .1   # seconds
+        self.velocity_expiration = .5   # seconds
         self.direct_command = []
         self.mode = self.MANUAL_DIRECT
         self.target_mode = self.MANUAL_DIRECT
         self.mode_transitioning = False
 
-    def modeCallback(self, msg: Int8):
+    def modeCallback(self, msg):# Int8):
         """listens to HD_mode topic published by CS"""
         self.target_mode = msg.data
         self.mode_transitioning = True
 
-    def taskCmdCallback(self, msg: Task):
+    def taskCmdCallback(self, msg):# Task):
         """listens to task assignement topic published by detection"""
-    def manualCmdCallback(self, msg: Int8MultiArray):
+    def manualCmdCallback(self, msg):# Int8MultiArray):
         """listens to HD_InvManual_Coord topic"""
-    def directCmdCallback(self, msg: Int8MultiArray):
+
+    def directCmdCallback(self, msg):# Int8MultiArray):
         """listens to HD_Angles topic"""
         self.direct_command = msg.data
 
-    def manualVelocityCallback(self, msg: Float32):
+    def manualVelocityCallback(self, msg):# Float32):
         """listens to HD_ManualVelocity topic"""
+        #rospy.logwarn("received velocity   " + str(msg.data))
         self.velocity = msg.data
         self.received_velocity_at = time.time()
 
-    def sendTaskCmd(self):
+    def send_task_cmd(self):
         """sends the last task command to the task executor and locks any other command until completion"""
-    def sendManualCmd(self):
+    def send_manual_cmd(self):
         """sends the last manual command to the manual control and locks any other command until completion"""
-    def sendDirectCmd(self):
+
+    def send_direct_cmd(self):
         """sends the last direct command to the motor control and locks any other command until completion"""
+        if not self.velocity_command_old():
+            msg = Float32MultiArray()
+            msg.data = self.format_direct_command()
+            rospy.logwarn(str(msg.data))
+            """rospy.logwarn(str(self.velocity))
+            rospy.logwarn(str(self.direct_command))
+            rospy.logwarn("\n")"""
+            self.manual_cmd_pub.publish(msg)
+
     def updateWorld(self):
         """sends a world update to the trajectory planner"""
 
@@ -56,11 +70,8 @@ class Manager:
             pass
         elif self.mode == self.MANUAL_INVERSE or self.mode == self.SEMIAUTONOMOUS:
             pass
-        elif self.mode == self.MANUAL_INVERSE:
-            if not self.velocity_command_old():
-                msg = Float32MultiArray()
-                msg.data = self.format_direct_command()
-                self.manual_cmd_pub(msg)
+        elif self.mode == self.MANUAL_DIRECT:
+            self.send_direct_cmd()
 
     def transition_loop_action(self):
         if self.mode == self.AUTONOMOUS:
@@ -78,11 +89,27 @@ class Manager:
     def run(self):
         """main"""
         self.manual_cmd_pub = rospy.Publisher('/arm_control/manual_cmd', Float32MultiArray, queue_size=10)
-        rospy.init_node('HD_control_manager', anonymous=True)
+        rospy.Subscriber("HD_angles", Int8MultiArray, self.directCmdCallback)
+        rospy.Subscriber("HD_ManualVelocity", Float32, self.manualVelocityCallback)
+        #rospy.init_node('HD_control_manager', anonymous=True)
         rate = rospy.Rate(25)   # 25hz
-        while rospy.is_shutdown():
+        rospy.logwarn("manager started")
+        while not rospy.is_shutdown():
             if self.mode_transitioning:
                 self.transition_loop_action()
             else:
                 self.normal_loop_action()
             rate.sleep()
+
+
+if __name__ == '__main__':
+    rospy.logwarn("wwwwwwwwwwwwwwwwwwwwww")
+    try:
+        rospy.init_node('HD_control_manager', anonymous=True)
+        m = Manager()
+        rospy.logwarn("brrrrrrrrr")
+        m.run()
+        print("manager finished ????")
+    except rospy.ROSInterruptException:
+        print("manager crashed")
+        pass

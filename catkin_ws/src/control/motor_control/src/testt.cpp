@@ -8,16 +8,17 @@
 #include <ethercatcpp/master.h>
 #include <ethercatcpp/epos4.h>
 
+#define REDUCTION 75
 
 using namespace std;
 using namespace ethercatcpp;
 
 
 bool verbose = true;
-Epos4::control_mode_t control_mode = Epos4::position_CSP;
+Epos4::control_mode_t control_mode = Epos4::velocity_CSV;
 string network_interface_name = "eth0";  // can be adapted by starting the node with the argument _interface:=ethn
 double target_pos = 0;
-double target_vel = -60;
+double target_vel = 0;
 bool set_new_target = true;
 
 
@@ -33,6 +34,17 @@ void posCallback(const std_msgs::Int32::ConstPtr& msg){
 void velCallback(const std_msgs::Int32::ConstPtr& msg){
     target_vel = msg->data;
     //cout << "new target: " << msg->data << endl;
+}
+
+
+int update_velocities(int last, int* vels, size_t size) {
+    int sum = last;
+    for (int i=size-2; i >= 0; i--) {
+        vels[i+1] = vels[i];
+        sum += vels[i];
+    }
+    vels[0] = last;
+    return sum/(size*REDUCTION);
 }
 
 
@@ -59,6 +71,10 @@ int main(int argc, char **argv){
     ethercat_master.add_Bus(robot);
     cout << "checkpoint7" << endl;
 
+    const size_t nb_velocities = 10;
+    int last_velocities[nb_velocities] = {0};
+    cout << "checkpoint8" << endl;
+
     // the main loop of the node
     while (ros::ok()) {
 
@@ -77,13 +93,17 @@ int main(int argc, char **argv){
         else {
             // if we're okay, we can set the device position
             if (set_new_target){
-                scb_motor.set_Target_Position_In_Qc(target_pos);
-                //scb_motor.set_Target_Velocity_In_Rpm(target_vel);
+                //scb_motor.set_Target_Position_In_Qc(target_pos);
+                scb_motor.set_Target_Velocity_In_Rpm(target_vel*REDUCTION);
                 set_new_target = true;
             }
             if (verbose) {
                 //cout << "Desired position value = " << std::dec <<target_value << " qc" << endl;
-                cout << "Actual Position : " << scb_motor.get_Actual_Position_In_Qc() << " qc" << endl; 
+                //cout << "Actual Position : " << scb_motor.get_Actual_Position_In_Qc() << " qc" << endl;
+
+                cout << "Desired velocity value = " << std::dec <<target_vel << " rpm" << endl;
+                cout << "Actual velocity : " << update_velocities(scb_motor.get_Actual_Velocity_In_Rpm(), last_velocities, nb_velocities) << " rpm" << endl;
+
             }
         }
 
@@ -96,6 +116,10 @@ int main(int argc, char **argv){
             }
             if (scb_motor.get_Device_State_In_String() == "Fault" ) 
                 cout << "At least one motor is in fault state, restart the network \n";
+        }
+
+        if (verbose) {
+            cout << "\n";
         }
 
         ros::spinOnce();

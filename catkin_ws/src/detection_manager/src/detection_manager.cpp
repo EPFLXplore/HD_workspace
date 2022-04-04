@@ -41,7 +41,10 @@ int main(int argc, char **argv)
 
     //Publishers setup
     ros::Publisher state_pub = manager.advertise<std_msgs::UInt8>("detection/state",1000);
+    std_msgs::UInt8 state_msg;
     ros::Publisher current_element_pub = manager.advertise<std_msgs::UInt8>("detection/current_element",1000);
+    std_msgs::UInt8 current_element_msg;
+
     
     //Subscribers setup
     ros::Subscriber task_sub = manager.subscribe("Task",                    1000, task_Callback);
@@ -63,8 +66,9 @@ int main(int argc, char **argv)
     
     while(ros::ok()){
         state = determine_state();
+        state_msg.data = state;
         state_action();
-        state_pub.publish(state);       //not sure about order of operations here, I think it depends on how long each thing takes
+        state_pub.publish(state_msg);       //not sure about order of operations here, I think it depends on how long each thing takes
         ros::spinOnce();
         loop_rate.sleep();
     }
@@ -167,5 +171,5 @@ void waiting_state_change_check(void)
         )                                                   //all tasks complete
         state = INACTIVE;
 }
-void measurement_state_change_check(void);
-void error_state_change_check(void);
+void measurement_state_change_check(void){}
+void error_state_change_check(void){}

@@ -2,6 +2,7 @@
 
 import rospy
 from std_msgs.msg import Float32MultiArray, Int8MultiArray, Float32, Int8
+import keyboard
 
 
 motor_state = 0
@@ -41,6 +42,8 @@ def talker():
     rate = rospy.Rate(10) # 10hz
     rospy.logwarn("CS_sim started")
     while not rospy.is_shutdown():
+        if keyboard.ispressed("q"):
+            print("q pressed")
         publish_state()
         publish_vel()
         rate.sleep()

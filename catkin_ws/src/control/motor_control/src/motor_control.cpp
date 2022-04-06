@@ -57,19 +57,26 @@ double max_current[MOTOR_COUNT] = {0.155};
 float step_size[MOTOR_COUNT] = {0};
 Epos4::control_mode_t control_mode(Epos4::velocity_CSV);
 
+
+bool taking_commands = true;
+auto last_command_time = chrono::steady_clock::now();
+
+static const double command_expiration = 200;
 static const int period = 25;
-static const int security_qc = 1000;
 static const float reference_step_size[MOTOR_COUNT] = {60.0*period};
 static const float max_qc[MOTOR_COUNT] = {2*M_PI};
 static const float min_qc[MOTOR_COUNT] = {-474270};
-static const double max_velocity[MOTOR_COUNT] = {60};
-static const double reduction[MOTOR_COUNT] = {70};
+static const float max_angle[MOTOR_COUNT] = {1};
+static const float min_angle[MOTOR_COUNT] = {0};
+static const double max_velocity[MOTOR_COUNT] = {30};
+static const double reduction[MOTOR_COUNT] = {150};
 //====================================================================================================
 
 
 
 
 void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
+    last_command_time = chrono::steady_clock::now();
     float vel;
     bool empty_command = true;
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
@@ -78,6 +85,7 @@ void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
         active[it] = (vel != 0);
         target_vel[it] = double(vel*max_velocity[it]*reduction[it]);
         step_size[it] = double(vel*reference_step_size[it]);
+        cout << "received velocity   :   " << target_vel[it] << endl;
     }
 
     if (!empty_command) {
@@ -86,12 +94,26 @@ void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
 }
 
 
+
 void stateCommandCallback(const sensor_msgs::JointState::ConstPtr& msg) {
+    last_command_time = chrono::steady_clock::now();
     control_mode = Epos4::profile_position_PPM;
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
         target_pos[it] = double(msg->position[it]*RAD_TO_QC_CONVERSION);
         target_vel[it] = double(msg->velocity[it]*RAD_TO_QC_CONVERSION); // TODO: maybe I need a different conversion constant here
     }
+}
+
+
+bool command_too_old() {
+    auto now = chrono::steady_clock::now();
+    return (chrono::duration_cast<chrono::milliseconds>(now-last_command_time).count() > command_expiration);
+}
+
+
+double security_angle(double vel) {
+    // TODO
+    return 0;
 }
 
 
@@ -111,7 +133,7 @@ void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
                     break;
 
                 case Epos4::velocity_CSV:
-                    if (current_pos[it] > max_qc[it]-security_qc || current_pos[it] < min_qc[it]+security_qc) {
+                    if ((current_pos[it] > max_angle[it]-security_angle(target_vel[it]) && target_vel[it] > 0) || (current_pos[it] < min_angle[it]+security_angle(target_vel[it]) && target_vel[it] < 0)) {
                         target_vel[it] = 0;
                     }
                     break;
@@ -125,9 +147,8 @@ void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
 }
 
 
-void set_goals(vector<xcontrol::Epos4Extended*> chain){
+void update_targets(vector<xcontrol::Epos4Extended*> chain) {
     for (size_t it=0; it<chain.size(); ++it) {
-        chain[it]->set_Control_Mode(control_mode);
         if (chain[it]->get_has_motor()) {
             chain[it]->set_Control_Mode(control_mode);
 
@@ -147,6 +168,38 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain){
             }
         }
     }
+}
+
+
+void stop(vector<xcontrol::Epos4Extended*> chain) {
+    for (size_t it=0; it<chain.size(); ++it) {
+        if (chain[it]->get_has_motor()) {
+            switch (control_mode) {
+                case Epos4::position_CSP:
+                    target_pos[it] = current_pos[it];
+                    break;
+
+                case Epos4::velocity_CSV:
+                ROS_WARN("stop");
+                    target_vel[it] = 0;
+                    break;
+
+                case Epos4::profile_position_PPM:
+                    // TODO:
+                    break;
+            }
+        }
+    }
+}
+
+
+void set_goals(vector<xcontrol::Epos4Extended*> chain){
+    if (command_too_old()) {
+        stop(chain);
+    }
+    else {
+        update_targets(chain);
+    }
 
     enforce_limits(chain);
 
@@ -162,7 +215,7 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain){
                         break;
 
                     case Epos4::velocity_CSV:
-                        ROS_WARN("wwwwwwwwwwww");
+                        cout << "target vel : " << target_vel[it] << endl;
                         chain[it]->set_Target_Velocity_In_Rpm(target_vel[it]);
                         break;
 
@@ -203,7 +256,7 @@ int main(int argc, char **argv) {
     while (ros::ok()){
         // check device status
         ethercat_master.switch_motors_to_enable_op();
-        if (!is_scanning){
+        if (!is_scanning && taking_commands) {
             set_goals(chain);
         }
 
@@ -216,12 +269,12 @@ int main(int argc, char **argv) {
                         cout << "State device : " << chain[it]->get_Device_State_In_String() << "\n";
                         cout << "Control mode = " << chain[it]->get_Control_Mode_In_String() << "\n";
                     }
-                    current_pos[it] = chain[it]->get_Actual_Position_In_Qc();
+                    current_pos[it] = chain[it]->get_Actual_Position_In_Rad()/reduction[it];
                     if (is_scanning) {
                         target_pos[it] = current_pos[it];
                     }
                     if (PRINT_STATE) { 
-                        cout << "Actual position : " << std::dec << chain[it]->get_Actual_Position_In_Qc() << " qc" << "\n";
+                        cout << "Actual position : " << std::dec << chain[it]->get_Actual_Position_In_Rad()/reduction[it] << " rad" << "\n";
                         cout << "Actual current value = " << chain[it]->get_Actual_Current_In_A() << "A" << "\n";
                         cout << "\n";
                     }

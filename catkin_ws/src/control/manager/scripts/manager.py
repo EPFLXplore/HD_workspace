@@ -27,6 +27,7 @@ class Manager:
 
     def taskCmdCallback(self, msg):# Task):
         """listens to task assignement topic published by detection"""
+
     def manualCmdCallback(self, msg):# Int8MultiArray):
         """listens to HD_InvManual_Coord topic"""
 
@@ -50,10 +51,7 @@ class Manager:
         if not self.velocity_command_old():
             msg = Float32MultiArray()
             msg.data = self.format_direct_command()
-            rospy.logwarn(str(msg.data))
-            """rospy.logwarn(str(self.velocity))
-            rospy.logwarn(str(self.direct_command))
-            rospy.logwarn("\n")"""
+            #rospy.logwarn(str(msg.data))
             self.manual_cmd_pub.publish(msg)
 
     def updateWorld(self):
@@ -103,13 +101,11 @@ class Manager:
 
 
 if __name__ == '__main__':
-    rospy.logwarn("wwwwwwwwwwwwwwwwwwwwww")
     try:
         rospy.init_node('HD_control_manager', anonymous=True)
         m = Manager()
-        rospy.logwarn("brrrrrrrrr")
         m.run()
-        print("manager finished ????")
+        rospy.logwarn("manager finished ????")
     except rospy.ROSInterruptException:
-        print("manager crashed")
+        rospy.logwarns("manager crashed")
         pass

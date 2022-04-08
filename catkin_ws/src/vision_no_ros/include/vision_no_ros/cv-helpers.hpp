@@ -71,23 +71,17 @@ void get_field_of_view(const rs2::pipeline& pipe, cv::Mat& cameraMatrix , cv::Ma
                 auto focal_length = std::make_pair(intrinsics.fx, intrinsics.fy);
                 rs2_distortion model = intrinsics.model;
 
-                std::cout << "Principal Point         : " << principal_point.first << ", " << principal_point.second << std::endl;
-                std::cout << "Focal Length            : " << focal_length.first << ", " << focal_length.second << std::endl;
-                std::cout << "Distortion Model        : " << model << std::endl;
-                std::cout << "Distortion Coefficients : [" << intrinsics.coeffs[0] << "," << intrinsics.coeffs[1] << "," <<
-                    intrinsics.coeffs[2] << "," << intrinsics.coeffs[3] << "," << intrinsics.coeffs[4] << "]" << std::endl;
-            
-                cameraMatrix.at<float>(0,0)=intrinsics.fx;
-                cameraMatrix.at<float>(1,1)=intrinsics.fy;
-                cameraMatrix.at<float>(2,2)=1;
-                cameraMatrix.at<float>(0,2)=intrinsics.ppx;
-                cameraMatrix.at<float>(1,2)=intrinsics.ppy;
 
-                distCoeffs.at<float>(0,0)=intrinsics.coeffs[0];
-                distCoeffs.at<float>(0,1)=intrinsics.coeffs[1];
-                distCoeffs.at<float>(0,2)=intrinsics.coeffs[2];
-                distCoeffs.at<float>(0,3)=intrinsics.coeffs[3];
-                distCoeffs.at<float>(0,4)=intrinsics.coeffs[4];
+
+               // std::cout << "Principal Point         : " << principal_point.first << ", " << principal_point.second << std::endl;
+               // std::cout << "Focal Length            : " << focal_length.first << ", " << focal_length.second << std::endl;
+               // std::cout << "Distortion Model        : " << model << std::endl;
+               // std::cout << "Distortion Coefficients : [" << intrinsics.coeffs[0] << "," << intrinsics.coeffs[1] << "," <<
+               //     intrinsics.coeffs[2] << "," << intrinsics.coeffs[3] << "," << intrinsics.coeffs[4] << "]" << std::endl;
+            
+
+                cameraMatrix = (cv::Mat1d(3, 3) << intrinsics.fx, 0, intrinsics.ppx, 0, intrinsics.fy, intrinsics.ppy, 0, 0, 1);   // this is the formatting the camera matrices are expected in 
+                distCoeffs = (cv::Mat1d(1, 5) <<intrinsics.coeffs[0], intrinsics.coeffs[1], intrinsics.coeffs[2], intrinsics.coeffs[3], intrinsics.coeffs[4]);
             
             }
             catch (const std::exception& e){

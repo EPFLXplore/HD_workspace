@@ -4,5 +4,5 @@ PROJECT_PKG_CONFIG_INCLUDE_DIRS = "".split(';') if "" != "" else []
 PROJECT_CATKIN_DEPENDS = "".replace(';', ' ')
 PKG_CONFIG_LIBRARIES_WITH_PREFIX = "".split(';') if "" != "" else []
 PROJECT_NAME = "vision"
-PROJECT_SPACE_DIR = "/home/aloksha/Desktop/HD_workspace/catkin_ws/install"
+PROJECT_SPACE_DIR = "/home/xplore/hd-control/HD_workspace/catkin_ws/install"
 PROJECT_VERSION = "0.0.0"

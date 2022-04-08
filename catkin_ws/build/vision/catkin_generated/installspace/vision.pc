@@ -1,4 +1,4 @@
-prefix=/home/aloksha/Desktop/HD_workspace/catkin_ws/install
+prefix=/home/xplore/hd-control/HD_workspace/catkin_ws/install
 
 Name: vision
 Description: Description of vision

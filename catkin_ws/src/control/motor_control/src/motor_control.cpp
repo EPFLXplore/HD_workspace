@@ -29,6 +29,8 @@ using namespace xcontrol;
 #define PRINT_STATE true
 #define QC_SPEED_CONVERSION 4000
 #define RAD_TO_QC_CONVERSION 10000
+#define JOINT56_DEPENDENCY 1    // TODO
+#define JOINT56_DEPENDENT false // TODO
 
 /*double current_pos[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
 double target_pos[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
@@ -61,6 +63,8 @@ Epos4::control_mode_t control_mode(Epos4::velocity_CSV);
 bool taking_commands = true;
 auto last_command_time = chrono::steady_clock::now();
 
+static const Epos4::control_mode_t direct_control_mode = Epos4::velocity_CSV;
+static const Epos4::control_mode_t automatic_control_mode = Epos4::profile_position_PPM;
 static const double command_expiration = 200;
 static const int period = 25;
 static const float reference_step_size[MOTOR_COUNT] = {60.0*period};
@@ -73,6 +77,13 @@ static const double reduction[MOTOR_COUNT] = {150};
 //====================================================================================================
 
 
+
+void accountForJoint56Dependency() {
+    if (MOTOR_COUNT >= 6) {
+        target_vel[5] -= target_vel[4]*JOINT56_DEPENDENCY;
+        // TODO: for position_CSP and profile_position_PPM modes
+    }
+}
 
 
 void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
@@ -87,17 +98,20 @@ void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
         step_size[it] = double(vel*reference_step_size[it]);
         cout << "received velocity   :   " << target_vel[it] << endl;
     }
+    
+    if (JOINT56_DEPENDENT) {
+        accountForJoint56Dependency();
+    }
 
     if (!empty_command) {
-        control_mode = Epos4::velocity_CSV;
+        control_mode = direct_control_mode;
     }
 }
 
 
-
 void stateCommandCallback(const sensor_msgs::JointState::ConstPtr& msg) {
     last_command_time = chrono::steady_clock::now();
-    control_mode = Epos4::profile_position_PPM;
+    control_mode = automatic_control_mode;
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
         target_pos[it] = double(msg->position[it]*RAD_TO_QC_CONVERSION);
         target_vel[it] = double(msg->velocity[it]*RAD_TO_QC_CONVERSION); // TODO: maybe I need a different conversion constant here
@@ -180,7 +194,6 @@ void stop(vector<xcontrol::Epos4Extended*> chain) {
                     break;
 
                 case Epos4::velocity_CSV:
-                ROS_WARN("stop");
                     target_vel[it] = 0;
                     break;
 

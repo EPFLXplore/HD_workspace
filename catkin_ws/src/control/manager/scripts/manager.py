@@ -97,6 +97,8 @@ class Manager:
                 self.transition_loop_action()
             else:
                 self.normal_loop_action()
+            rospy.logwarn("state:    " + str(self.direct_command))
+            rospy.logwarn("vel:      " + str(self.velocity))
             rate.sleep()
 
 

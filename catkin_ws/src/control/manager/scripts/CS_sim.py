@@ -15,16 +15,6 @@ angles_pub = rospy.Publisher('HD_angles', Int8MultiArray, queue_size=10)
 vel_pub = rospy.Publisher('HD_ManualVelocity', Float32, queue_size=10)
 
 
-def state_callback(msg):
-    global motor_state
-    motor_state = msg.data
-
-
-def vel_callback(msg):
-    global vel
-    vel = msg.data
-
-
 def publish_state():
     msg = Int8MultiArray()
     msg.data = motor_state[:]
@@ -50,8 +40,6 @@ def get_inputs():
 
 def talker():
     rospy.init_node('CS_sim_node', anonymous=True)
-    rospy.Subscriber("state_cmd", Int8, state_callback)
-    rospy.Subscriber("vel_cmd", Float32, vel_callback)
     rate = rospy.Rate(10) # 10hz
     rospy.logwarn("CS_sim started")
     while not rospy.is_shutdown():

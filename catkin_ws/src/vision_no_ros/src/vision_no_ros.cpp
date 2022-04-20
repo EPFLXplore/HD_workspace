@@ -3,6 +3,12 @@
 #include <opencv2/aruco.hpp>
 #include <vector>
 #include <ros/ros.h>
+//#define ROS_IMAGE_PUB
+//#ifdef  ROS_IMAGE_PUB
+//#include<sensor_msgs/image_encodings.h>
+//#include <image_transport/image_transport.h>
+//#include <cv_bridge/cv_bridge.h>
+//#endif
 //includes for my headers
 #include <vision_no_ros/cntrl_pnl.h> //included in  object_refresh
 #include <vision_no_ros/cv-helpers.hpp>
@@ -20,13 +26,21 @@ int main(int argc, char **argv) try {
     ros::init(argc, argv, "detected_elements_publisher");
     ros::NodeHandle n;
     ros::Publisher pub = n.advertise<vision_no_ros::object_list>("detected_elements", 1);
+    
     cntrl_pnl::ControlPanel my_panel;
     cntrl_pnl::setup_control_panel(my_panel);
     // Declare RealSense pipeline, encapsulating the actual device and sensors
     rs2::pipeline pipe;
-    // Start streaming with default recommended configuration
-    pipe.start(); //maybe should try to optimze the start parameters for bandwidth gains and other stuff when integratingg
+    //setup custom streaming configuration 
+    /*
+    rs2::config cfg;
+    cfg.enable_stream(RS2_STREAM_DEPTH,1280, 720, RS2_FORMAT_Z16, 30); //this is the best resolutio for the depth stream to be accurate
+    cfg.enable_stream(RS2_STREAM_COLOR,1280, 720, RS2_FORMAT_BGR8, 30);
+    pipe.start(cfg);
+    */
+    pipe.start(); // Start streaming with default recommended configuration//maybe should try to optimze the start parameters for bandwidth gains and other stuff when integratingg
 
+    rs2::align align_to_color(RS2_STREAM_COLOR);//expensive keep it outside the loop
    
     const auto window_name = "Display Image";
     namedWindow(window_name, WINDOW_AUTOSIZE);
@@ -34,61 +48,69 @@ int main(int argc, char **argv) try {
     while (waitKey(1) < 0 && getWindowProperty(window_name, WND_PROP_AUTOSIZE) >= 0)
     {
         rs2::frameset data = pipe.wait_for_frames(); // Wait for next set of frames from the camera
+        
+        
+        data = align_to_color.process(data);
+
+
         rs2::frame color = data.get_color_frame();
         rs2::depth_frame depth =data.get_depth_frame();
-        //float width = depth.get_width();
-        //float height = depth.get_height();
-        //float dist_to_center = depth.get_distance(width / 2, height / 2);
-        //std::cout << "The camera is facing an object " << dist_to_center << " meters away \r"<< std::endl;
+        
+        
 
-        //// Query frame size (width and height)
-        //const int w = color.as<rs2::video_frame>().get_width();
-        //const int h = color.as<rs2::video_frame>().get_height();
-
-        //// Create OpenCV matrix of size (w,h) from the colorized depth data
-        //Mat image(Size(w, h), CV_8UC3, (void*)color.get_data(), Mat::AUTO_STEP);
-
-        // Update the window with new data
-        //cv::Mat cameraMatrix = Mat(3,3, CV_64F, float(0));
-        //cv::Mat distCoeffs = Mat(1,4, CV_64F, float(0));
         static cv::Mat cameraMatrix ;
         static cv::Mat distCoeffs ;
-        get_field_of_view(pipe,cameraMatrix,distCoeffs); //finction to get the camera intrinsics and copy them into the right matrices
+        get_field_of_view(pipe,cameraMatrix,distCoeffs); //function to get the camera intrinsics and copy them into the right matrices
         
-       // std::cout << "Principal Point" << cameraMatrix.at<float>(0,0) << std::endl; this float cast messes thing up
-       
+   
+        // vectors required for AR tag detection
         static vector<int> ids;
         static vector<vector<Point2f> > corners;
         static std::vector<cv::Vec3d> rvecs, tvecs;
 
         cv::Mat image = frame_to_mat(color);  //using the cv helpers to convert an rs2 frame to a cv mat
+
         cv::aruco::detectMarkers(image,dictionary,corners,ids);
         if (ids.size()>0){
             cv::Mat output_image=image.clone();
             cv::aruco::drawDetectedMarkers(output_image,corners,ids);
-            //cv::circle(output_image, cv::Point(50, 50), 10, CV_RGB(255,0,0));
             cv::aruco::estimatePoseSingleMarkers(corners, 0.044, cameraMatrix, distCoeffs, rvecs, tvecs);// dont forget to modify the ar tag size!!
+            
+            uint command=1;// test variable , replaces the topic I should be subscribed to to know which on=bject to manipulate
             for(int i=0; i<ids.size(); i++){
                 cv::aruco::drawAxis(output_image, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.1); //tvecs is in meters
-                //std::cout <<"ar tag depth is: " << tvecs[i][2]<< std::endl;
-                // calcul with depth
-                //float dist_to_center=depth.get_distance(int(corners[i][0].x),int(corners[i][0].y));
-                //std::cout << "The camera is facing an object " << dist_to_center << " meters away \r"<< std::endl;
-                //std::cout <<"difference is : "<<tvecs[i][2]-dist_to_center <<std::endl;
-                //cntrl_pnl::Position offset = cntrl_pnl::distance_from_ARtag(my_panel.panelA.artg1,my_panel.panelA.switch1);
-                //std::cout << "distance to the on the x axis is : " <<tvecs[i][0]<< std::endl;// /////////////////////////////////////the axis axis is actually drawn in the wrong direction so switch the signs of the expression using tvecs in the following two lines
-                //std::cout << "distance to the first switch on the x axis is : " <<offset.x_coor+tvecs[i][0]*1000<<" mm "<< std::endl; //no x is ni iverted, it's just that im getting clodet to the object when I goto the negative x so tvecs and offset should have opposite sighns so when 
-                //std::cout << "distance to the first switch on the y axis is : " <<offset.y_coor-tvecs[i][1]*1000<<" mm "<< std::endl;
-                
+                                
+                //start refreshing the objects
                 vision_no_ros::object_list objects;//decalre objects list
                 
-                //declare object and refresh it
-                vision_no_ros::panel_object object;
-                refresh_object(object,ids[i],rvecs[i],tvecs[i],my_panel.panelA.artg1,my_panel.panelA.switch1);
+                if (command==0 or command==1){
+                    //declare object and refresh it
+                    vision_no_ros::panel_object main_switch;
+                    refresh_object(main_switch,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switchMain);//need to make a function that gets the rvecs and tvecs for the ar tag with id hard coded
+                    //push back the object to the list to be published
+                    float dist=depth.get_distance(corners[0][0].x,corners[0][0].y);//work on getting depth from intel
+                    cout<<"dist= "<< dist <<endl;
+                    objects.detected_objects.push_back(main_switch);
+                }
+                if (command==0 or command==2){
+                    vision_no_ros::panel_object switch_1;
+                    refresh_object(switch_1,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch1);
+                    objects.detected_objects.push_back(switch_1);
+                }
+
+                if (command==0 or command==3){
+                    vision_no_ros::panel_object switch_2;
+                    refresh_object(switch_2,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch2);
+                    objects.detected_objects.push_back(switch_2);
+                }
+
+                if (command==0 or command==4){
+                    vision_no_ros::panel_object switch_3;
+                    refresh_object(switch_3,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch3);
+                    objects.detected_objects.push_back(switch_3);
+                }
                 
-                //push back the object to the lsit
-                objects.detected_objects.push_back(object);
-               
+                
                 //publish the list               
                 pub.publish(objects);
                 ros::spinOnce();

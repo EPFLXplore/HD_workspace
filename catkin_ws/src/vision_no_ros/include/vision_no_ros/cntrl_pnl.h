@@ -23,7 +23,7 @@ namespace cntrl_pnl {
     
         char name[6];
         Position pos;
-        int id;       //this shold be the id of the closest ar tag
+        int id;      
     };
 
     struct ArTag { //Structure for ArTags
@@ -36,8 +36,8 @@ namespace cntrl_pnl {
 
     struct PanelA {
         char name[6];
-        ArTag artg1, artg2;
-        Object switch1, switch2, switch3, switch4;
+        ArTag artg1; //removed artag 2, it no longer exists
+        Object switchMain,switch1, switch2, switch3, switch4; //adde mai switch
 
     };
 
@@ -72,20 +72,27 @@ namespace cntrl_pnl {
         strcpy(PNLA.name,"PNLA");
 
         strcpy(PNLA.artg1.name, "ARTG1");
-        PNLA.artg1.pos.x_coor= Dist2;
-        PNLA.artg1.pos.y_coor= Dist1;
+        PNLA.artg1.pos.x_coor= -Dist2;   //modified panel one for new rules
+        PNLA.artg1.pos.y_coor= Dist1;    
         PNLA.artg1.width=Wdth1;
-        PNLA.artg1.id = 1;
-
-        strcpy(PNLA.artg2.name, "ARTG2");
+        PNLA.artg1.id = 0;              // need to put the right Id's!! maybe make a setup function with a camera so we can create the panle with just a picture
+ 
+        /*//this Ar tag no longer exists
+        strcpy(PNLA.artg2.name, "ARTG2"); 
         PNLA.artg2.pos.x_coor= -Dist2;
         PNLA.artg2.pos.y_coor= 0;
         PNLA.artg2.width=Wdth1;
         PNLA.artg2.id = 2;
+        */
+        
+        strcpy(PNLA.switchMain.name, "SWTCMain");
+        PNLA.switchMain.pos.x_coor= Dist2;
+        PNLA.switchMain.pos.y_coor= Dist1;
+        PNLA.switchMain.id = 50;
 
         strcpy(PNLA.switch1.name, "SWTC1");
-        PNLA.switch1.pos.x_coor= -Dist2;
-        PNLA.switch1.pos.y_coor= Dist1;
+        PNLA.switch1.pos.x_coor= -Dist2; 
+        PNLA.switch1.pos.y_coor= 0;
 
         strcpy(PNLA.switch2.name, "SWTC2");
         PNLA.switch2.pos.x_coor= Dist2;
@@ -157,9 +164,10 @@ namespace cntrl_pnl {
 
         control_panel.panelB2 = PNLB2;
     // Verification prints for Panel A 
-
+        
         printf("%s \n%s \n%f \n%f \n%f\n\n", PNLA.name, PNLA.artg1.name, PNLA.artg1.pos.x_coor, PNLA.artg1.pos.y_coor, PNLA.artg1.width);
-        printf("%s \n%s \n%f \n%f \n%f\n\n", PNLA.name, PNLA.artg2.name, PNLA.artg2.pos.x_coor, PNLA.artg2.pos.y_coor, PNLA.artg2.width);
+       // printf("%s \n%s \n%f \n%f \n%f\n\n", PNLA.name, PNLA.artg2.name, PNLA.artg2.pos.x_coor, PNLA.artg2.pos.y_coor, PNLA.artg2.width);
+        printf("%s \n%s \n%f \n%f \n%d\n\n", PNLA.name, PNLA.switchMain.name, PNLA.switchMain.pos.x_coor, PNLA.switchMain.pos.y_coor,PNLA.switchMain.id);
         printf("%s \n%s \n%f \n%f\n\n", PNLA.name, PNLA.switch1.name, PNLA.switch1.pos.x_coor, PNLA.switch1.pos.y_coor);
         printf("%s \n%s \n%f \n%f\n\n", PNLA.name, PNLA.switch2.name, PNLA.switch2.pos.x_coor, PNLA.switch2.pos.y_coor);
         printf("%s \n%s \n%f \n%f\n\n", PNLA.name, PNLA.switch3.name, PNLA.switch3.pos.x_coor, PNLA.switch3.pos.y_coor);
@@ -183,6 +191,9 @@ namespace cntrl_pnl {
 
     }
 
+    /*
+     function returns distance between an AT tag and a panel object, origin is set as the center of the AR tag
+    */
     Position distance_from_ARtag(const ArTag& artag,const Object& object){
         Position distance;
         distance.x_coor=abs(artag.pos.x_coor-object.pos.x_coor);

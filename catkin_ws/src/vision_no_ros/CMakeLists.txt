@@ -9,6 +9,9 @@ project(vision_no_ros)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   #geometry_msgs  
+  #cv_bridge
+  #image_transport
+  #sensor_msgs
   roscpp
   rospy
   std_msgs

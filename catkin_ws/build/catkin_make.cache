@@ -1,2 +1,0 @@
-vision:vision_no_ros
--DCATKIN_DEVEL_PREFIX=/home/aloksha/Desktop/HD_workspace/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/aloksha/Desktop/HD_workspace/catkin_ws/install -G Unix Makefiles

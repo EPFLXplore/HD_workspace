@@ -55,8 +55,7 @@ int main(int argc, char **argv) try {
 
         rs2::frame color = data.get_color_frame();
         rs2::depth_frame depth =data.get_depth_frame();
-        
-        
+       
 
         static cv::Mat cameraMatrix ;
         static cv::Mat distCoeffs ;
@@ -86,27 +85,25 @@ int main(int argc, char **argv) try {
                 if (command==0 or command==1){
                     //declare object and refresh it
                     vision_no_ros::panel_object main_switch;
-                    refresh_object(main_switch,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switchMain);//need to make a function that gets the rvecs and tvecs for the ar tag with id hard coded
+                    refresh_object(main_switch,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switchMain,depth,corners);//need to make a function that gets the rvecs and tvecs for the ar tag with id hard coded
                     //push back the object to the list to be published
-                    float dist=depth.get_distance(corners[0][0].x,corners[0][0].y);//work on getting depth from intel
-                    cout<<"dist= "<< dist <<endl;
                     objects.detected_objects.push_back(main_switch);
                 }
                 if (command==0 or command==2){
                     vision_no_ros::panel_object switch_1;
-                    refresh_object(switch_1,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch1);
+                    refresh_object(switch_1,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch1,depth,corners);
                     objects.detected_objects.push_back(switch_1);
                 }
 
                 if (command==0 or command==3){
                     vision_no_ros::panel_object switch_2;
-                    refresh_object(switch_2,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch2);
+                    refresh_object(switch_2,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch2,depth,corners);
                     objects.detected_objects.push_back(switch_2);
                 }
 
                 if (command==0 or command==4){
                     vision_no_ros::panel_object switch_3;
-                    refresh_object(switch_3,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch3);
+                    refresh_object(switch_3,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch3,depth,corners);
                     objects.detected_objects.push_back(switch_3);
                 }
                 

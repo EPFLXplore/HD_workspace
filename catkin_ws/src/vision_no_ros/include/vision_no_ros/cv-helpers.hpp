@@ -55,7 +55,7 @@ cv::Mat depth_frame_to_meters(const rs2::pipeline& pipe, const rs2::depth_frame&
     return dm;
 }
 
-void get_field_of_view(const rs2::pipeline& pipe, cv::Mat& cameraMatrix , cv::Mat& distCoeffs){
+rs2_intrinsics get_field_of_view(const rs2::pipeline& pipe, cv::Mat& cameraMatrix , cv::Mat& distCoeffs){
         // A sensor's stream (rs2::stream_profile) is in general a stream of data with no specific type.
         // For video streams (streams of images), the sensor that produces the data has a lens and thus has properties such
         //  as a focal point, distortion, and principal point.
@@ -82,10 +82,11 @@ void get_field_of_view(const rs2::pipeline& pipe, cv::Mat& cameraMatrix , cv::Ma
 
                 cameraMatrix = (cv::Mat1d(3, 3) << intrinsics.fx, 0, intrinsics.ppx, 0, intrinsics.fy, intrinsics.ppy, 0, 0, 1);   // this is the formatting the camera matrices are expected in 
                 distCoeffs = (cv::Mat1d(1, 5) <<intrinsics.coeffs[0], intrinsics.coeffs[1], intrinsics.coeffs[2], intrinsics.coeffs[3], intrinsics.coeffs[4]);
-            
+                return intrinsics;
             }
             catch (const std::exception& e){
                 std::cerr << "Failed to get intrinsics for the given stream. " << e.what() << std::endl;
+                //what to return here 
             }
         }
 }

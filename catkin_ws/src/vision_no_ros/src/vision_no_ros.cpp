@@ -59,7 +59,7 @@ int main(int argc, char **argv) try {
 
         static cv::Mat cameraMatrix ;
         static cv::Mat distCoeffs ;
-        get_field_of_view(pipe,cameraMatrix,distCoeffs); //function to get the camera intrinsics and copy them into the right matrices
+        rs2_intrinsics intrinsics = get_field_of_view(pipe,cameraMatrix,distCoeffs); //function to get the camera intrinsics and copy them into the right matrices
         
    
         // vectors required for AR tag detection
@@ -73,7 +73,7 @@ int main(int argc, char **argv) try {
         if (ids.size()>0){
             cv::Mat output_image=image.clone();
             cv::aruco::drawDetectedMarkers(output_image,corners,ids);
-            cv::aruco::estimatePoseSingleMarkers(corners, 0.044, cameraMatrix, distCoeffs, rvecs, tvecs);// dont forget to modify the ar tag size!!
+            cv::aruco::estimatePoseSingleMarkers(corners, 0.044, cameraMatrix, distCoeffs, rvecs, tvecs);// dont forget to modify the ar tag size!! //this function might become obsolete
             
             uint command=1;// test variable , replaces the topic I should be subscribed to to know which on=bject to manipulate
             for(int i=0; i<ids.size(); i++){
@@ -85,25 +85,25 @@ int main(int argc, char **argv) try {
                 if (command==0 or command==1){
                     //declare object and refresh it
                     vision_no_ros::panel_object main_switch;
-                    refresh_object(main_switch,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switchMain,depth,corners);//need to make a function that gets the rvecs and tvecs for the ar tag with id hard coded
+                    refresh_object(main_switch,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switchMain,depth,corners,intrinsics);//need to make a function that gets the rvecs and tvecs for the ar tag with id hard coded
                     //push back the object to the list to be published
                     objects.detected_objects.push_back(main_switch);
                 }
                 if (command==0 or command==2){
                     vision_no_ros::panel_object switch_1;
-                    refresh_object(switch_1,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch1,depth,corners);
+                    refresh_object(switch_1,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch1,depth,corners,intrinsics);
                     objects.detected_objects.push_back(switch_1);
                 }
 
                 if (command==0 or command==3){
                     vision_no_ros::panel_object switch_2;
-                    refresh_object(switch_2,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch2,depth,corners);
+                    refresh_object(switch_2,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch2,depth,corners,intrinsics);
                     objects.detected_objects.push_back(switch_2);
                 }
 
                 if (command==0 or command==4){
                     vision_no_ros::panel_object switch_3;
-                    refresh_object(switch_3,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch3,depth,corners);
+                    refresh_object(switch_3,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch3,depth,corners,intrinsics);
                     objects.detected_objects.push_back(switch_3);
                 }
                 

@@ -18,6 +18,8 @@ void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,c
 
 void get_euler_angle(const rs2_intrinsics& intrinsics,const float& tag_center_pxl_x,const float& tag_center_pxl_y,const float& distance_to_center);
 
+float get_pixel_distance (const Point2f& pixel1,const Point2f& pixel2);
+
 #define USE_RS2_PROJECTION
 
 /*
@@ -52,33 +54,56 @@ void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,c
         object.x_pos =offset.x_coor+point[0]*1000; //.
         object.y_pos =offset.y_coor-point[1]*1000;//minus because the camera yaxis points down
         object.z_pos=point[2]*1000; 
+        float norm_to_center=sqrt(point[0]*point[0]+point[2]*point[2]);
         //right corner of AR tag
+        float point_right [3];
         pixel[0]=corners[i][1].x;
         pixel[1]=corners[i][1].y;
         dist=depth.get_distance(corners[i][1].x,corners[i][1].y);
-        rs2_deproject_pixel_to_point(point,&intrinsics,pixel,dist);
-        float angle_right=asin(point[2]/sqrt(point[0]*point[0]+point[2]*point[2]))*180/M_PI;
+        rs2_deproject_pixel_to_point(point_right,&intrinsics,pixel,dist);
+        //float norm_to_right=sqrt(point[0]*point[0]+point[2]*point[2]);
+        //float angle_right=asin(norm_to_center/norm_to_right)*180/M_PI;
+        //cout<< "sin on the right is : " << norm_to_center/norm_to_right << endl;//sometimes norm to center is bigger thn norm to right or norm to lrft which is probleamtic for the asin, this is becaus ethe triangle i use is not always a rectangular one 
         //left corner of AR tag
+        float point_left [3];
         pixel[0]=corners[i][0].x;
         pixel[1]=corners[i][0].y;
         dist=depth.get_distance(corners[i][0].x,corners[i][0].y);
-        rs2_deproject_pixel_to_point(point,&intrinsics,pixel,dist);
-        float angle_left=asin(point[2]/sqrt(point[0]*point[0]+point[2]*point[2]))*180/M_PI;
+        rs2_deproject_pixel_to_point(point_left,&intrinsics,pixel,dist);
+        //float norm_to_left=sqrt(point[0]*point[0]+point[2]*point[2]);
+        //float angle_left=asin(norm_to_center/norm_to_left)*180/M_PI;
+        //cout<< "sin on the left is : " << norm_to_center/norm_to_left << endl;
         //yaw is right angle - left angle to be positive in anticlockwise rotation
-        float yaw = angle_right-angle_left;
+        //float yaw = angle_right-angle_left;
+        float vector_right_to_left [3];
+        for (int i=0;i<3;++i){
+          vector_right_to_left[i]=point_left[i]-point_right[i];
+        }
+        //scalar product projection on camera x axis for yaw;
+        float axis [3] ={1,0,0};
+        float scalar_product= vector_right_to_left[0]*axis[0]+vector_right_to_left[1]*axis[1]+vector_right_to_left[2]*axis[2];
+        float vector_norm = sqrt(vector_right_to_left[0]*vector_right_to_left[0]+vector_right_to_left[1]*vector_right_to_left[1]+vector_right_to_left[2]*vector_right_to_left[2]);
+        float yaw = acos(scalar_product/vector_norm)*180/M_PI;
+        float pitch =0;
+        float roll =acos((corners[i][1].x-corners[i][0].x)/get_pixel_distance (corners[i][1],corners[i][0]))*180/M_PI;//use the formula and find the angle in the pixel space!This works, just need to adjust the sign
       #else  //test which method is more accurate
         object.x_pos =offset.x_coor+tvecs[i][0]*1000; //casting and representing the foats with ints cf bens idea...
         object.y_pos =offset.y_coor-tvecs[i][1]*1000;
         object.z_pos=dist*1000;
-         //object.z_pos =tvecs[i][2]*1000;//need to add condition on the depth source!(my algo or the intel's depth frame)
-     
+        //solution with linear fit not ideal 
+        //float yaw = get_pixel_distance(corners[i][0],corners[i][3])-get_pixel_distance(corners[i][1],corners[i][2]);
+        //float pitch =get_pixel_distance(corners[i][2],corners[i][3])-get_pixel_distance(corners[i][1],corners[i][0]);
+        //float roll=use special projection functions
+        float yaw = acos(get_pixel_distance(corners[i][1],corners[i][0])*0.0014/44)*180/M_PI; //not gonna work use the formula with the projection as I do with z 
+        float pitch = acos(get_pixel_distance(corners[i][1],corners[i][2])*0.0014/44)*180/M_PI;
+        float roll =acos((corners[i][1].x-corners[i][0].x)/get_pixel_distance (corners[i][1],corners[i][0]))*180/M_PI;//use the formula and find the angle in the pixel space!This works, just need to adjust the sign
       #endif
      
       //get_euler_angle(intrinsics,tag_center_x,tag_center_y,dist);
       //rvecs is a rodrigues angle not a classic euler angle so that sucx do simple geometry to estimate euler angles
       object.x_rot =yaw; //will give the ar tags rotations then the gripper can stay at that angle
-      object.y_rot =rvecs[i][1]*180/M_PI; //add rotation relative to gripper
-      object.z_rot =rvecs[i][2]*180/M_PI; //add rotation relative to gripper
+      object.y_rot =pitch;//rvecs[i][1]*180/M_PI; //add rotation relative to gripper
+      object.z_rot =roll;//rvecs[i][2]*180/M_PI; //add rotation relative to gripper
       
       break;
     }
@@ -99,10 +124,15 @@ void get_euler_angle(const rs2_intrinsics& intrinsics,const float& tag_center_px
   // cv::Mat transformation_matrix= ;
   // trying the same thing with the intel deprojection functions
 
-
-
-
 }
+
+float get_pixel_distance (const Point2f& pixel1,const Point2f& pixel2){
+  float x_vector =pixel2.x-pixel1.x;
+  float y_vector =pixel2.y-pixel1.y;
+  float norm =sqrt(x_vector*x_vector+y_vector*y_vector);
+  return norm;
+}
+
 
 
 

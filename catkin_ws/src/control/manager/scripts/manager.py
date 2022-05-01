@@ -15,7 +15,7 @@ class Manager:
         self.velocity = 0
         self.received_velocity_at = time.time()
         self.velocity_expiration = .5   # seconds
-        self.direct_command = []
+        self.direct_command = [0]
         self.mode = self.MANUAL_DIRECT
         self.target_mode = self.MANUAL_DIRECT
         self.mode_transitioning = False

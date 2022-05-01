@@ -158,6 +158,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/manager.py
   scripts/CS_sim.py
+  scripts/motor_overshoot_test.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

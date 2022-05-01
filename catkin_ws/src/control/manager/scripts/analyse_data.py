@@ -7,7 +7,7 @@ def numeric(s):
 
 
 def main():
-    file = "../../../../res2"
+    file = "../../../../res22"
     pos_results = {}
     neg_results = {}
     with open(file, "r") as f:
@@ -30,14 +30,20 @@ def main():
     neg = []
     neg_val = []
     for k in pos_results:
-        pos.append(k)
-        pos_val.append(sum(pos_results[k])/len(pos_results[k]))
+        for x in pos_results[k]:
+            pos.append(k)
+            pos_val.append(x)
+        #pos.append(k)
+        #pos_val.append(sum(pos_results[k])/len(pos_results[k]))
     for k in neg_results:
-        neg.append(k)
-        neg_val.append(sum(neg_results[k])/len(neg_results[k]))
+        for x in pos_results[k]:
+            neg.append(k)
+            neg_val.append(x)
+        #neg.append(k)
+        #neg_val.append(sum(neg_results[k])/len(neg_results[k]))
     
-    plt.plot(pos, pos_val, 'rs', label='pos')
-    plt.plot(neg, neg_val, 'rs', label='neg', color="b")
+    plt.plot(pos, pos_val, ".", label='pos', color="r")
+    plt.plot(neg, neg_val, ".", label='neg', color="b")
     plt.show()
     print("done")
 

@@ -16,6 +16,9 @@
 #include <sys/mman.h>
 #include <pid/signal_manager.h>
 #include <math.h>
+
+#include <ethercatcpp/epos4.h>
+#include <ethercatcpp/master.h>
 #include <xcontrol/network_master.h>
 #include <xcontrol/one_axis_slot.h>
 #include <xcontrol/three_axis_slot.h>
@@ -23,7 +26,7 @@
 using namespace std;
 using namespace ethercatcpp;
 using namespace pid;
-using namespace xcontrol;
+//using namespace xcontrol;
 
 #define MOTOR_COUNT 1
 #define PRINT_STATE true
@@ -31,6 +34,98 @@ using namespace xcontrol;
 #define RAD_TO_QC_CONVERSION 10000
 #define JOINT56_DEPENDENCY 1    // TODO
 #define JOINT56_DEPENDENT false // TODO
+
+
+
+class Epos4Extended: public ethercatcpp::Epos4 {
+public:
+
+    Epos4Extended(bool has_motor);
+
+    void switch_to_enable_op();
+    bool get_has_motor();
+
+private:
+
+    bool has_motor_;
+};
+
+Epos4Extended::Epos4Extended(bool has_motor) :
+    Epos4(),
+    has_motor_(has_motor) { }
+
+void Epos4Extended::switch_to_enable_op() {
+    if(has_motor_) {
+        if (get_Device_State_In_String() == "Switch on disable") {
+            set_Device_State_Control_Word(Epos4::shutdown);
+        }
+        if (get_Device_State_In_String() == "Ready to switch ON") {
+            set_Device_State_Control_Word(Epos4::switch_on_and_enable_op);
+        }
+    }
+}
+
+bool Epos4Extended::get_has_motor() {
+    return has_motor_;
+}
+
+
+
+
+class OneAxisSlot: public Epos4Extended {
+public:
+    /**
+     * @brief Constructor of ArmMotor class
+     */
+    OneAxisSlot(bool has_motor, int manufacturer_id, int device_model_id);
+};
+
+OneAxisSlot::OneAxisSlot(bool has_motor, int manufacturer_id, int device_model_id) : Epos4Extended(has_motor) {
+    set_Id("EPOS4", 0x000000fb, 0x60500000);
+}
+
+
+
+class NetworkMaster: public ethercatcpp::Master {
+public:
+
+    NetworkMaster(std::vector<Epos4Extended*> chain, std::string network_interface_name);
+
+    void init_network();
+    void switch_motors_to_enable_op();
+
+private:
+
+    std::vector<Epos4Extended*> epos_chain_;
+    std::string network_interface_name_;
+};
+
+NetworkMaster::NetworkMaster(vector<Epos4Extended*> chain, std::string network_interface_name) : 
+	Master(),
+	epos_chain_(chain),
+	network_interface_name_(network_interface_name) { }
+
+void NetworkMaster::init_network() {
+  	// Bus creation
+  	EthercatBus robot;
+
+  	// Adding network interface
+  	add_Interface_Primary(network_interface_name_);
+
+  	for(Epos4Extended epos: epos_chain_) {
+		robot.add_Device(epos);
+	}
+	
+  	add_Bus(robot);
+}
+
+void NetworkMaster::switch_motors_to_enable_op() {
+  	for(Epos4Extended epos: epos_chain_) {
+    	epos.switch_to_enable_op();
+	}
+}
+
+
 
 /*double current_pos[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
 double target_pos[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
@@ -70,10 +165,11 @@ static const int period = 25;
 static const float reference_step_size[MOTOR_COUNT] = {60.0*period};
 static const float max_qc[MOTOR_COUNT] = {2*M_PI};
 static const float min_qc[MOTOR_COUNT] = {-474270};
-static const float max_angle[MOTOR_COUNT] = {1};
-static const float min_angle[MOTOR_COUNT] = {0};
-static const double max_velocity[MOTOR_COUNT] = {10};
-static const double reduction[MOTOR_COUNT] = {2*231};
+static const float max_angle[MOTOR_COUNT] = {1};//{1, 1};
+static const float min_angle[MOTOR_COUNT] = {0};//{0, 0};
+static const double max_velocity[MOTOR_COUNT] = {5};//{10, 5};
+static const double reduction[MOTOR_COUNT] = {480*16};//{2*231, 480*16};
+static const double security_angle_coef[MOTOR_COUNT] = {0};//{0.05, 0};
 //====================================================================================================
 
 
@@ -125,9 +221,10 @@ bool command_too_old() {
 }
 
 
-double security_angle(double vel) {
+double security_angle(double vel, size_t it) {
     // TODO
-    return 0;
+    if (vel < 0) vel = -vel;
+    return vel*security_angle_coef[it];
 }
 
 
@@ -147,7 +244,7 @@ void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
                     break;
 
                 case Epos4::velocity_CSV:
-                    if ((current_pos[it] > max_angle[it]-security_angle(target_vel[it]) && target_vel[it] > 0) || (current_pos[it] < min_angle[it]+security_angle(target_vel[it]) && target_vel[it] < 0)) {
+                    if ((current_pos[it] > max_angle[it]-security_angle(target_vel[it], it) && target_vel[it] > 0) || (current_pos[it] < min_angle[it]+security_angle(target_vel[it], it) && target_vel[it] < 0)) {
                         target_vel[it] = 0;
                     }
                     break;
@@ -254,7 +351,8 @@ int main(int argc, char **argv) {
 
     // Device definition
     // 3-axis: 1st slot next to ETHERNET-IN
-    xcontrol::OneAxisSlot epos_1(true);
+    xcontrol::OneAxisSlot epos_1(true);//, 0x000000fb, 0x60500000);
+    //xcontrol::OneAxisSlot epos_2(true);
     //xcontrol::ThreeAxisSlot epos_2(true), epos_3(true), epos_4(true);
     //xcontrol::ThreeAxisSlot epos_5(true), epos_6(true), epos_7(true);
     vector<xcontrol::Epos4Extended*> chain = {&epos_1};//, &epos_2, &epos_3, &epos_4, &epos_5, &epos_6, &epos_7};

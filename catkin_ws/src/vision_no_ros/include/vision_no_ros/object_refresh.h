@@ -12,13 +12,23 @@
 using namespace std;
 using namespace cv;
 
+static float x_pos_average=0;
+static float y_pos_average=0;
+static float z_pos_average=0;
+static float x_rot_average=0;
+static float y_rot_average=0;
+static float z_rot_average=0;
+static int active_sample=0;
+
 void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,const vector<cv::Vec3d>& rvecs,const vector<cv::Vec3d>& tvecs,
                     const cntrl_pnl::ArTag& ar_1,const cntrl_pnl::Object& obj,const rs2::depth_frame& depth,const vector<vector<Point2f>>& corners,
-                    const rs2_intrinsics& intrinsics);// should maybe add another artgag argument for the objects needing 2 artags at least to localize them...
+                    const rs2_intrinsics& intrinsics, const int& samples);// should maybe add another artgag argument for the objects needing 2 artags at least to localize them...
 
 float scalar_product_projection_on_axis(const float (&pixel_right) [2],const float (&pixel_left) [2],const float (&axis) [3],const rs2::depth_frame& depth,const rs2_intrinsics& intrinsics);
    
 float get_pixel_distance (const Point2f& pixel1,const Point2f& pixel2);
+
+void average_object_params(vision_no_ros::panel_object& object,int samples);
 
 #define USE_RS2_PROJECTION
 
@@ -35,7 +45,7 @@ arguments are:
 */
 void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,const vector<cv::Vec3d>& rvecs,const vector<cv::Vec3d>& tvecs,
                     const cntrl_pnl::ArTag& ar_1,const cntrl_pnl::Object& obj,const rs2::depth_frame& depth,const vector<vector<Point2f>>& corners,
-                    const rs2_intrinsics& intrinsics){ 
+                    const rs2_intrinsics& intrinsics, const int& samples ){ 
 // need to create a similar functio that refreshes the active target without seeing any ar tag , first use this one to home onto the active targert then y=use the other function
 
   for (int i(0);i < ids.size();++i){
@@ -92,7 +102,7 @@ void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,c
       object.x_rot =pitch; //will give the ar tags rotations then the gripper can stay at that angle
       object.y_rot =yaw;//rvecs[i][1]*180/M_PI; //add rotation relative to gripper
       object.z_rot =roll;//rvecs[i][2]*180/M_PI; //add rotation relative to gripper
-      
+      average_object_params(object,samples);
       break;
     }
     else { //send an error message or a reset arm position command
@@ -142,6 +152,31 @@ float get_pixel_distance (const Point2f& pixel1,const Point2f& pixel2){
   return norm;
 }
 
+void average_object_params(vision_no_ros::panel_object& object,int samples){
+  if (active_sample < samples){
+    x_pos_average= object.x_pos+x_pos_average;
+    y_pos_average= object.y_pos+y_pos_average;
+    z_pos_average= object.z_pos+z_pos_average;
+    x_rot_average= object.x_rot+x_rot_average;
+    y_rot_average= object.y_rot+y_rot_average;
+    z_rot_average= object.z_rot+z_rot_average;
+    ++active_sample;
+  }else {
+    object.x_pos=x_pos_average/samples;
+    object.y_pos=y_pos_average/samples;
+    object.z_pos=z_pos_average/samples;
+    object.x_rot=x_rot_average/samples;
+    object.y_rot=y_rot_average/samples;
+    object.z_rot=z_rot_average/samples;
+    x_pos_average=0;
+    y_pos_average=0;
+    z_pos_average=0;
+    x_rot_average=0;
+    y_rot_average=0;
+    z_rot_average=0;
+    active_sample=0;
+  }
+}
 
 
 

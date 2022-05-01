@@ -70,10 +70,10 @@ static const int period = 25;
 static const float reference_step_size[MOTOR_COUNT] = {60.0*period};
 static const float max_qc[MOTOR_COUNT] = {2*M_PI};
 static const float min_qc[MOTOR_COUNT] = {-474270};
-static const float max_angle[MOTOR_COUNT] = {1};
+static const float max_angle[MOTOR_COUNT] = {3};
 static const float min_angle[MOTOR_COUNT] = {0};
-static const double max_velocity[MOTOR_COUNT] = {30};
-static const double reduction[MOTOR_COUNT] = {150};
+static const double max_velocity[MOTOR_COUNT] = {10};
+static const double reduction[MOTOR_COUNT] = {2*231};
 //====================================================================================================
 
 
@@ -228,7 +228,6 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain){
                         break;
 
                     case Epos4::velocity_CSV:
-                        cout << "target vel : " << target_vel[it] << endl;
                         chain[it]->set_Target_Velocity_In_Rpm(target_vel[it]);
                         break;
 
@@ -298,8 +297,10 @@ int main(int argc, char **argv) {
 
         sensor_msgs::JointState msg;
         for (size_t it=0; it<chain.size(); ++it) {
-            msg.position.push_back(float(current_pos[it]/RAD_TO_QC_CONVERSION));
+            msg.position.push_back(float(chain[it]->get_Actual_Position_In_Rad()/reduction[it]));
+            msg.velocity.push_back(float(chain[it]->get_Actual_Velocity_In_Rpm()/reduction[it]));
         }
+        telem_pub.publish(msg);
         ros::spinOnce();
         loop_rate.sleep();
         if (PRINT_STATE) {

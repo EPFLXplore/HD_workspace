@@ -38,7 +38,7 @@ def get_inputs():
         vel = max(vel-vel_step, -1)
 
 
-def talker():
+def main():
     rospy.init_node('CS_sim_node', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     rospy.logwarn("CS_sim started")
@@ -50,6 +50,6 @@ def talker():
 
 if __name__ == '__main__':
     try:
-        talker()
+        main()
     except rospy.ROSInterruptException:
         pass

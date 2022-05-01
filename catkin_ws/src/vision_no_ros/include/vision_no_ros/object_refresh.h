@@ -30,7 +30,9 @@ float get_pixel_distance (const Point2f& pixel1,const Point2f& pixel2);
 
 void average_object_params(vision_no_ros::panel_object& object,int samples);
 
-#define USE_RS2_PROJECTION
+void get_angle_from_polyfit(float& difference);
+
+//#define USE_RS2_PROJECTION
 
 /*
 Function refreshes the desired object's params
@@ -89,12 +91,15 @@ void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,c
         object.y_pos =offset.y_coor-tvecs[i][1]*1000;
         object.z_pos=dist*1000;
         //solution with linear fit not ideal 
-        //float yaw = get_pixel_distance(corners[i][0],corners[i][3])-get_pixel_distance(corners[i][1],corners[i][2]);
-        //float pitch =get_pixel_distance(corners[i][2],corners[i][3])-get_pixel_distance(corners[i][1],corners[i][0]);
+        float yaw = get_pixel_distance(corners[i][0],corners[i][3])-get_pixel_distance(corners[i][1],corners[i][2]);
+        get_angle_from_polyfit(yaw);
+        float pitch =get_pixel_distance(corners[i][2],corners[i][3])-get_pixel_distance(corners[i][1],corners[i][0]);
+        get_angle_from_polyfit(pitch);
         //float roll=use special projection functions
-        float yaw = acos(get_pixel_distance(corners[i][1],corners[i][0])*0.0014/44)*180/M_PI; //not gonna work use the formula with the projection as I do with z 
-        float pitch = acos(get_pixel_distance(corners[i][1],corners[i][2])*0.0014/44)*180/M_PI;
+        //float yaw = acos(get_pixel_distance(corners[i][1],corners[i][0])*0.0014/44)*180/M_PI; //not gonna work use the formula with the projection as I do with z 
+        //float pitch = acos(get_pixel_distance(corners[i][1],corners[i][2])*0.0014/44)*180/M_PI;
         float roll =acos((corners[i][1].x-corners[i][0].x)/get_pixel_distance (corners[i][1],corners[i][0]))*180/M_PI;//use the formula and find the angle in the pixel space!This works, just need to adjust the sign
+        if(corners[i][1].y<corners[i][0].y) roll=-roll;
       #endif
      
       //get_euler_angle(intrinsics,tag_center_x,tag_center_y,dist);
@@ -178,6 +183,11 @@ void average_object_params(vision_no_ros::panel_object& object,int samples){
   }
 }
 
+void get_angle_from_polyfit(float& difference){
+
+  float angle=0.00118*pow(difference,3)-3.634e-17*pow(difference,2)-2.169*difference+2.92e-15;//polyfit needs to be more precise 
+  difference=angle;
+}
 
 
 

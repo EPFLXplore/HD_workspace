@@ -104,6 +104,7 @@ int determine_state(void){
 
         default:
             ROS_INFO("huh, a default state");
+            ros::shutdown();
     }
 
     ROS_INFO("the state is %i", state);
@@ -208,12 +209,18 @@ void waiting_state_change_check(void)
         detected_elements_check() == 1)                                                   
         state = INACTIVE;
     else if(ctrl_task == MAINTENANCE &&                     //end of manipulation attempt (verification received)
-        ctrl_command == LAUNCH &&                           //how to check semi_auto_id situation? how to treat retry situation
+        ctrl_command == LAUNCH &&                           //how to check semi_auto_id situation? how to treat retry situation -> ctrl station sends same element id
         (semi_auto_id != MANUAL_CTRL ||
         semi_auto_id != Number_of_Elements) &&
         end_of_movement == 1 &&
         end_of_task == 1)
         state = INITIALISATION;
+    else if(ctrl_task == MAINTENANCE &&                     //end of movement (during manipulation attempt), update relative position
+        ctrl_command == LAUNCH &&
+        (semi_auto_id < Number_of_Elements) &&
+        end_of_movement == 1 &&
+        end_of_task == 0)
+        state = MEASUREMENT;
     else
         state = WAITING;
 }
@@ -223,8 +230,8 @@ void measurement_state_change_check(void)
         ctrl_command == ABORT)
         state = INACTIVE;
     else if(ctrl_task == MAINTENANCE &&                     //finished updating measurements
-        ctrl_command == LAUNCH)//                        //detected elements update should probably be a service
-        //detected_elements_check())              
+        ctrl_command == LAUNCH)//                           //detected elements update should probably be a service
+        //detected_elements_check();              
         state = WAITING;
     else if(ctrl_task == MAINTENANCE &&                     //reliability error
         ctrl_command == LAUNCH &&
@@ -253,17 +260,33 @@ int8_t initialisation_action(void)
 
 int8_t waiting_action(void)
 {
-    if(end_of_task == 1)
-    {}
+    while(end_of_movement == 0)
+    {
+        sleep(1);   //sleep 1 second
+    }
+    if(end_of_task == 1 && semi_auto_id == current_element && current_element != ALL) // && verification not sent)   //waiting for verification from control station
+    {
+        //send request for verification to Control station
+        uint16_t verification_response; //= response to request = 0b0...0 or 0b100...00
+        detected_elements[current_element][0] += verification_response;
+    }
+    while(end_of_task == 1 && semi_auto_id == current_element)// && verification sent and received)       //wait to receive new target element from ctrl
+    {
+        sleep(1);
+    }
+
 }
 
 int8_t measurement_action(void)
 {
-
+    //call measurement functions
+    //update values in detected_elements
+    //publish detected_elements
 }
 
 int8_t error_action(void)
 {
+    sleep(1);   //time to be detected
     return 0;
 }
 

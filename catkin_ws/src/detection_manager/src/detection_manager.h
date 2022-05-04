@@ -17,6 +17,7 @@ enum States {INACTIVE = 1, INITIALISATION, WAITING, MEASUREMENT, ERROR};
 enum Element_IDs {ELEMENT1, ELEMENT2, ELEMENT3, Number_of_Elements, ALL, MANUAL_CTRL}; //ALL = init_pos, MANUAL_CTRL = all but without associated movement
 
 int determine_state(void);
+
 void inactive_state_change_check(void);
 void initialisation_state_change_check(void);
 void waiting_state_change_check(void);
@@ -24,15 +25,13 @@ void measurement_state_change_check(void);
 void error_state_change_check(void);
 
 void state_action(void);
+
 int8_t initialisation_action(void);
 int8_t waiting_action(void);
 int8_t measurement_action(void);
 int8_t error_action(void);
 
 int detected_elements_check(void);          //checks detected elements table for multiple situations used to change state (all tasks complete, reliability)
-
-
-
 
 void task_Callback(const std_msgs::Int8MultiArray::ConstPtr& task_array);
 void HD_SemiAuto_Id_Callback(const std_msgs::Int8::ConstPtr& received_semi_auto_id);

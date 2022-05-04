@@ -28,7 +28,7 @@ using namespace ethercatcpp;
 using namespace pid;
 //using namespace xcontrol;
 
-#define MOTOR_COUNT 1
+#define MOTOR_COUNT 2
 #define PRINT_STATE true
 #define QC_SPEED_CONVERSION 4000
 #define RAD_TO_QC_CONVERSION 10000
@@ -77,11 +77,11 @@ public:
     /**
      * @brief Constructor of ArmMotor class
      */
-    OneAxisSlot(bool has_motor, int manufacturer_id, int device_model_id);
+    OneAxisSlot(bool has_motor, unsigned int manufacturer_id, unsigned int device_model_id);
 };
 
-OneAxisSlot::OneAxisSlot(bool has_motor, int manufacturer_id, int device_model_id) : Epos4Extended(has_motor) {
-    set_Id("EPOS4", 0x000000fb, 0x60500000);
+OneAxisSlot::OneAxisSlot(bool has_motor, unsigned int manufacturer_id, unsigned int device_model_id) : Epos4Extended(has_motor) {
+    set_Id("EPOS4", manufacturer_id, device_model_id);
 }
 
 
@@ -112,17 +112,17 @@ void NetworkMaster::init_network() {
   	// Adding network interface
   	add_Interface_Primary(network_interface_name_);
 
-  	for(Epos4Extended epos: epos_chain_) {
-		robot.add_Device(epos);
-	}
+    for (size_t i = 0; i < epos_chain_.size(); i++) {
+        robot.add_Device(*(epos_chain_[i]));
+    }
 	
   	add_Bus(robot);
 }
 
 void NetworkMaster::switch_motors_to_enable_op() {
-  	for(Epos4Extended epos: epos_chain_) {
-    	epos.switch_to_enable_op();
-	}
+    for (size_t i = 0; i < epos_chain_.size(); i++) {
+        epos_chain_[i]->switch_to_enable_op();
+    }
 }
 
 
@@ -146,10 +146,10 @@ static const double reduction[MOTOR_COUNT] = {70, 70, 70, 70, 70, 70, 70};    //
 
 
 //====================================================================================================
-double current_pos[MOTOR_COUNT] = {0};
-double target_pos[MOTOR_COUNT] = {0};
-double target_vel[MOTOR_COUNT] = {0};
-bool active[MOTOR_COUNT] = {0};
+double current_pos[MOTOR_COUNT] = {0,0};
+double target_pos[MOTOR_COUNT] = {0,0};
+double target_vel[MOTOR_COUNT] = {0,0};
+bool active[MOTOR_COUNT] = {0,0};
 double max_current[MOTOR_COUNT] = {0.155};
 float step_size[MOTOR_COUNT] = {0};
 Epos4::control_mode_t control_mode(Epos4::velocity_CSV);
@@ -165,11 +165,11 @@ static const int period = 25;
 static const float reference_step_size[MOTOR_COUNT] = {60.0*period};
 static const float max_qc[MOTOR_COUNT] = {2*M_PI};
 static const float min_qc[MOTOR_COUNT] = {-474270};
-static const float max_angle[MOTOR_COUNT] = {1};//{1, 1};
-static const float min_angle[MOTOR_COUNT] = {0};//{0, 0};
-static const double max_velocity[MOTOR_COUNT] = {5};//{10, 5};
-static const double reduction[MOTOR_COUNT] = {480*16};//{2*231, 480*16};
-static const double security_angle_coef[MOTOR_COUNT] = {0};//{0.05, 0};
+static const float max_angle[MOTOR_COUNT] = {3, 1.2};
+static const float min_angle[MOTOR_COUNT] = {-6, -0.6};
+static const double max_velocity[MOTOR_COUNT] = {5, 1};
+static const double reduction[MOTOR_COUNT] = {2*231, 480*16};
+static const double security_angle_coef[MOTOR_COUNT] = {0, 0};
 //====================================================================================================
 
 
@@ -228,7 +228,7 @@ double security_angle(double vel, size_t it) {
 }
 
 
-void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
+void enforce_limits(vector<Epos4Extended*> chain){
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
         if (chain[it]->get_has_motor()) {
             switch (control_mode) {
@@ -258,7 +258,7 @@ void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
 }
 
 
-void update_targets(vector<xcontrol::Epos4Extended*> chain) {
+void update_targets(vector<Epos4Extended*> chain) {
     for (size_t it=0; it<chain.size(); ++it) {
         if (chain[it]->get_has_motor()) {
             chain[it]->set_Control_Mode(control_mode);
@@ -282,7 +282,7 @@ void update_targets(vector<xcontrol::Epos4Extended*> chain) {
 }
 
 
-void stop(vector<xcontrol::Epos4Extended*> chain) {
+void stop(vector<Epos4Extended*> chain) {
     for (size_t it=0; it<chain.size(); ++it) {
         if (chain[it]->get_has_motor()) {
             switch (control_mode) {
@@ -303,7 +303,7 @@ void stop(vector<xcontrol::Epos4Extended*> chain) {
 }
 
 
-void set_goals(vector<xcontrol::Epos4Extended*> chain){
+void set_goals(vector<Epos4Extended*> chain){
     if (command_too_old()) {
         stop(chain);
     }
@@ -351,21 +351,34 @@ int main(int argc, char **argv) {
 
     // Device definition
     // 3-axis: 1st slot next to ETHERNET-IN
-    xcontrol::OneAxisSlot epos_1(true);//, 0x000000fb, 0x60500000);
+    OneAxisSlot epos_1(true, 0x000000fb, 0x60500000);
+    OneAxisSlot epos_2(true, 0x000000fb, 0x65510000);
+    //Epos4Extended epos_1(true);
+    //epos_1.set_Id("EPOS4", 0x000000fb, 0x60500000);
     //xcontrol::OneAxisSlot epos_2(true);
     //xcontrol::ThreeAxisSlot epos_2(true), epos_3(true), epos_4(true);
     //xcontrol::ThreeAxisSlot epos_5(true), epos_6(true), epos_7(true);
-    vector<xcontrol::Epos4Extended*> chain = {&epos_1};//, &epos_2, &epos_3, &epos_4, &epos_5, &epos_6, &epos_7};
+    vector<Epos4Extended*> chain = {&epos_1, &epos_2};//, &epos_2, &epos_3, &epos_4, &epos_5, &epos_6, &epos_7};
 
     bool is_scanning = true;
 
-    xcontrol::NetworkMaster ethercat_master(chain, network_interface_name);
+    NetworkMaster ethercat_master(chain, network_interface_name);
+    cout << "BBBBBBBBBBBBBBBBBBb" << endl;
     ethercat_master.init_network();
+    //Master ethercat_master;
+    //EthercatBus robot;
+    //ethercat_master.add_Interface_Primary(network_interface_name);
+    //robot.add_Device(epos_1);
+    cout << "AAAAAAAAAAAAAAAAA" << endl;
+    //ethercat_master.add_Bus(robot);
+
     cout << "Ethercat network online" << endl;
 
     while (ros::ok()){
         // check device status
         ethercat_master.switch_motors_to_enable_op();
+        //epos_1.switch_to_enable_op();
+
         if (!is_scanning && taking_commands) {
             set_goals(chain);
         }

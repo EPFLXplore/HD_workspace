@@ -63,13 +63,10 @@ int main(int argc, char **argv){
     cout << "checkpoint3" << endl;
 
     scb_motor.set_Id("EPOS4", 0x000000fb, 0x60500000); //these numbers are Manufaturer ID (maxon) and and device model ID. They can be found using EPOS studios   0x000000fb
-    cout << "checkpoint4" << endl;
     robot.add_Device(scb_motor);
-    cout << "checkpoint5" << endl;
     ethercat_master.add_Interface_Primary(network_interface_name);
-    cout << "checkpoint6" << endl;
     ethercat_master.add_Bus(robot);
-    cout << "checkpoint7" << endl;
+
 
     const size_t nb_velocities = 10;
     int last_velocities[nb_velocities] = {0};

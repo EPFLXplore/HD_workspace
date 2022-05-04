@@ -1,6 +1,6 @@
 #pragma once
 #include <ethercatcpp/master.h>
-#include <xcontrol/epos4_extended.h>
+#include "epos4_extended.h"
 
 #include <string>
 #include <vector>

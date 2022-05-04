@@ -19,9 +19,9 @@
 
 #include <ethercatcpp/epos4.h>
 #include <ethercatcpp/master.h>
-#include <xcontrol/network_master.h>
-#include <xcontrol/one_axis_slot.h>
-#include <xcontrol/three_axis_slot.h>
+#include <xcontrol_v2/network_master.h>
+#include <xcontrol_v2/one_axis_slot.h>
+#include <xcontrol_v2/three_axis_slot.h>
 
 using namespace std;
 using namespace ethercatcpp;
@@ -34,97 +34,6 @@ using namespace pid;
 #define RAD_TO_QC_CONVERSION 10000
 #define JOINT56_DEPENDENCY 1    // TODO
 #define JOINT56_DEPENDENT false // TODO
-
-
-
-class Epos4Extended: public ethercatcpp::Epos4 {
-public:
-
-    Epos4Extended(bool has_motor);
-
-    void switch_to_enable_op();
-    bool get_has_motor();
-
-private:
-
-    bool has_motor_;
-};
-
-Epos4Extended::Epos4Extended(bool has_motor) :
-    Epos4(),
-    has_motor_(has_motor) { }
-
-void Epos4Extended::switch_to_enable_op() {
-    if(has_motor_) {
-        if (get_Device_State_In_String() == "Switch on disable") {
-            set_Device_State_Control_Word(Epos4::shutdown);
-        }
-        if (get_Device_State_In_String() == "Ready to switch ON") {
-            set_Device_State_Control_Word(Epos4::switch_on_and_enable_op);
-        }
-    }
-}
-
-bool Epos4Extended::get_has_motor() {
-    return has_motor_;
-}
-
-
-
-
-class OneAxisSlot: public Epos4Extended {
-public:
-    /**
-     * @brief Constructor of ArmMotor class
-     */
-    OneAxisSlot(bool has_motor, unsigned int manufacturer_id, unsigned int device_model_id);
-};
-
-OneAxisSlot::OneAxisSlot(bool has_motor, unsigned int manufacturer_id, unsigned int device_model_id) : Epos4Extended(has_motor) {
-    set_Id("EPOS4", manufacturer_id, device_model_id);
-}
-
-
-
-class NetworkMaster: public ethercatcpp::Master {
-public:
-
-    NetworkMaster(std::vector<Epos4Extended*> chain, std::string network_interface_name);
-
-    void init_network();
-    void switch_motors_to_enable_op();
-
-private:
-
-    std::vector<Epos4Extended*> epos_chain_;
-    std::string network_interface_name_;
-};
-
-NetworkMaster::NetworkMaster(vector<Epos4Extended*> chain, std::string network_interface_name) : 
-	Master(),
-	epos_chain_(chain),
-	network_interface_name_(network_interface_name) { }
-
-void NetworkMaster::init_network() {
-  	// Bus creation
-  	EthercatBus robot;
-
-  	// Adding network interface
-  	add_Interface_Primary(network_interface_name_);
-
-    for (size_t i = 0; i < epos_chain_.size(); i++) {
-        robot.add_Device(*(epos_chain_[i]));
-    }
-	
-  	add_Bus(robot);
-}
-
-void NetworkMaster::switch_motors_to_enable_op() {
-    for (size_t i = 0; i < epos_chain_.size(); i++) {
-        epos_chain_[i]->switch_to_enable_op();
-    }
-}
-
 
 
 /*double current_pos[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
@@ -228,7 +137,7 @@ double security_angle(double vel, size_t it) {
 }
 
 
-void enforce_limits(vector<Epos4Extended*> chain){
+void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
         if (chain[it]->get_has_motor()) {
             switch (control_mode) {
@@ -258,7 +167,7 @@ void enforce_limits(vector<Epos4Extended*> chain){
 }
 
 
-void update_targets(vector<Epos4Extended*> chain) {
+void update_targets(vector<xcontrol::Epos4Extended*> chain) {
     for (size_t it=0; it<chain.size(); ++it) {
         if (chain[it]->get_has_motor()) {
             chain[it]->set_Control_Mode(control_mode);
@@ -282,7 +191,7 @@ void update_targets(vector<Epos4Extended*> chain) {
 }
 
 
-void stop(vector<Epos4Extended*> chain) {
+void stop(vector<xcontrol::Epos4Extended*> chain) {
     for (size_t it=0; it<chain.size(); ++it) {
         if (chain[it]->get_has_motor()) {
             switch (control_mode) {
@@ -303,7 +212,7 @@ void stop(vector<Epos4Extended*> chain) {
 }
 
 
-void set_goals(vector<Epos4Extended*> chain){
+void set_goals(vector<xcontrol::Epos4Extended*> chain){
     if (command_too_old()) {
         stop(chain);
     }
@@ -351,18 +260,18 @@ int main(int argc, char **argv) {
 
     // Device definition
     // 3-axis: 1st slot next to ETHERNET-IN
-    OneAxisSlot epos_1(true, 0x000000fb, 0x60500000);
-    OneAxisSlot epos_2(true, 0x000000fb, 0x65510000);
+    xcontrol::OneAxisSlot epos_1(true, 0x000000fb, 0x60500000);
+    xcontrol::OneAxisSlot epos_2(true, 0x000000fb, 0x65510000);
     //Epos4Extended epos_1(true);
     //epos_1.set_Id("EPOS4", 0x000000fb, 0x60500000);
     //xcontrol::OneAxisSlot epos_2(true);
     //xcontrol::ThreeAxisSlot epos_2(true), epos_3(true), epos_4(true);
     //xcontrol::ThreeAxisSlot epos_5(true), epos_6(true), epos_7(true);
-    vector<Epos4Extended*> chain = {&epos_1, &epos_2};//, &epos_2, &epos_3, &epos_4, &epos_5, &epos_6, &epos_7};
+    vector<xcontrol::Epos4Extended*> chain = {&epos_1, &epos_2};//, &epos_2, &epos_3, &epos_4, &epos_5, &epos_6, &epos_7};
 
     bool is_scanning = true;
 
-    NetworkMaster ethercat_master(chain, network_interface_name);
+    xcontrol::NetworkMaster ethercat_master(chain, network_interface_name);
     cout << "BBBBBBBBBBBBBBBBBBb" << endl;
     ethercat_master.init_network();
     //Master ethercat_master;

@@ -1,4 +1,7 @@
 build/
 devel/
+logs/
 *.catkin_workspace
 *.vscode
+*.idea
+*__pycache__

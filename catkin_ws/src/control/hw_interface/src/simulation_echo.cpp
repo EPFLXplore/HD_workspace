@@ -1,26 +1,17 @@
 #include <ros/ros.h>
-#include <robot_control2/jointCmd.h>
-#include <robot_control2/jointFdbk.h>
+#include <sensor_msgs/JointState.h>
 
 ros::Publisher feedback_pub;
 
 
-void cmdCallback(const robot_control2::jointCmd::ConstPtr &msg)
+void cmdCallback(const sensor_msgs::JointState::ConstPtr &msg)
 {
-    /*
-    float32[5] current  # amps
-    float32[5] accel    # rad/s²
-    float32[5] vel      # rad/s
-    float32[5] angle    # rad
-    uint32 msg_ctr      # count sent msgs to detect missing ones
-    */
-   static robot_control2::jointFdbk feedback;
-    for (int i=0; i < msg->angle.size(); i++)
+   sensor_msgs::JointState feedback;
+    for (int i=0; i < msg->position.size(); i++)
     {
-        feedback.angle[i] = msg->angle[i];
-        feedback.vel[i] = msg->vel[i];
-        feedback.current[i] = msg->current[i];
-
+        feedback.position.push_back(msg->position[i]);
+        feedback.velocity.push_back(msg->velocity[i]);
+        //feedback.effort.push_back(msg->effort[i]);
     }
 
     feedback_pub.publish(feedback);
@@ -35,9 +26,9 @@ int main(int argc, char **argv)
 
     ros::NodeHandle n;
 
-    ros::Subscriber cmd_sub = n.subscribe("jointCommand", 10, cmdCallback);
+    ros::Subscriber cmd_sub = n.subscribe("/arm_control/joint_cmd", 10, cmdCallback);
 
-    feedback_pub = n.advertise<robot_control2::jointFdbk>("jointFeedback", 10);
+    feedback_pub = n.advertise<sensor_msgs::JointState>("/arm_control/joint_telemetry", 10);
 
     ros::spin();
 }

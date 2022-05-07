@@ -24,7 +24,7 @@
     <node name="my_hw_main" pkg="hw_interface" type="my_hw_main" output="screen"/> 
 
     <!-- Load simple simulator -->
-    <!-- <node name="simulation_echo" pkg="hw_interface" type="simulation_echo" output="screen"/> -->
+    <node name="simulation_echo" pkg="hw_interface" type="simulation_echo" output="screen"/>
 
 
    <!-- Load controller manager  -->

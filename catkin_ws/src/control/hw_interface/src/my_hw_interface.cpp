@@ -2,14 +2,15 @@
 
 // ROS parameter loading
 #include <rosparam_shortcuts/rosparam_shortcuts.h>
+#include <iostream>
 
 namespace my_robot_ns
 {
 MyHWInterface::MyHWInterface(ros::NodeHandle& nh, urdf::Model* urdf_model)
   : ros_control_boilerplate::GenericHWInterface(nh, urdf_model)
 {
-  fdbk_sub = nh.subscribe("jointFeedback", 1, &MyHWInterface::fdbkCallback, this);
-  cmd_pub = nh.advertise<sensor_msgs::JointState>("jointCommand", 1);
+  fdbk_sub = nh.subscribe("/arm_control/joint_telemetry", 1, &MyHWInterface::fdbkCallback, this);
+  cmd_pub = nh.advertise<sensor_msgs::JointState>("/arm_control/joint_cmd", 1);
   ROS_INFO("MyHWInterface constructed");
 
   try
@@ -57,7 +58,7 @@ void MyHWInterface::write(ros::Duration& elapsed_time)
   //enforceLimits(elapsed_time);
 
 
-  static sensor_msgs::JointState joint_cmd;
+  sensor_msgs::JointState joint_cmd;
 
   bool new_cmd = false;
   //ROS_WARN("entering HI write");
@@ -67,21 +68,23 @@ void MyHWInterface::write(ros::Duration& elapsed_time)
     for (int i=0; i<num_joints_; i++)
   {
     //ROS_WARN("checkpoint2");
-    joint_cmd.position[i] = joint_position_command_[i];
+    joint_cmd.position.push_back(joint_position_command_[i]);
+    //ROS_WARN("checkpoint2.5");
     if (previous_angle_command_[i] != joint_cmd.position[i])
     {
       //ROS_WARN("checkpoint3");
       new_cmd = true;
-      joint_cmd.velocity[i] = (joint_cmd.position[i]-previous_angle_command_[i])/elapsed_time.toSec();
+      joint_cmd.velocity.push_back((joint_cmd.position[i]-previous_angle_command_[i])/elapsed_time.toSec());
       //ROS_WARN("checkpoint4");
       //ROS_WARN("checkpoint5");
       previous_angle_command_[i] = joint_cmd.position[i];
       //ROS_WARN("checkpoint6");
     }
   }
-  //ROS_WARN("checkpoint5");
+  //ROS_WARN("checkpoint7");
   if (new_cmd)
   {
+    //ROS_WARN("new command");
     cmd_pub.publish(joint_cmd);
   }
   }

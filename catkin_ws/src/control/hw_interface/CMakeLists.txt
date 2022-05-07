@@ -231,10 +231,10 @@ target_link_libraries(my_hw_main
 )
 
 
-#add_executable(simulation_echo
-#    src/simulation_echo.cpp
-#)
-#add_dependencies(simulation_echo ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_link_libraries(simulation_echo 
-#    ${catkin_LIBRARIES}
-#)
+add_executable(simulation_echo
+    src/simulation_echo.cpp
+)
+add_dependencies(simulation_echo ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(simulation_echo 
+    ${catkin_LIBRARIES}
+)

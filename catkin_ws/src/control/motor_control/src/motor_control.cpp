@@ -317,8 +317,8 @@ int main(int argc, char **argv) {
 
         sensor_msgs::JointState msg;
         for (size_t it=0; it<chain.size(); ++it) {
-            msg.position.push_back(float(chain[it]->get_Actual_Position_In_Rad()/reduction[it]));
-            msg.velocity.push_back(float(chain[it]->get_Actual_Velocity_In_Rpm()/reduction[it]));
+            msg.position.push_back(chain[it]->get_Actual_Position_In_Rad()/reduction[it]);
+            msg.velocity.push_back(chain[it]->get_Actual_Velocity_In_Rpm()/reduction[it]);
         }
         telem_pub.publish(msg);
         ros::spinOnce();

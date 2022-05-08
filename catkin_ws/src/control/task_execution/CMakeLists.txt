@@ -158,6 +158,7 @@ ${catkin_INCLUDE_DIRS}
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
    scripts/trajectory_planner.py
+   scripts/planner_test.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

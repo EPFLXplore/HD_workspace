@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 import rospy
 import moveit_commander
@@ -21,7 +23,7 @@ class Planner:
     def __init__(self):
         # initialize ROS ===============================================================================================
         moveit_commander.roscpp_initialize(sys.argv)
-        rospy.init_node("move_group_python_interface_tutorial", anonymous=True)
+        rospy.init_node("trajectory_planner_node", anonymous=True)
 
         # publishers ===================================================================================================
         self.end_of_mvt_pub = rospy.Publisher("/arm_control/end_of_movement", std_msgs.msg.UInt8, queue_size=5)
@@ -30,6 +32,12 @@ class Planner:
             moveit_msgs.msg.DisplayTrajectory,
             queue_size=20,
         )
+
+        # subscribers ==================================================================================================
+        rospy.Subscriber("/arm_control/pose_goal", geometry_msgs.msg.Pose, self.pose_goal_callback)
+        rospy.Subscriber("/arm_control/joint_goal", std_msgs.msg.Float64MultiArray, self.joint_goal_callback)
+        rospy.Subscriber("/arm_control/world_update", geometry_msgs.msg.Pose, self.object_callback)
+        rospy.Subscriber("/arm_control/joint_telemetry", sensor_msgs.msg.JointState, self.telemetry_callback)
 
         # objects from MoveIt Commander needed to communicate with MoveIt ==============================================
         group_name = "arm_group"    # the planning group of the arm
@@ -48,8 +56,6 @@ class Planner:
 
         self.set_max_velocity_and_acceleration(1, 1)
 
-        rospy.spin()
-
     def set_max_velocity_and_acceleration(self, vel=0.1, acc=0.1):
         """
         Sets maximal velocity and acceleration scaling factors
@@ -67,7 +73,7 @@ class Planner:
             return
         self.achieve_goal(msg, Planner.POSE_GOAL)
 
-    def joint_goal_callback(self, msg: std_msgs.msg.Float32MultiArray):
+    def joint_goal_callback(self, msg: std_msgs.msg.Float64MultiArray):
         """
         Listens to /arm_control/joint_goal topic.
         """
@@ -187,7 +193,10 @@ class Planner:
         outcome = std_msgs.msg.UInt8()
         outcome.data = (SUCCESS if success else FAIL)
         self.end_of_mvt_pub.publish(outcome)
+    
+    def spin(self):
+        rospy.spin()
 
 
 if __name__ == "__main__":
-    Planner()
+    Planner().spin()

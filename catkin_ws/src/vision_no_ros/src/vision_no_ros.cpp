@@ -77,7 +77,7 @@ int main(int argc, char **argv) try {
             
             uint command=1;// test variable , replaces the topic I should be subscribed to to know which on=bject to manipulate
             for(int i=0; i<ids.size(); i++){
-                cv::aruco::drawAxis(output_image, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.1); //tvecs is in meters
+               // cv::aruco::drawAxis(output_image, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.1); //tvecs is in meters
                                 
                 //start refreshing the objects
                 vision_no_ros::object_list objects;//decalre objects list

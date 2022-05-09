@@ -76,8 +76,10 @@ int main(int argc, char **argv) try {
             cv::aruco::estimatePoseSingleMarkers(corners, 0.044, cameraMatrix, distCoeffs, rvecs, tvecs);// dont forget to modify the ar tag size!! //this function might become obsolete
             
             uint command=1;// test variable , replaces the topic I should be subscribed to to know which on=bject to manipulate
-            for(int i=0; i<ids.size(); i++){
-               // cv::aruco::drawAxis(output_image, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.1); //tvecs is in meters
+            static int samples=30;
+            static int active_sample=0;
+            for(int i=0; i<ids.size(); i++){ //why do I need this ? this shpuld be done for each frame no need for the ids.size
+                //cv::aruco::drawAxis(output_image, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.1); removed his for the jetson (uses a version thats not compatible with this)
                                 
                 //start refreshing the objects
                 vision_no_ros::object_list objects;//decalre objects list
@@ -85,28 +87,34 @@ int main(int argc, char **argv) try {
                 if (command==0 or command==1){
                     //declare object and refresh it
                     vision_no_ros::panel_object main_switch;
-                    refresh_object(main_switch,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switchMain,depth,corners,intrinsics);//need to make a function that gets the rvecs and tvecs for the ar tag with id hard coded
+                    refresh_object(main_switch,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switchMain,depth,corners,intrinsics,samples);//need to make a function that gets the rvecs and tvecs for the ar tag with id hard coded
                     //push back the object to the list to be published
-                    objects.detected_objects.push_back(main_switch);
+                    if (active_sample==samples) objects.detected_objects.push_back(main_switch);
                 }
                 if (command==0 or command==2){
                     vision_no_ros::panel_object switch_1;
-                    refresh_object(switch_1,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch1,depth,corners,intrinsics);
-                    objects.detected_objects.push_back(switch_1);
+                    refresh_object(switch_1,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch1,depth,corners,intrinsics,samples);
+                    if (active_sample==samples) objects.detected_objects.push_back(switch_1);
                 }
 
                 if (command==0 or command==3){
                     vision_no_ros::panel_object switch_2;
-                    refresh_object(switch_2,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch2,depth,corners,intrinsics);
-                    objects.detected_objects.push_back(switch_2);
+                    refresh_object(switch_2,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch2,depth,corners,intrinsics,samples);
+                    if (active_sample==samples) objects.detected_objects.push_back(switch_2);
                 }
 
                 if (command==0 or command==4){
                     vision_no_ros::panel_object switch_3;
-                    refresh_object(switch_3,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch3,depth,corners,intrinsics);
-                    objects.detected_objects.push_back(switch_3);
+                    refresh_object(switch_3,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch3,depth,corners,intrinsics,samples);
+                    if (active_sample==samples) objects.detected_objects.push_back(switch_3);
                 }
                 
+                if (active_sample < samples ){
+                    ++active_sample;
+                }else {
+                    active_sample=0;
+                }
+
                 
                 //publish the list               
                 pub.publish(objects);

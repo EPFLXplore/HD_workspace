@@ -12,15 +12,27 @@
 using namespace std;
 using namespace cv;
 
+static float x_pos_average=0;
+static float y_pos_average=0;
+static float z_pos_average=0;
+static float x_rot_average=0;
+static float y_rot_average=0;
+static float z_rot_average=0;
+static int active_sample=0;
+
 void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,const vector<cv::Vec3d>& rvecs,const vector<cv::Vec3d>& tvecs,
                     const cntrl_pnl::ArTag& ar_1,const cntrl_pnl::Object& obj,const rs2::depth_frame& depth,const vector<vector<Point2f>>& corners,
-                    const rs2_intrinsics& intrinsics);// should maybe add another artgag argument for the objects needing 2 artags at least to localize them...
+                    const rs2_intrinsics& intrinsics, const int& samples);// should maybe add another artgag argument for the objects needing 2 artags at least to localize them...
 
 float scalar_product_projection_on_axis(const float (&pixel_right) [2],const float (&pixel_left) [2],const float (&axis) [3],const rs2::depth_frame& depth,const rs2_intrinsics& intrinsics);
    
 float get_pixel_distance (const Point2f& pixel1,const Point2f& pixel2);
 
-#define USE_RS2_PROJECTION
+void average_object_params(vision_no_ros::panel_object& object,int samples);
+
+void get_angle_from_polyfit(float& difference);
+
+//#define USE_RS2_PROJECTION
 
 /*
 Function refreshes the desired object's params
@@ -35,7 +47,7 @@ arguments are:
 */
 void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,const vector<cv::Vec3d>& rvecs,const vector<cv::Vec3d>& tvecs,
                     const cntrl_pnl::ArTag& ar_1,const cntrl_pnl::Object& obj,const rs2::depth_frame& depth,const vector<vector<Point2f>>& corners,
-                    const rs2_intrinsics& intrinsics){ 
+                    const rs2_intrinsics& intrinsics, const int& samples ){ 
 // need to create a similar functio that refreshes the active target without seeing any ar tag , first use this one to home onto the active targert then y=use the other function
 
   for (int i(0);i < ids.size();++i){
@@ -79,12 +91,15 @@ void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,c
         object.y_pos =offset.y_coor-tvecs[i][1]*1000;
         object.z_pos=dist*1000;
         //solution with linear fit not ideal 
-        //float yaw = get_pixel_distance(corners[i][0],corners[i][3])-get_pixel_distance(corners[i][1],corners[i][2]);
-        //float pitch =get_pixel_distance(corners[i][2],corners[i][3])-get_pixel_distance(corners[i][1],corners[i][0]);
+        float yaw = get_pixel_distance(corners[i][0],corners[i][3])-get_pixel_distance(corners[i][1],corners[i][2]);
+        get_angle_from_polyfit(yaw);
+        float pitch =get_pixel_distance(corners[i][2],corners[i][3])-get_pixel_distance(corners[i][1],corners[i][0]);
+        get_angle_from_polyfit(pitch);
         //float roll=use special projection functions
-        float yaw = acos(get_pixel_distance(corners[i][1],corners[i][0])*0.0014/44)*180/M_PI; //not gonna work use the formula with the projection as I do with z 
-        float pitch = acos(get_pixel_distance(corners[i][1],corners[i][2])*0.0014/44)*180/M_PI;
+        //float yaw = acos(get_pixel_distance(corners[i][1],corners[i][0])*0.0014/44)*180/M_PI; //not gonna work use the formula with the projection as I do with z 
+        //float pitch = acos(get_pixel_distance(corners[i][1],corners[i][2])*0.0014/44)*180/M_PI;
         float roll =acos((corners[i][1].x-corners[i][0].x)/get_pixel_distance (corners[i][1],corners[i][0]))*180/M_PI;//use the formula and find the angle in the pixel space!This works, just need to adjust the sign
+        if(corners[i][1].y<corners[i][0].y) roll=-roll;
       #endif
      
       //get_euler_angle(intrinsics,tag_center_x,tag_center_y,dist);
@@ -92,7 +107,7 @@ void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,c
       object.x_rot =pitch; //will give the ar tags rotations then the gripper can stay at that angle
       object.y_rot =yaw;//rvecs[i][1]*180/M_PI; //add rotation relative to gripper
       object.z_rot =roll;//rvecs[i][2]*180/M_PI; //add rotation relative to gripper
-      
+      average_object_params(object,samples);
       break;
     }
     else { //send an error message or a reset arm position command
@@ -142,7 +157,37 @@ float get_pixel_distance (const Point2f& pixel1,const Point2f& pixel2){
   return norm;
 }
 
+void average_object_params(vision_no_ros::panel_object& object,int samples){
+  if (active_sample < samples){
+    x_pos_average= object.x_pos+x_pos_average;
+    y_pos_average= object.y_pos+y_pos_average;
+    z_pos_average= object.z_pos+z_pos_average;
+    x_rot_average= object.x_rot+x_rot_average;
+    y_rot_average= object.y_rot+y_rot_average;
+    z_rot_average= object.z_rot+z_rot_average;
+    ++active_sample;
+  }else {
+    object.x_pos=x_pos_average/samples;
+    object.y_pos=y_pos_average/samples;
+    object.z_pos=z_pos_average/samples;
+    object.x_rot=x_rot_average/samples;
+    object.y_rot=y_rot_average/samples;
+    object.z_rot=z_rot_average/samples;
+    x_pos_average=0;
+    y_pos_average=0;
+    z_pos_average=0;
+    x_rot_average=0;
+    y_rot_average=0;
+    z_rot_average=0;
+    active_sample=0;
+  }
+}
 
+void get_angle_from_polyfit(float& difference){
+
+  float angle=0.00118*pow(difference,3)-3.634e-17*pow(difference,2)-2.169*difference+2.92e-15;//polyfit needs to be more precise 
+  difference=angle;
+}
 
 
 

@@ -37,21 +37,21 @@ namespace cntrl_pnl {
     struct PanelA {
         char name[6];
         ArTag artg1; //removed artag 2, it no longer exists
-        Object switchMain,switch1, switch2, switch3, switch4; //adde mai switch
+        Object switchMain,switch1, switch2, switch3, switch4; //added main switch
 
     };
 
     struct PanelB1 {
         char name[6];
-        ArTag artg3, artg4, artg5, artg6;
-        Object outlet, jumper;
+        ArTag artg2, artg3;
+        Object outlet, button,emagLock;
 
     };
 
     struct PanelB2 {
         char name[6];
-        ArTag artg7;
-        Object ethrnet;
+        ArTag artg4;
+        Object ethernet;
 
     };
 
@@ -113,37 +113,31 @@ namespace cntrl_pnl {
         PanelB1 PNLB1;
         strcpy(PNLB1.name, "PNLB1");
 
+        strcpy(PNLB1.artg2.name, "ARTG2");
+        PNLB1.artg2.pos.x_coor= Dist3;
+        PNLB1.artg2.pos.y_coor= Dist1/2.0;
+        PNLB1.artg2.width=Wdth2;
+        PNLB1.artg2.id = 2;
+
         strcpy(PNLB1.artg3.name, "ARTG3");
-        PNLB1.artg3.pos.x_coor= -Dist3;
-        PNLB1.artg3.pos.y_coor= Dist1/2.0;
+        PNLB1.artg3.pos.x_coor= Dist3;
+        PNLB1.artg3.pos.y_coor= -Dist1/2.0;
         PNLB1.artg3.width=Wdth2;
         PNLB1.artg3.id = 3;
 
-        strcpy(PNLB1.artg4.name, "ARTG4");
-        PNLB1.artg4.pos.x_coor= Dist3;
-        PNLB1.artg4.pos.y_coor= Dist1/2.0;
-        PNLB1.artg4.width=Wdth2;
-        PNLB1.artg4.id = 4;
-
-        strcpy(PNLB1.artg5.name, "ARTG5");
-        PNLB1.artg5.pos.x_coor= -Dist3;
-        PNLB1.artg5.pos.y_coor= -Dist1/2.0;
-        PNLB1.artg5.width=Wdth2;
-        PNLB1.artg5.id = 5;
-
-        strcpy(PNLB1.artg6.name, "ARTG6");
-        PNLB1.artg6.pos.x_coor= Dist3;
-        PNLB1.artg6.pos.y_coor= -Dist1/2.0;
-        PNLB1.artg6.width=Wdth2;
-        PNLB1.artg6.id = 6;
-
-        strcpy(PNLB1.outlet.name, "OUTLT");
+        strcpy(PNLB1.outlet.name, "OUTLET");
         PNLB1.outlet.pos.x_coor= 0;
-        PNLB1.outlet.pos.y_coor= Dist1/2.0;
+        PNLB1.outlet.pos.y_coor= -Dist1/2.0;
 
-        strcpy(PNLB1.jumper.name, "JMPER");
-        PNLB1.jumper.pos.x_coor= 0;
-        PNLB1.jumper.pos.y_coor= -Dist1/2.0;
+        strcpy(PNLB1.button.name, "BUTTON");
+        PNLB1.button.pos.x_coor= 0;
+        PNLB1.button.pos.y_coor= Dist1/2.0;
+
+        strcpy(PNLB1.emagLock.name, "EMAGLOCK");
+        PNLB1.emagLock.pos.x_coor= -123.5;
+        PNLB1.emagLock.pos.y_coor= -Dist1/2.0+6.0;
+
+
 
         control_panel.panelB1 = PNLB1;
     // Setup of Panel B2
@@ -152,15 +146,15 @@ namespace cntrl_pnl {
 
         strcpy(PNLB2.name, "PNLB2");
 
-        strcpy(PNLB2.artg7.name, "ARTG7");
-        PNLB2.artg7.pos.x_coor= 0;
-        PNLB2.artg7.pos.y_coor= -Dist1/2.0;
-        PNLB2.artg7.width=Wdth1;
-        PNLB2.artg7.id=7;
+        strcpy(PNLB2.artg4.name, "ARTG4");
+        PNLB2.artg4.pos.x_coor= 0;
+        PNLB2.artg4.pos.y_coor= -Dist1/2.0;
+        PNLB2.artg4.width=Wdth1;
+        PNLB2.artg4.id=4;
 
-        strcpy(PNLB2.ethrnet.name, "ETHRN");
-        PNLB2.ethrnet.pos.x_coor= 0;
-        PNLB2.ethrnet.pos.y_coor= Dist1/2.0;
+        strcpy(PNLB2.ethernet.name, "ETHRN");
+        PNLB2.ethernet.pos.x_coor= 0;
+        PNLB2.ethernet.pos.y_coor= Dist1/2.0;
 
         control_panel.panelB2 = PNLB2;
     // Verification prints for Panel A 
@@ -176,18 +170,16 @@ namespace cntrl_pnl {
 
     // Verification prints for Panel B1
 
+        printf("%s \n%s \n%f \n%f \n%f\n\n", PNLB1.name, PNLB1.artg2.name, PNLB1.artg2.pos.x_coor, PNLB1.artg2.pos.y_coor, PNLB1.artg2.width);
         printf("%s \n%s \n%f \n%f \n%f\n\n", PNLB1.name, PNLB1.artg3.name, PNLB1.artg3.pos.x_coor, PNLB1.artg3.pos.y_coor, PNLB1.artg3.width);
-        printf("%s \n%s \n%f \n%f \n%f\n\n", PNLB1.name, PNLB1.artg4.name, PNLB1.artg4.pos.x_coor, PNLB1.artg4.pos.y_coor, PNLB1.artg4.width);
-        printf("%s \n%s \n%f \n%f \n%f\n\n", PNLB1.name, PNLB1.artg5.name, PNLB1.artg5.pos.x_coor, PNLB1.artg5.pos.y_coor, PNLB1.artg5.width);
-        printf("%s \n%s \n%f \n%f \n%f\n\n", PNLB1.name, PNLB1.artg6.name, PNLB1.artg6.pos.x_coor, PNLB1.artg6.pos.y_coor, PNLB1.artg6.width);
         printf("%s \n%s \n%f \n%f\n\n", PNLB1.name, PNLB1.outlet.name, PNLB1.outlet.pos.x_coor, PNLB1.outlet.pos.y_coor);
-        printf("%s \n%s \n%f \n%f\n\n", PNLB1.name, PNLB1.jumper.name, PNLB1.jumper.pos.x_coor, PNLB1.jumper.pos.y_coor);
-
+        printf("%s \n%s \n%f \n%f\n\n", PNLB1.name, PNLB1.button.name, PNLB1.button.pos.x_coor, PNLB1.button.pos.y_coor);
+        printf("%s \n%s \n%f \n%f\n\n", PNLB1.name, PNLB1.emagLock.name, PNLB1.emagLock.pos.x_coor, PNLB1.emagLock.pos.y_coor);
 
     // Verification prints for Panel B2
 
-        printf("%s \n%s \n%f \n%f \n%f\n\n", PNLB2.name, PNLB2.artg7.name, PNLB2.artg7.pos.x_coor, PNLB2.artg7.pos.y_coor, PNLB2.artg7.width);
-        printf("%s \n%s \n%f \n%f\n\n", PNLB2.name, PNLB2.ethrnet.name, PNLB2.ethrnet.pos.x_coor, PNLB2.ethrnet.pos.y_coor); 
+        printf("%s \n%s \n%f \n%f \n%f\n\n", PNLB2.name, PNLB2.artg4.name, PNLB2.artg4.pos.x_coor, PNLB2.artg4.pos.y_coor, PNLB2.artg4.width);
+        printf("%s \n%s \n%f \n%f\n\n", PNLB2.name, PNLB2.ethernet.name, PNLB2.ethernet.pos.x_coor, PNLB2.ethernet.pos.y_coor); 
 
     }
 

@@ -3,12 +3,7 @@
 #include <opencv2/aruco.hpp>
 #include <vector>
 #include <ros/ros.h>
-//#define ROS_IMAGE_PUB
-//#ifdef  ROS_IMAGE_PUB
-//#include<sensor_msgs/image_encodings.h>
-//#include <image_transport/image_transport.h>
-//#include <cv_bridge/cv_bridge.h>
-//#endif
+
 //includes for my headers
 #include <vision_no_ros/cntrl_pnl.h> //included in  object_refresh
 #include <vision_no_ros/cv-helpers.hpp>
@@ -22,10 +17,17 @@ using namespace cv;
 
 cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_7X7_250);
 
+void fsm_callback(const std_msgs::String::ConstPtr& msg){
+ROS_INFO("I heard: [%s]", msg->data.c_str());
+}
+ 
+
 int main(int argc, char **argv) try {   
+    
     ros::init(argc, argv, "detected_elements_publisher");
     ros::NodeHandle n;
     ros::Publisher pub = n.advertise<vision_no_ros::object_list>("detected_elements", 1);
+    ros::Subscriber sub = n.subscribe("vision_FSM", 1000, fsm_callback);
     
     cntrl_pnl::ControlPanel my_panel;
     cntrl_pnl::setup_control_panel(my_panel);

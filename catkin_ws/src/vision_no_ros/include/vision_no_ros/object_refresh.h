@@ -185,8 +185,18 @@ void average_object_params(vision_no_ros::panel_object& object,int samples){
 
 void get_angle_from_polyfit(float& difference){
 
-  float angle=0.00118*pow(difference,3)-3.634e-17*pow(difference,2)-2.169*difference+2.92e-15;//polyfit needs to be more precise 
+  
+  float angle;
+  if(difference>=16) {
+    angle=40;
+  }else if (difference<=-16){
+    angle=-40;
+  }else{
+    //float angle=2.817*difference-0.7838; //first order is not that bad
+    angle =-0.004901*pow(difference,3)-0.00694*pow(difference,2)+3.746*difference+1.405; // looks like a sine so wont be ideal for angles outside of range (-40 to +40 degs)
+  }
   difference=angle;
+  return;
 }
 
 

@@ -13,7 +13,7 @@ int main(int argc, char** argv)
   ros::AsyncSpinner spinner(3);
   spinner.start();
   // Create the hardware interface specific to your robot
-  std::shared_ptr<my_robot_ns::MyHWInterface> my_hw_interface(
+  boost::shared_ptr<my_robot_ns::MyHWInterface> my_hw_interface(
       new my_robot_ns::MyHWInterface(nh));
   my_hw_interface->init();
   // Start the control loop

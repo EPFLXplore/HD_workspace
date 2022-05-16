@@ -249,7 +249,7 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain){
 
 int main(int argc, char **argv) {
 
-    std::string network_interface_name("eth0");
+    std::string network_interface_name("eth1");
     ros::init(argc, argv, "hd_controller_motors");
     ros::NodeHandle n;
     ros::Subscriber man_cmd_sub = n.subscribe<std_msgs::Float32MultiArray>("/arm_control/manual_cmd", 10, manualCommandCallback);
@@ -262,12 +262,15 @@ int main(int argc, char **argv) {
     // 3-axis: 1st slot next to ETHERNET-IN
     xcontrol::OneAxisSlot epos_1(true, 0x000000fb, 0x60500000);
     xcontrol::OneAxisSlot epos_2(true, 0x000000fb, 0x65510000);
+    xcontrol::ThreeAxisSlot epos_3(false, 0x000000fb, 0x69500000), epos_4(false, 0x000000fb, 0x69500000), empty(false, 0x000000fb, 0x69500000);
+    xcontrol::ThreeAxisSlot epos_5(false, 0x000000fb, 0x69500000), epos_6(false, 0x000000fb, 0x69500000), epos_7(false, 0x000000fb, 0x69500000);
+
     //Epos4Extended epos_1(true);
     //epos_1.set_Id("EPOS4", 0x000000fb, 0x60500000);
     //xcontrol::OneAxisSlot epos_2(true);
     //xcontrol::ThreeAxisSlot epos_2(true), epos_3(true), epos_4(true);
     //xcontrol::ThreeAxisSlot epos_5(true), epos_6(true), epos_7(true);
-    vector<xcontrol::Epos4Extended*> chain = {&epos_1, &epos_2};//, &epos_2, &epos_3, &epos_4, &epos_5, &epos_6, &epos_7};
+    vector<xcontrol::Epos4Extended*> chain = {&epos_1, &epos_2, &epos_3, &epos_4, &epos_5};//, &epos_5, &epos_6, &epos_7};
 
     bool is_scanning = true;
 

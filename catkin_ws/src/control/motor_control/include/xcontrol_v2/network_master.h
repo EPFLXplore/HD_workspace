@@ -1,5 +1,6 @@
 #pragma once
 #include <ethercatcpp/master.h>
+#include <ethercatcpp/soem_master_pimpl.h>
 #include "epos4_extended.h"
 
 #include <string>

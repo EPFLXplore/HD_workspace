@@ -117,7 +117,7 @@ namespace ethercatcpp {
         void wait_Period();
 
 
-      private:
+      //private:
 
         // copy slave object in slavelist of master
         void add_Slave(int nSlave, Slave* slave_ptr);

@@ -39,5 +39,15 @@ void NetworkMaster::switch_motors_to_enable_op() {
     }
 }
 
+void NetworkMaster::sort(std::vector<int> order) {
+	std::vector<Epos4Extended*> temp;
+	for (size_t i = 0; i < epos_chain_.size(); i++) {
+        temp.push_back(epos_chain_[i]);
+    }
+	for (size_t i = 0; i < order.size(); i++) {
+        epos_chain_[order[i]-1] = temp[i];
+    }
+}
+
 
 }

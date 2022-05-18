@@ -26,64 +26,36 @@
 using namespace std;
 using namespace ethercatcpp;
 using namespace pid;
-//using namespace xcontrol;
-
-#define MOTOR_COUNT 2
-#define PRINT_STATE true
-#define QC_SPEED_CONVERSION 4000
-#define RAD_TO_QC_CONVERSION 10000
-#define JOINT56_DEPENDENCY 1    // TODO
-#define JOINT56_DEPENDENT false // TODO
 
 
-/*double current_pos[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
-double target_pos[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
-double target_vel[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
-bool active[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
-double max_current[MOTOR_COUNT] = {0.155, 4.255, 2.195, 0.135, 0.652, 0.652, 2.120};  // TODO
-float step_size[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
-Epos4::control_mode_t control_mode(Epos4::position_CSP);
-
-static const int period = 25; // [ms]
-static const int security_qc = 1000;    // change this
-static const float reference_step_size[MOTOR_COUNT] = {60.0*period, 100.0*period, 40.0*period, 60.0*period, 200.0*period, 200.0*period, 80.0*period};   // TODO
-static const float max_qc[MOTOR_COUNT] = {2*M_PI, 2*M_PI, 1000000000, 2*M_PI, 2*M_PI, 2*M_PI, 2*M_PI};  // TODO
-static const float min_qc[MOTOR_COUNT] = {-474270, 0, -1000000000, 0, 0, 0, 0}; // TODO
-static const double max_velocity[MOTOR_COUNT] = {60, 60, 60, 60, 60, 60, 60};    // [rpm]    TODO
-static const double reduction[MOTOR_COUNT] = {70, 70, 70, 70, 70, 70, 70};    // TODO*/
+Controller::Controller(bool * has_motor) : {
+    double current_pos[MOTOR_COUNT] = {0,0};
+    double target_pos[MOTOR_COUNT] = {0,0};
+    double target_vel[MOTOR_COUNT] = {0,0};
+    bool active[MOTOR_COUNT] = {0,0};
+    double max_current[MOTOR_COUNT] = {0.155};
+    float step_size[MOTOR_COUNT] = {0};
+    Epos4::control_mode_t control_mode(Epos4::velocity_CSV);
 
 
+    bool taking_commands = true;
+    auto last_command_time = chrono::steady_clock::now();
 
-//====================================================================================================
-double current_pos[MOTOR_COUNT] = {0,0};
-double target_pos[MOTOR_COUNT] = {0,0};
-double target_vel[MOTOR_COUNT] = {0,0};
-bool active[MOTOR_COUNT] = {0,0};
-double max_current[MOTOR_COUNT] = {0.155};
-float step_size[MOTOR_COUNT] = {0};
-Epos4::control_mode_t control_mode(Epos4::velocity_CSV);
+    const Epos4::control_mode_t direct_control_mode = Epos4::velocity_CSV;
+    const Epos4::control_mode_t automatic_control_mode = Epos4::profile_position_PPM;
+    const double command_expiration = 200;
+    const int period = 25;
+    const float reference_step_size[MOTOR_COUNT] = {60.0*period};
+    const float max_qc[MOTOR_COUNT] = {2*M_PI};
+    const float min_qc[MOTOR_COUNT] = {-474270};
+    const float max_angle[MOTOR_COUNT] = {3, 1.2, 2, 2};
+    const float min_angle[MOTOR_COUNT] = {-6, -0.6, -2, -2};
+    const double max_velocity[MOTOR_COUNT] = {5, 1, 30, 5};
+    const double reduction[MOTOR_COUNT] = {2*231, 480*16, 243, 2*439};
+    const double security_angle_coef[MOTOR_COUNT] = {0, 0, 0, 0};
+}
 
-
-bool taking_commands = true;
-auto last_command_time = chrono::steady_clock::now();
-
-static const Epos4::control_mode_t direct_control_mode = Epos4::velocity_CSV;
-static const Epos4::control_mode_t automatic_control_mode = Epos4::profile_position_PPM;
-static const double command_expiration = 200;
-static const int period = 25;
-static const float reference_step_size[MOTOR_COUNT] = {60.0*period};
-static const float max_qc[MOTOR_COUNT] = {2*M_PI};
-static const float min_qc[MOTOR_COUNT] = {-474270};
-static const float max_angle[MOTOR_COUNT] = {3, 1.2};
-static const float min_angle[MOTOR_COUNT] = {-6, -0.6};
-static const double max_velocity[MOTOR_COUNT] = {5, 1};
-static const double reduction[MOTOR_COUNT] = {2*231, 480*16};
-static const double security_angle_coef[MOTOR_COUNT] = {0, 0};
-//====================================================================================================
-
-
-
-void accountForJoint56Dependency() {
+void Controller::accountForJoint56Dependency() {
     if (MOTOR_COUNT >= 6) {
         target_vel[5] -= target_vel[4]*JOINT56_DEPENDENCY;
         // TODO: for position_CSP and profile_position_PPM modes
@@ -91,7 +63,7 @@ void accountForJoint56Dependency() {
 }
 
 
-void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
+void Controller::manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
     last_command_time = chrono::steady_clock::now();
     float vel;
     bool empty_command = true;
@@ -114,7 +86,7 @@ void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
 }
 
 
-void stateCommandCallback(const sensor_msgs::JointState::ConstPtr& msg) {
+void Controller::stateCommandCallback(const sensor_msgs::JointState::ConstPtr& msg) {
     last_command_time = chrono::steady_clock::now();
     control_mode = automatic_control_mode;
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
@@ -124,20 +96,20 @@ void stateCommandCallback(const sensor_msgs::JointState::ConstPtr& msg) {
 }
 
 
-bool command_too_old() {
+bool Controller::command_too_old() {
     auto now = chrono::steady_clock::now();
     return (chrono::duration_cast<chrono::milliseconds>(now-last_command_time).count() > command_expiration);
 }
 
 
-double security_angle(double vel, size_t it) {
+double Controller::security_angle(double vel, size_t it) {
     // TODO
     if (vel < 0) vel = -vel;
     return vel*security_angle_coef[it];
 }
 
 
-void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
+void Controller::enforce_limits(){
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
         if (chain[it]->get_has_motor()) {
             switch (control_mode) {
@@ -167,7 +139,7 @@ void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
 }
 
 
-void update_targets(vector<xcontrol::Epos4Extended*> chain) {
+void Controller::update_targets() {
     for (size_t it=0; it<chain.size(); ++it) {
         if (chain[it]->get_has_motor()) {
             chain[it]->set_Control_Mode(control_mode);
@@ -191,7 +163,7 @@ void update_targets(vector<xcontrol::Epos4Extended*> chain) {
 }
 
 
-void stop(vector<xcontrol::Epos4Extended*> chain) {
+void Controller::stop() {
     for (size_t it=0; it<chain.size(); ++it) {
         if (chain[it]->get_has_motor()) {
             switch (control_mode) {
@@ -212,7 +184,7 @@ void stop(vector<xcontrol::Epos4Extended*> chain) {
 }
 
 
-void set_goals(vector<xcontrol::Epos4Extended*> chain){
+void Controller::set_goals(){
     if (command_too_old()) {
         stop(chain);
     }
@@ -249,7 +221,7 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain){
 
 int main(int argc, char **argv) {
 
-    std::string network_interface_name("eth1");
+    std::string network_interface_name("eth0");
     ros::init(argc, argv, "hd_controller_motors");
     ros::NodeHandle n;
     ros::Subscriber man_cmd_sub = n.subscribe<std_msgs::Float32MultiArray>("/arm_control/manual_cmd", 10, manualCommandCallback);
@@ -262,7 +234,7 @@ int main(int argc, char **argv) {
     // 3-axis: 1st slot next to ETHERNET-IN
     xcontrol::OneAxisSlot epos_1(true, 0x000000fb, 0x60500000);
     xcontrol::OneAxisSlot epos_2(true, 0x000000fb, 0x65510000);
-    xcontrol::ThreeAxisSlot epos_3(false, 0x000000fb, 0x69500000), epos_4(false, 0x000000fb, 0x69500000), empty(false, 0x000000fb, 0x69500000);
+    xcontrol::ThreeAxisSlot epos_4(true, 0x000000fb, 0x69500000), epos_3(true, 0x000000fb, 0x69500000), empty(false, 0x000000fb, 0x69500000);
     xcontrol::ThreeAxisSlot epos_5(false, 0x000000fb, 0x69500000), epos_6(false, 0x000000fb, 0x69500000), epos_7(false, 0x000000fb, 0x69500000);
 
     //Epos4Extended epos_1(true);
@@ -270,7 +242,7 @@ int main(int argc, char **argv) {
     //xcontrol::OneAxisSlot epos_2(true);
     //xcontrol::ThreeAxisSlot epos_2(true), epos_3(true), epos_4(true);
     //xcontrol::ThreeAxisSlot epos_5(true), epos_6(true), epos_7(true);
-    vector<xcontrol::Epos4Extended*> chain = {&epos_1, &epos_2, &epos_3, &epos_4, &epos_5};//, &epos_5, &epos_6, &epos_7};
+    vector<xcontrol::Epos4Extended*> chain = {&epos_1, &epos_2, &epos_3, &epos_4, &empty}; //, &epos_5, &epos_6, &epos_7};
 
     bool is_scanning = true;
 

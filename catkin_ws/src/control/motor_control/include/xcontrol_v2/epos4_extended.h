@@ -13,6 +13,7 @@ public:
 
     void switch_to_enable_op();
     bool get_has_motor();
+    int id_;
 
 private:
 

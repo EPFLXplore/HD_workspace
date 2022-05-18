@@ -2,6 +2,7 @@
 #include <ethercatcpp/master.h>
 #include <ethercatcpp/soem_master_pimpl.h>
 #include "epos4_extended.h"
+#include "one_axis_slot.h"
 
 #include <string>
 #include <vector>
@@ -15,6 +16,7 @@ public:
 
     void init_network();
     void switch_motors_to_enable_op();
+    void sort(std::vector<int> order);
 
 private:
 

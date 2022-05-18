@@ -33,10 +33,12 @@ class Manager:
 
     def directCmdCallback(self, msg):# Int8MultiArray):
         """listens to HD_Angles topic"""
-        self.direct_command = msg.data
+        max_speed = 100
+        self.direct_command = [float(x)/max_speed for x in msg.data]
 
     def manualVelocityCallback(self, msg):# Float32):
-        """listens to HD_ManualVelocity topic"""
+        """DEPRECATED
+        listens to HD_ManualVelocity topic"""
         #rospy.logwarn("received velocity   " + str(msg.data))
         self.velocity = msg.data
         self.received_velocity_at = time.time()
@@ -48,11 +50,15 @@ class Manager:
 
     def send_direct_cmd(self):
         """sends the last direct command to the motor control and locks any other command until completion"""
-        if not self.velocity_command_old():
+        msg = Float32MultiArray()
+        msg.data = self.direct_command
+        #rospy.logwarn("manager :   " + str(msg.data))
+        self.manual_cmd_pub.publish(msg)
+        """if not self.velocity_command_old():
             msg = Float32MultiArray()
             msg.data = self.format_direct_command()
             #rospy.logwarn(str(msg.data))
-            self.manual_cmd_pub.publish(msg)
+            self.manual_cmd_pub.publish(msg)"""
 
     def updateWorld(self):
         """sends a world update to the trajectory planner"""
@@ -61,6 +67,7 @@ class Manager:
         return time.time()-self.received_velocity_at > self.velocity_expiration
 
     def format_direct_command(self):
+        """DEPRECATED"""
         return [cmd*self.velocity for cmd in self.direct_command]
 
     def normal_loop_action(self):
@@ -97,8 +104,6 @@ class Manager:
                 self.transition_loop_action()
             else:
                 self.normal_loop_action()
-            rospy.logwarn("state:    " + str(self.direct_command))
-            rospy.logwarn("vel:      " + str(self.velocity))
             rate.sleep()
 
 

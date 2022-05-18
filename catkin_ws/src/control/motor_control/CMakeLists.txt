@@ -35,7 +35,7 @@ ${PROJECT_SOURCE_DIR}/include
 message(STATUS "DIR : --------->  ${PROJECT_SOURCE_DIR}")
 
 
-add_executable(motor_control src/motor_control.cpp
+add_executable(motor_control src/motor_main0.cpp
         include/xcontrol_v2/epos4_extended.h
         include/xcontrol_v2/network_master.h
         include/xcontrol_v2/one_axis_slot.h

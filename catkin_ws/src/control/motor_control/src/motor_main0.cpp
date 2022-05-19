@@ -76,12 +76,12 @@ static const int period = 25;
 static const float reference_step_size[MAX_MOTOR_COUNT] = {60.0*period};
 static const float max_qc[MAX_MOTOR_COUNT] = {2*M_PI};
 static const float min_qc[MAX_MOTOR_COUNT] = {-474270};
-static const float max_angle[MAX_MOTOR_COUNT] = {3, 1.2, 20, 2, 2, 2, 2, 2}; // 1 2 NULL 3 4 6 7 5
-static const float min_angle[MAX_MOTOR_COUNT] = {-6, -0.6, -20, -2, -2, -2, -2, -2};
-static const double max_velocity[MAX_MOTOR_COUNT] = {5, 1, 100000, 1, 1, 1, 1, 1};
+static const float max_angle[MAX_MOTOR_COUNT] = {8, 100, 20, 8, 100, 100, 100, 100}; // 1 2 NULL 3 4 6 7 5
+static const float min_angle[MAX_MOTOR_COUNT] = {-8, -100, -20, -8, -100, -100, -100, -100};
+static const double max_velocity[MAX_MOTOR_COUNT] = {5, 1, 10, 5, 5, 10, 10, 1};
 static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 243, 2*439, 2*439, 2*231, 1*16*700, 0};
 static const double security_angle_coef[MAX_MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
-static const vector<int> order = {1, 2, 8, 3, 4, 6, 7, 5};
+static const vector<int> order = {1, 2, 8, 3, 4, 5, 6, 7};
 //====================================================================================================
 
 
@@ -260,7 +260,7 @@ void definitive_stop(vector<xcontrol::Epos4Extended*> chain) {
 
 int main(int argc, char **argv) {
 
-    std::string network_interface_name("eth0");
+    std::string network_interface_name("eth1");
     ros::init(argc, argv, "hd_controller_motors");
     ros::NodeHandle n;
     ros::Subscriber man_cmd_sub = n.subscribe<std_msgs::Float32MultiArray>("/arm_control/manual_cmd", 10, manualCommandCallback);

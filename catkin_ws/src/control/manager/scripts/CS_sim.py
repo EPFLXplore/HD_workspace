@@ -11,7 +11,7 @@ CONTROL_KEYS = ["q", "w", "e", "r", "t", "z", "u", "i"]
 motor_state = [0]*MOTOR_COUNT
 vel = 0
 
-angles_pub = rospy.Publisher('HD_angles', Int8MultiArray, queue_size=10)
+angles_pub = rospy.Publisher('HD_joints', Int8MultiArray, queue_size=10)
 vel_pub = rospy.Publisher('HD_ManualVelocity', Float32, queue_size=10)
 
 

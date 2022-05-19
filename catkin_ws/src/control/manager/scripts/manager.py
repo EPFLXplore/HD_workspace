@@ -15,7 +15,8 @@ class Manager:
         self.velocity = 0
         self.received_velocity_at = time.time()
         self.velocity_expiration = .5   # seconds
-        self.direct_command = [0]
+        motor_count = 8
+        self.direct_command = [0]*motor_count
         self.mode = self.MANUAL_DIRECT
         self.target_mode = self.MANUAL_DIRECT
         self.mode_transitioning = False
@@ -52,7 +53,7 @@ class Manager:
         """sends the last direct command to the motor control and locks any other command until completion"""
         msg = Float32MultiArray()
         msg.data = self.direct_command
-        #rospy.logwarn("manager :   " + str(msg.data))
+        rospy.logwarn("manager :   " + str(msg.data))
         self.manual_cmd_pub.publish(msg)
         """if not self.velocity_command_old():
             msg = Float32MultiArray()
@@ -94,7 +95,7 @@ class Manager:
     def run(self):
         """main"""
         self.manual_cmd_pub = rospy.Publisher('/arm_control/manual_cmd', Float32MultiArray, queue_size=10)
-        rospy.Subscriber("HD_angles", Int8MultiArray, self.directCmdCallback)
+        rospy.Subscriber("HD_joints", Int8MultiArray, self.directCmdCallback)
         rospy.Subscriber("HD_ManualVelocity", Float32, self.manualVelocityCallback)
         #rospy.init_node('HD_control_manager', anonymous=True)
         rate = rospy.Rate(25)   # 25hz

@@ -34,7 +34,7 @@ using namespace pid;
 #define QC_SPEED_CONVERSION 4000
 #define RAD_TO_QC_CONVERSION 10000
 #define JOINT56_DEPENDENCY 1    // TODO
-#define JOINT56_DEPENDENT false // TODO
+#define JOINT56_DEPENDENT true // TODO
 #define PERIOD 25  // [ms]
 
 
@@ -76,9 +76,9 @@ static const int period = 25;
 static const float reference_step_size[MAX_MOTOR_COUNT] = {60.0*period};
 static const float max_qc[MAX_MOTOR_COUNT] = {2*M_PI};
 static const float min_qc[MAX_MOTOR_COUNT] = {-474270};
-static const float max_angle[MAX_MOTOR_COUNT] = {8, 100, 20, 8, 100, 100, 100, 100}; // 1 2 NULL 3 4 6 7 5
-static const float min_angle[MAX_MOTOR_COUNT] = {-8, -100, -20, -8, -100, -100, -100, -100};
-static const double max_velocity[MAX_MOTOR_COUNT] = {5, 1, 10, 5, 5, 10, 10, 1};
+static const float max_angle[MAX_MOTOR_COUNT] = {11.3, 1.54, 209, 13.6, 5.23, 0.62, 0.23, 100};
+static const float min_angle[MAX_MOTOR_COUNT] = {-14.7, -1.57, -31, -12.2, -2.7, -1.41, -0.3, -100};
+static const double max_velocity[MAX_MOTOR_COUNT] = {5, 1, 400, 5, 6, 12, 1, 0};
 static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 243, 2*439, 2*439, 2*231, 1*16*700, 0};
 static const double security_angle_coef[MAX_MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
 static const vector<int> order = {1, 2, 8, 3, 4, 5, 6, 7};
@@ -88,7 +88,8 @@ static const vector<int> order = {1, 2, 8, 3, 4, 5, 6, 7};
 
 void accountForJoint56Dependency() {
     if (MOTOR_COUNT >= 6) {
-        target_vel[5] -= target_vel[4]*JOINT56_DEPENDENCY;
+        double vel = target_vel[4]/reduction[4]*reduction[5];
+        target_vel[5] -= vel*JOINT56_DEPENDENCY;
         // TODO: for position_CSP and profile_position_PPM modes
     }
 }

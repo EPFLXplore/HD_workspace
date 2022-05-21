@@ -37,14 +37,14 @@ namespace cntrl_pnl {
     struct PanelA {
         char name[6];
         ArTag artg1; //removed artag 2, it no longer exists
-        Object switchMain,switch1, switch2, switch3, switch4; //added main switch
+        Object switchMain, switch1, switch2, switch3, switch4; //added main switch
 
     };
 
     struct PanelB1 {
         char name[6];
         ArTag artg2, artg3;
-        Object outlet, button,emagLock;
+        Object outlet, button, emagLock;
 
     };
 

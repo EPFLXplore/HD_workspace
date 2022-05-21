@@ -19,7 +19,7 @@ using namespace std;
 using namespace cv;
 
 static bool show_input_image(0);
-static bool show_output_image(0);
+static bool show_output_image(1);
 #define SAMPLES 30
 
 
@@ -45,7 +45,7 @@ int main(int argc, char **argv) try {
     ros::NodeHandle n;
     ros::Publisher pub = n.advertise<vision_no_ros::object_list>("detected_elements", 1);
     ros::Subscriber sub = n.subscribe("vision_FSM", 1000, fsm_callback);
-    //ros::spin();//this is needed for the calbacks to be actually alled its an infinite loop...
+    //ros::spin();//this is needed for the calbacks to be actually called its an infinite loop...
 
     //////////// control panel initialisation ////////////
     cntrl_pnl::ControlPanel my_panel;
@@ -83,10 +83,12 @@ int main(int argc, char **argv) try {
             
             cv::aruco::estimatePoseSingleMarkers(corners, 0.044, cameraMatrix, distCoeffs, rvecs, tvecs);// dont forget to modify the ar tag size!! //this function might become obsolete this will need to be added inside the ifs because the ar tag size changes
             
-            uint command=1;// test variable , replaces the topic I should be subscribed to to know which on=bject to manipulate
+            uint command=0;// test variable , replaces the topic I should be subscribed to to know which on=bject to manipulate
             static int active_sample=0;
             ///////////////////////////////////////////////// start refreshing the objects ///////////////////////////////////          
             vision_no_ros::object_list objects;//decalre objects list
+            
+            //// panel A
             
             if (command==0 or command==1){
                 //declare object and refresh it
@@ -112,6 +114,35 @@ int main(int argc, char **argv) try {
                 refresh_object(switch_3,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch3,depth,corners,intrinsics,SAMPLES);
                 if (active_sample==SAMPLES) objects.detected_objects.push_back(switch_3);
             }
+
+            //// panel B1
+
+            if (command==0 or command==5){
+                vision_no_ros::panel_object button;
+                refresh_object(button,ids,rvecs,tvecs,my_panel.panelB1.artg2,my_panel.panelB1.button,depth,corners,intrinsics,SAMPLES);
+                if (active_sample==SAMPLES) objects.detected_objects.push_back(button);
+            }
+
+            if (command==0 or command==6){
+                vision_no_ros::panel_object outlet;
+                refresh_object(outlet,ids,rvecs,tvecs,my_panel.panelB1.artg3,my_panel.panelB1.outlet,depth,corners,intrinsics,SAMPLES);
+                if (active_sample==SAMPLES) objects.detected_objects.push_back(outlet);
+            }
+
+            if (command==0 or command==7){
+                vision_no_ros::panel_object emagLock;
+                refresh_object(emagLock,ids,rvecs,tvecs,my_panel.panelB1.artg3,my_panel.panelB1.emagLock,depth,corners,intrinsics,SAMPLES);
+                if (active_sample==SAMPLES) objects.detected_objects.push_back(emagLock);
+            }
+
+            //// panel B2
+
+            if (command==0 or command==8){
+                vision_no_ros::panel_object ethernet;
+                refresh_object(ethernet,ids,rvecs,tvecs,my_panel.panelB2.artg4,my_panel.panelB2.ethernet,depth,corners,intrinsics,SAMPLES);
+                if (active_sample==SAMPLES) objects.detected_objects.push_back(ethernet);
+            }
+
             /////////////////////////////////////////////// end object referesh /////////////////////////////////////////////////
 
 
@@ -120,11 +151,11 @@ int main(int argc, char **argv) try {
                 ++active_sample;
             }else {
                 active_sample=0;
+                //publish the list               
+                pub.publish(objects);
+                ros::spinOnce();
             }
                 
-            //publish the list               
-            pub.publish(objects);
-            ros::spinOnce();
         
             if (show_output_image){
                 cv::Mat output_image=image.clone();

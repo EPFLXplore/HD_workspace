@@ -11,41 +11,47 @@
 #include <iostream>
 #include <sstream>
 
-enum CtrlTasks {MANUAL = 1, NAVIGATION, MAINTENANCE, SCIENCE};
-enum CtrlCommands {LAUNCH = 1, ABORT, WAIT, RESUME, RETRY};
-enum States {INACTIVE = 1, INITIALISATION, WAITING, MEASUREMENT, ERROR};
+enum CtrlCommands {ABORT, RETRY, CONFIRM, MANUAL, AUTO};
+enum States {IDLE, AUTO_INIT, AUTO_TASK, AUTO_WAIT, MANUAL_INIT, MANUAL_TASK};
+
+//leave this for now but it isnt necessary for what we are doing in the new fsm design
 enum Element_IDs {ELEMENT1, ELEMENT2, ELEMENT3, Number_of_Elements, ALL, MANUAL_CTRL}; //ALL = init_pos, MANUAL_CTRL = all but without associated movement
 
-void determine_state(void);
+//logic selector
+void determine_state();
+void state_action();
 
-void inactive_state_change_check(void);
-void initialisation_state_change_check(void);
-void waiting_state_change_check(void);
-void measurement_state_change_check(void);
-void error_state_change_check(void);
+//state change logic
+void idle_state_change_check();
+void auto_init_state_change_check();
+void auto_task_state_change_check();
+void auto_wait_state_change_check();
+void manual_init_state_change_check();
+void manual_task_state_change_check();
 
-void state_action(void);
+//action logic (why is this a seperate thing??)
+void idle_action();
+void auto_init_action();
+void auto_task_action();
+void auto_wait_action();
+void manual_init_action();
+void manual_task_action();
 
-int8_t initialisation_action(void);
-int8_t waiting_action(void);
-int8_t measurement_action(void);
-int8_t error_action(void);
 
 int detected_elements_check(void);          //checks detected elements table for multiple situations used to change state (all tasks complete, reliability)
 
-void task_Callback(const std_msgs::Int8MultiArray::ConstPtr& task_array);
+//publishing helpers
+void status_publish(const char* status);
+void abort();
+
+//Callbacks -- NEEDS CLEANUP -- PK 2022
+void task_Callback(const std_msgs::Int8::ConstPtr& task_array);
 void HD_SemiAuto_Id_Callback(const std_msgs::Int8::ConstPtr& received_semi_auto_id);
 void HD_mode_Callback(const std_msgs::Int8::ConstPtr& received_mode);
-
 void end_of_movement_Callback(const std_msgs::UInt8::ConstPtr& received_end_of_movement);
 void end_of_task_Callback(const std_msgs::UInt8::ConstPtr& received_end_of_task);
-
 void TaskProgress_Callback(const std_msgs::Int8::ConstPtr& received_taskprogress);
-
 //void state_Callback(const std_msgs::UInt8::ConstPtr& state);
 void detected_elements_Callback(const std_msgs::Int16MultiArray::ConstPtr& received_detected_elements);
 //void current_element_Callback(const std_msgs::UInt8::ConstPtr& current_element);
 void bounding_boxes_Callback(const sensor_msgs::Image::ConstPtr& received_bounding_boxes);
-void RGB_intel_Callback(const sensor_msgs::Image::ConstPtr& received_RGB_intel);
-void RGB_webcam_1_Callback(const sensor_msgs::Image::ConstPtr& received_RGB_webcam_1);
-void RGB_webcam_2_Callback(const sensor_msgs::Image::ConstPtr& received_RGB_webcam_2);

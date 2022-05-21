@@ -5,7 +5,6 @@ PK 2021
 '''
 
 # from distutils.command.build_scripts import first_line_re
-from re import T
 import rospy
 from std_msgs.msg import String, Int8, UInt8, Int8MultiArray
 
@@ -21,10 +20,10 @@ class ToyRover():
         #first thing is gonna be having the FSM send out the current state
         rospy.Subscriber("detection/state", UInt8, self.hdStateCallback)
         rospy.Subscriber("detection/current_element", String, self.scienceMeasurementCallback)
-        # rospy.Subscriber("sc_info", String, self.scienceInfoCallback)
+        rospy.Subscriber("detection/status", String, self.scienceInfoCallback)
 
         #now we need to have the toyrover handle the input output
-        self.first_input = rospy.Publisher("Task", Int8MultiArray, queue_size=1)
+        self.first_input = rospy.Publisher("Task", Int8, queue_size=1)
         #opening command is [1,3]
 
     def scienceMeasurementCallback(self, data):
@@ -50,13 +49,8 @@ class ToyRover():
         
     def run(self):
         while True:
-            control = raw_input("Integer Command (See Chart): ")
-            ctrl_list = control.split()
-            ctrl_list = [int(a) for a in ctrl_list]
-            data = Int8MultiArray()
-            # print ctrl_list[0]
-            data.data = ctrl_list
-            self.first_input.publish(data)
+            control = int(raw_input("Integer Command (See Chart): "))
+            self.first_input.publish(control)
             # self.first_input.publish(control)
         rospy.spin()
 

@@ -1,7 +1,32 @@
+/*
+detection_manager.cpp houses the node listerner_node. It was originally written by Ben but
+has since been taken over by PK in MAY 2022. It undertook a big redesign.
+
+States:
+    - IDLE
+    - AUTO_INIT
+    - AUTO_TASK
+    - AUTO_WAIT
+    - MAN_INIT
+
+Publishers:
+    -TBD
+
+Subscribers:
+    -TBD
+
+-PK May 21 2022
+
+P.S. I hate the styling convention here but I am way too lazy to change this.
+*/
+
+
+
 //ros includes
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Int8.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/UInt8.h>
 #include <std_msgs/Int8MultiArray.h>
 #include <std_msgs/Int16MultiArray.h>
@@ -12,14 +37,14 @@
 #include <sstream>
 #include "detection_manager.h"
 
-#define LOW_BYTE_TRONCATION 0x00FF //multiplication by this value allows for troncation to the lower byte of a 16-bit int
-#define RELIABILITY_THRESHOLD 10   //minimum number of frames that detect the desired AR tag of (x frames) before an error is sent
+#define LOW_BYTE_TRONCATION 0x00FF  //multiplication by this value allows for troncation to the lower byte of a 16-bit int
+#define RELIABILITY_THRESHOLD 10    //minimum number of frames that detect the desired AR tag of (x frames) before an error is sent
+#define MASK 127                    //This is the mask so the fsm knows it is waiting for CS input in AUTO_INIT
 
 using namespace std;
 
 //Control Station Topic Values
 //Task
-static int8_t ctrl_task;
 static int8_t ctrl_command;
 static int8_t semi_auto_id;
 static int8_t mode;
@@ -30,12 +55,25 @@ static uint8_t end_of_movement;
 static uint8_t end_of_task;
 
 //Detection Software Topic Values
-static uint8_t state = 1;   //start in Inactive
+static uint8_t state = 0;   //start in IDLE
+static uint8_t current_element = MASK; //setting the button index to mask - stores which tube we are on
+static bool arm_confirm = false;    //confirms if the arm has autocompleted
 static int16_t detected_elements[Number_of_Elements][7];        //note that an element is actually a sub-task.
-                                                                //In theory, two elements could be linked to the same physical object on the control panel in the case where 
-                                                                //two different manipulations would be made to the same physical object
-static uint8_t current_element;
-//Images???
+
+//Publishers setup
+ros::Publisher state_pub;
+std_msgs::UInt8 state_msg;
+
+ros::Publisher status_pub;
+std_msgs::String status_msg;
+
+ros::Publisher current_element_pub;
+std_msgs::UInt8 current_element_msg;
+
+ros::Publisher camera_enable_pub;
+std_msgs::Bool camera_enable_msg;
+
+
 
 int main(int argc, char **argv)
 {
@@ -44,10 +82,10 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(10);
 
     //Publishers setup
-    ros::Publisher state_pub = manager.advertise<std_msgs::UInt8>("detection/state",1000);
-    std_msgs::UInt8 state_msg;
-    ros::Publisher current_element_pub = manager.advertise<std_msgs::UInt8>("detection/current_element",1000);
-    std_msgs::UInt8 current_element_msg;
+    state_pub = manager.advertise<std_msgs::UInt8>("detection/state",1000);
+    status_pub = manager.advertise<std_msgs::String>("detection/status",1000);
+    current_element_pub = manager.advertise<std_msgs::UInt8>("detection/current_element",1000);
+    camera_enable_pub = manager.advertise<std_msgs::Bool>("detection/camera_enable",1000);
 
     
     //Subscribers setup
@@ -64,49 +102,44 @@ int main(int argc, char **argv)
     ros::Subscriber detected_elements_sub = manager.subscribe("detection/detected_elements",    1000, detected_elements_Callback);
     //ros::Subscriber current_element_sub = manager.subscribe("detection/current_element",        1000, current_element_Callback);
     ros::Subscriber bounding_boxes_sub = manager.subscribe("detection/bounding_boxes",          1000, bounding_boxes_Callback);
-    ros::Subscriber RGB_intel_sub = manager.subscribe("detection/RGB_intel",                    1000, RGB_intel_Callback);
-    ros::Subscriber RGB_webcam_1_sub = manager.subscribe("detection/RGB_webcam_1",              1000, RGB_webcam_1_Callback);
-    ros::Subscriber RGB_webcam_2_sub = manager.subscribe("detection/RGB_webcam_2",              1000, RGB_webcam_2_Callback);
     
     while(ros::ok()){
-        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
         determine_state();
-        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
-        state_msg.data = state;
-        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
         state_action();
-        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
-        // state_pub.publish(state_msg);       //not sure about order of operations here, I think it depends on how long each thing takes
-        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
         ros::spinOnce();
-        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
         loop_rate.sleep();
         // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
     }
     return 0;
 }
 
+
+/*----------------- LOGIC SELECTOR -----------------*/
 //checks current state and topic values, determines what state the detection software should be in. changes state.
 void determine_state(void){
     switch(state){
-        case INACTIVE:
-            inactive_state_change_check();
+        case IDLE:
+            idle_state_change_check();
             break;
 
-        case INITIALISATION:
-            initialisation_state_change_check();
-            break;
-
-        case WAIT:
-            waiting_state_change_check();
+        case AUTO_INIT:
+            auto_init_state_change_check();
             break;
         
-        case MEASUREMENT:
-            measurement_state_change_check();
+        case AUTO_TASK:
+            auto_task_state_change_check();
             break;
         
-        case ERROR:
-            error_state_change_check();
+        case AUTO_WAIT:
+            auto_wait_state_change_check();
+            break;
+        
+        case MANUAL_INIT:
+            manual_init_state_change_check();
+            break;
+        
+        case MANUAL_TASK:
+            manual_task_state_change_check();
             break;
 
         default:
@@ -120,23 +153,28 @@ void determine_state(void){
 //carries out actions that should occur in current state
 void state_action(void){
     switch(state){
-        case INACTIVE:
+        case IDLE:
+            idle_action();
             break;
 
-        case INITIALISATION:
-            initialisation_action();
-            break;
-
-        case WAIT:
-            waiting_action();
+        case AUTO_INIT:
+            auto_init_action();
             break;
         
-        case MEASUREMENT:
-            measurement_action();
+        case AUTO_TASK:
+            auto_task_action();
             break;
         
-        case ERROR:States
-            error_action();
+        case AUTO_WAIT:
+            auto_wait_action();
+            break;
+        
+        case MANUAL_INIT:
+            manual_init_action();
+            break;
+        
+        case MANUAL_TASK:
+            manual_task_action();
             break;
 
         default:
@@ -144,13 +182,221 @@ void state_action(void){
     }
 }
 
-//callbacks need to return void, value changes should affect global static variables
-void task_Callback(const std_msgs::Int8MultiArray::ConstPtr& task_array)//const std_msgs::Int8MultiArray::ConstPtr& task_array)
-{
-    ctrl_task = task_array->data[0];
-    ctrl_command = task_array->data[1];
+/*----------------- STATE CHANGE -----------------*/
 
-    ROS_INFO("task = %i", ctrl_task);
+void idle_state_change_check(void)
+{
+    if(ctrl_command == ABORT)
+        abort();
+    else if(ctrl_command == AUTO)                              //waiting for arm to move to home position  
+        {status_publish("Moving to AUTO_INIT");
+        state = AUTO_INIT;}
+    else if(ctrl_command == MANUAL)
+        {status_publish("Moving to MANUAL_INIT");
+        state = MANUAL_INIT;}
+}
+
+void auto_init_state_change_check(void)
+{
+    if(ctrl_command == ABORT)                              //abort from control station
+        abort();
+    
+    //check the button index to see if its a mask
+    //If it isn't then we have the data we need to proceed 
+    else if(current_element == 0)
+     {   status_publish("Moving to AUTO_TASK");
+        state = AUTO_TASK;}
+}
+
+void auto_task_state_change_check(void)
+{
+    arm_confirm = true; //temp
+    int END_SEQUENCE = 4;
+    if(ctrl_command == ABORT)                              //abort from control station
+        abort();
+    //this only preps for the next task.
+    //once prep is done it can move to the
+    //next state
+    else if(current_element == END_SEQUENCE) //END_SEQUENCE IS A PLACEHOLDER FOR LEN OF VECTOR
+    {
+        status_publish("End of Elements.");
+        status_publish("Moving to IDLE");
+        state = IDLE;
+    }
+    //auto confirmation that arm has done the click
+    else if (arm_confirm)
+        {status_publish("Moving to AUTO_WAIT");
+        state = AUTO_WAIT;}
+}
+
+void auto_wait_state_change_check(void)
+{
+    if(ctrl_command == ABORT)                              //abort from control station
+        abort();
+    //this only preps for the next task.
+    //once prep is done it can move to the
+    //next state
+    else if(ctrl_command == 1)
+    {
+        status_publish("Task Retry");
+        status_publish("Moving to AUTO_TASK");
+        state = AUTO_TASK;
+        ctrl_command = MASK; //resetting the control
+    }
+    else if( ctrl_command == 2)
+    {
+        status_publish("Task Confirmed");
+        status_publish("Moving to AUTO_TASK");
+        state = AUTO_TASK;
+        current_element++;
+        ctrl_command = MASK;
+    }
+}
+
+void manual_init_state_change_check(void)
+{
+    if(ctrl_command == ABORT)                              //abort from control station
+        abort();
+    //after the init commands are sent we move
+    //to the task state
+    else
+        {status_publish("Moving to MANUAL_TASK");
+        state = MANUAL_TASK;}
+}
+
+void manual_task_state_change_check(void)
+{
+    if(ctrl_command == ABORT)
+        abort();
+    //maybe implement a transition to auto_init? 
+}
+
+
+/*----------------- ACTION -----------------*/
+
+void idle_action()
+{
+    //PUBLISH TURN THE FUCKING CAMERA OFF
+    camera_enable_msg.data = false;
+    camera_enable_pub.publish(camera_enable_msg);
+
+    //clear button index
+    current_element = MASK;
+}
+
+void auto_init_action()
+{
+    //send the camera enable command
+    camera_enable_msg.data = true;
+    camera_enable_pub.publish(camera_enable_msg);
+
+    //wait for the button list?
+
+    //wait for positions from camera? Useful for confirming lock on.
+
+    //after the list is recieved, set the index off mask
+    if(true)
+        current_element = 0;
+}
+
+void auto_task_action()
+{
+    //send the index to the arm so that the iterative approach can start
+    current_element_msg.data = current_element;
+    current_element_pub.publish(current_element_msg);
+
+    //the autconfirm of the arm happens in the msg callback
+}
+
+void auto_wait_action()
+{
+    //just wait lol nothing to do
+    //maybe put a bit of a pause here
+    // exit(1);
+}
+
+void manual_init_action()
+{
+    //send the camera enable command
+    camera_enable_msg.data = true;
+    camera_enable_pub.publish(camera_enable_msg);
+
+    //manual control command is mask
+    current_element_msg.data = MASK;
+    current_element_pub.publish(current_element_msg);
+}
+
+void manual_task_action()
+{
+    //more waiting
+    // exit(1);
+}
+
+/*----------------- HELPERS -----------------*/
+
+// int detected_elements_check(void)
+// {
+//     //check for all done
+//     if(state == WAITING)
+//     {
+//         int8_t all_done = 0;
+//         for(auto element : detected_elements)
+//         {
+//             if(element[0] < 0)
+//                 all_done++;
+//         }
+//         if(all_done == Number_of_Elements)
+//             return 1;
+//     }
+//     //check for reliability error on current element
+//     else if(state == MEASUREMENT)
+//     {
+//         uint8_t current_elem_reliability = detected_elements[current_element][0] & LOW_BYTE_TRONCATION;
+//         if(current_elem_reliability < RELIABILITY_THRESHOLD)
+//         {
+//             return -1;
+//         }
+//     }
+//     return 0;
+// }
+
+void status_publish(const char* status)
+{   
+    status_msg.data = status;
+    status_pub.publish(status_msg);
+}
+
+void abort()
+{
+    //this function aborts to IDLE
+    status_publish("Aborting to IDLE");
+    ctrl_command = MASK;        //masking to prevent spam
+    state = IDLE;
+}
+
+/*----------------- CALLBACKS -----------------*/
+//callbacks need to return void, value changes should affect global static variables
+//void state_Callback(const std_msgs::UInt8::ConstPtr& state){}
+void detected_elements_Callback(const std_msgs::Int16MultiArray::ConstPtr& received_detected_elements) {}     //need to figure out how Aly is sending
+// {
+//     if(current_element == MANUAL_CTRL || current_element == ALL)
+//     {
+//         for(uint8_t element_counter = ELEMENT1; element_counter < Number_of_Elements; element_counter++)
+//         {
+//             for(uint8_t data_counter = 0; data_counter < sizeof(detected_elements)/sizeof(detected_elements[0]); data_counter++)
+//             {
+//                 detected_elements[element_counter][data_counter] = received_detected_elements->data[data_counter];
+//             }
+//         }
+//     }
+// }
+//void current_element_Callback(const std_msgs::UInt8::ConstPtr& current_element){}
+void bounding_boxes_Callback(const sensor_msgs::Image::ConstPtr& received_bounding_boxes){}                 // image stuff
+
+void task_Callback(const std_msgs::Int8::ConstPtr& task_array)//const std_msgs::Int8MultiArray::ConstPtr& task_array)
+{
+    ctrl_command = task_array->data;
+
     ROS_INFO("command = %i", ctrl_command);
 }
 
@@ -162,163 +408,3 @@ void end_of_task_Callback(const std_msgs::UInt8::ConstPtr& received_end_of_task)
 
 void TaskProgress_Callback(const std_msgs::Int8::ConstPtr& received_taskprogress){task_progress = received_taskprogress->data;} // not sure what we are doing with task progress exactly
 
-//void state_Callback(const std_msgs::UInt8::ConstPtr& state){}
-void detected_elements_Callback(const std_msgs::Int16MultiArray::ConstPtr& received_detected_elements)      //need to figure out how Aly is sending
-{
-    if(current_element == MANUAL_CTRL || current_element == ALL)
-    {
-        for(uint8_t element_counter = ELEMENT1; element_counter < Number_of_Elements; element_counter++)
-        {
-            for(uint8_t data_counter = 0; data_counter < sizeof(detected_elements)/sizeof(detected_elements[0]); data_counter++)
-            {
-                detected_elements[element_counter][data_counter] = received_detected_elements->data[data_counter];
-            }
-        }
-    }
-}
-//void current_element_Callback(const std_msgs::UInt8::ConstPtr& current_element){}
-void bounding_boxes_Callback(const sensor_msgs::Image::ConstPtr& received_bounding_boxes){}                 // image stuff
-void RGB_intel_Callback(const sensor_msgs::Image::ConstPtr& received_RGB_intel){}                           // image stuff
-void RGB_webcam_1_Callback(const sensor_msgs::Image::ConstPtr& received_RGB_webcam_1){}                     // image stuff
-void RGB_webcam_2_Callback(const sensor_msgs::Image::ConstPtr& received_RGB_webcam_2){}                     // image stuff
-
-//State Transtions - check if a change from the current state should be done and then changes to the correct state
-void inactive_state_change_check(void)
-{
-    if(ctrl_task == MAINTENANCE && ctrl_command == LAUNCH)  //activation from control station
-        state = INITIALISATION;
-    else
-        state = INACTIVE;
-}
-void initialisation_state_change_check(void)
-{
-    if( ctrl_task == MAINTENANCE &&
-        ctrl_command == ABORT)                              //abort from control station
-        state = INACTIVE;
-    else if( ctrl_task == MAINTENANCE && 
-        ctrl_command == LAUNCH && 
-        current_element == ALL &&
-        task_progress == true)                              //waiting for arm to move to home position  
-        state = WAITING;
-    else
-        state = INITIALISATION;
-}
-void waiting_state_change_check(void)
-{
-    if( ctrl_task == MAINTENANCE &&                         //abort from control station
-        ctrl_command == ABORT)                              
-        state = INACTIVE;
-    else if(ctrl_task == MAINTENANCE &&                     //all tasks complete
-        ctrl_command == LAUNCH &&
-        end_of_movement == true &&
-        end_of_task == true &&
-        task_progress == true &&
-        detected_elements_check() == 1)                                                   
-        state = INACTIVE;
-    else if(ctrl_task == MAINTENANCE &&                     //end of manipulation attempt (verification received)
-        ctrl_command == LAUNCH &&                           //how to check semi_auto_id situation? how to treat retry situation -> ctrl station sends same element id
-        (semi_auto_id != MANUAL_CTRL ||
-        semi_auto_id != Number_of_Elements) &&
-        end_of_movement == 1 &&
-        end_of_task == 1)
-        state = INITIALISATION;
-    else if(ctrl_task == MAINTENANCE &&                     //end of movement (during manipulation attempt), update relative position
-        ctrl_command == LAUNCH &&
-        (semi_auto_id < Number_of_Elements) &&
-        end_of_movement == 1 &&
-        end_of_task == 0)
-        state = MEASUREMENT;
-    else
-        state = WAITING;
-}
-void measurement_state_change_check(void)
-{
-    if( ctrl_task == MAINTENANCE &&                         //abort from control station
-        ctrl_command == ABORT)
-        state = INACTIVE;
-    else if(ctrl_task == MAINTENANCE &&                     //finished updating measurements
-        ctrl_command == LAUNCH)//                           //detected elements update should probably be a service
-        //detected_elements_check();              
-        state = WAITING;
-    else if(ctrl_task == MAINTENANCE &&                     //reliability error
-        ctrl_command == LAUNCH &&
-        semi_auto_id != MANUAL_CTRL &&
-        end_of_task == 0 &&
-        detected_elements_check() == -1)
-        state = ERROR;
-    else
-        state = MEASUREMENT;
-}
-void error_state_change_check(void)
-{
-    if( ctrl_task == MAINTENANCE &&                         //abort from control station
-        ctrl_command == ABORT)
-        state = INACTIVE;
-    else
-        state = INITIALISATION;
-}
-
-int8_t initialisation_action(void)
-{
-    current_element = ALL;
-    //cameras init/vision node start
-    return 1;
-}
-
-int8_t waiting_action(void)
-{
-    while(end_of_movement == 0)
-    {
-        sleep(1);   //sleep 1 second
-    }
-    if(end_of_task == 1 && semi_auto_id == current_element && current_element != ALL) // && verification not sent)   //waiting for verification from control station
-    {
-        //send request for verification to Control station
-        uint16_t verification_response; //= response to request = 0b0...0 or 0b100...00
-        detected_elements[current_element][0] += verification_response;
-    }
-    while(end_of_task == 1 && semi_auto_id == current_element)// && verification sent and received)       //wait to receive new target element from ctrl
-    {
-        sleep(1);
-    }
-
-}
-
-int8_t measurement_action(void)
-{
-    //call measurement functions
-    //update values in detected_elements
-    //publish detected_elements
-}
-
-int8_t error_action(void)
-{
-    sleep(1);   //time to be detected
-    return 0;
-}
-
-int detected_elements_check(void)
-{
-    //check for all done
-    if(state == WAITING)
-    {
-        int8_t all_done = 0;
-        for(auto element : detected_elements)
-        {
-            if(element[0] < 0)
-                all_done++;
-        }
-        if(all_done == Number_of_Elements)
-            return 1;
-    }
-    //check for reliability error on current element
-    else if(state == MEASUREMENT)
-    {
-        uint8_t current_elem_reliability = detected_elements[current_element][0] & LOW_BYTE_TRONCATION;
-        if(current_elem_reliability < RELIABILITY_THRESHOLD)
-        {
-            return -1;
-        }
-    }
-    return 0;
-}

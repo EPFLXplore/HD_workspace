@@ -16,7 +16,7 @@ enum CtrlCommands {LAUNCH = 1, ABORT, WAIT, RESUME, RETRY};
 enum States {INACTIVE = 1, INITIALISATION, WAITING, MEASUREMENT, ERROR};
 enum Element_IDs {ELEMENT1, ELEMENT2, ELEMENT3, Number_of_Elements, ALL, MANUAL_CTRL}; //ALL = init_pos, MANUAL_CTRL = all but without associated movement
 
-int determine_state(void);
+void determine_state(void);
 
 void inactive_state_change_check(void);
 void initialisation_state_change_check(void);

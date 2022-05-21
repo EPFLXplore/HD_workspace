@@ -69,18 +69,25 @@ int main(int argc, char **argv)
     ros::Subscriber RGB_webcam_2_sub = manager.subscribe("detection/RGB_webcam_2",              1000, RGB_webcam_2_Callback);
     
     while(ros::ok()){
-        state = determine_state();
+        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
+        determine_state();
+        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
         state_msg.data = state;
+        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
         state_action();
-        state_pub.publish(state_msg);       //not sure about order of operations here, I think it depends on how long each thing takes
+        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
+        // state_pub.publish(state_msg);       //not sure about order of operations here, I think it depends on how long each thing takes
+        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
         ros::spinOnce();
+        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
         loop_rate.sleep();
+        // std::cout<<__LINE__<<" STATE:"<<(int)state << " " <<ros::ok()<<std::endl;
     }
     return 0;
 }
 
 //checks current state and topic values, determines what state the detection software should be in. changes state.
-int determine_state(void){
+void determine_state(void){
     switch(state){
         case INACTIVE:
             inactive_state_change_check();
@@ -128,7 +135,7 @@ void state_action(void){
             measurement_action();
             break;
         
-        case ERROR:
+        case ERROR:States
             error_action();
             break;
 

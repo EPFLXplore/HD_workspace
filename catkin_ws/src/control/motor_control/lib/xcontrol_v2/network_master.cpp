@@ -20,11 +20,11 @@ void NetworkMaster::init_network() {
   	// Adding network interface
   	add_Interface_Primary(network_interface_name_);
 
-	
+	cout << "DDDDDDDD" << endl;
     for (size_t i = 0; i < epos_chain_.size(); i++) {
         robot.add_Device(*(epos_chain_[i]));
+		cout << i << "  done" << endl;
     }
-	
 
 	/*init_Interface();
 	init_Ec_Bus();

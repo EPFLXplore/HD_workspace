@@ -440,7 +440,9 @@ namespace ethercatcpp {
         void unpack_Status_Buffer();
 
         // Used to change device state in async mode (only on init)
+      public:
         void reset_Fault();
+      private:
         void read_Rated_Torque();
         void read_Encoder1_Pulses_Nb_Config();
         void read_Digital_Output_Mapping_Configuration();

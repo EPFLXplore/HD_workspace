@@ -1,7 +1,7 @@
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Float32.h>
 #include "ros/ros.h"
-#include <std_msgs/String.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/Int32.h>
 #include <std_msgs/UInt8MultiArray.h>
 #include <std_msgs/Float32MultiArray.h>
@@ -36,6 +36,7 @@ using namespace pid;
 #define JOINT56_DEPENDENCY 1    // TODO
 #define JOINT56_DEPENDENT true // TODO
 #define PERIOD 25  // [ms]
+#define INF 1000000000
 
 
 /*double current_pos[MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
@@ -65,8 +66,11 @@ double max_current[MAX_MOTOR_COUNT] = {0.155};
 float step_size[MAX_MOTOR_COUNT] = {0};
 Epos4::control_mode_t control_mode(Epos4::velocity_CSV);
 
+double offset[MAX_MOTOR_COUNT] = {0};
+
 
 bool taking_commands = true;
+bool resetting = false;
 auto last_command_time = chrono::steady_clock::now();
 
 static const Epos4::control_mode_t direct_control_mode = Epos4::velocity_CSV;
@@ -76,14 +80,13 @@ static const int period = 25;
 static const float reference_step_size[MAX_MOTOR_COUNT] = {60.0*period};
 static const float max_qc[MAX_MOTOR_COUNT] = {2*M_PI};
 static const float min_qc[MAX_MOTOR_COUNT] = {-474270};
-static const float max_angle[MAX_MOTOR_COUNT] = {11.3, 1.54, 209, 13.6, 5.23, 0.62, 0.23, 100};
-static const float min_angle[MAX_MOTOR_COUNT] = {-14.7, -1.57, -31, -12.2, -2.7, -1.41, -0.3, -100};
-static const double max_velocity[MAX_MOTOR_COUNT] = {5, 1, 400, 5, 6, 12, 1, 0};
-static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 243, 2*439, 2*439, 2*231, 1*16*700, 0};
+static const float max_angle[MAX_MOTOR_COUNT] = {9.77, 2.3, 411, 9.63, 7.26, INF, 0.395, INF};
+static const float min_angle[MAX_MOTOR_COUNT] = {-9.6, -1.393, -259, -9.54, -0.79, -INF, -0.14, -INF};
+static const double max_velocity[MAX_MOTOR_COUNT] = {5, 1, 700, 5, 6, 12, 1, 0};
+static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 676.0/49.0, 2*439, 2*439, 2*231, 1*16*700, 0};
 static const double security_angle_coef[MAX_MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
-static const vector<int> order = {1, 2, 8, 3, 4, 5, 6, 7};
+static const vector<int> order = {1, 2, 3, 8, 4, 5, 6, 7};
 //====================================================================================================
-
 
 
 void accountForJoint56Dependency() {
@@ -100,14 +103,16 @@ void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
     last_command_time = chrono::steady_clock::now();
     float vel;
     bool empty_command = true;
+    cout << "received velocity   :";
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
         vel = msg->data[it];    // between -1 and 1
         empty_command = empty_command && (vel == 0);
         active[it] = (vel != 0);
         target_vel[it] = double(vel*max_velocity[it]*reduction[it]);
         step_size[it] = double(vel*reference_step_size[it]);
-        cout << "received velocity   :   " << target_vel[it] << endl;
+        cout << setw(9) << target_vel[it];
     }
+    cout << endl;
     
     if (JOINT56_DEPENDENT) {
         accountForJoint56Dependency();
@@ -116,6 +121,24 @@ void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
     if (!empty_command) {
         control_mode = direct_control_mode;
     }
+}
+
+
+void resetCallback(const std_msgs::Bool::ConstPtr& msg) {
+    taking_commands = !msg->data;
+    resetting = msg->data;
+}
+
+
+void set_zero_position() {
+    for (size_t it = 0; it < MOTOR_COUNT; it++) {
+        offset[it] += current_pos[it];
+    }
+}
+
+
+void setZeroCallback(const std_msgs::Bool::ConstPtr& msg) {
+    set_zero_position();
 }
 
 
@@ -217,9 +240,57 @@ void stop(vector<xcontrol::Epos4Extended*> chain) {
 }
 
 
+double petit(size_t it, double distance) {
+    static const double critical_angle[MAX_MOTOR_COUNT] = {0.087, 0.087, 10.0, 0.087, 0.087, 0.087, 0.087};
+    distance = abs(distance);
+    double speed = 0.5;
+    if (distance > critical_angle[it]) return speed;
+    double k = speed/critical_angle[it];
+    return distance*k;
+}
+
+
+void reset_position(vector<xcontrol::Epos4Extended*> chain) {
+    last_command_time = chrono::steady_clock::now();
+    for (size_t it=0; it<chain.size(); ++it) {
+        if (chain[it]->get_has_motor()) {
+            switch (control_mode) {
+                case Epos4::position_CSP:
+                    chain[it]->set_Target_Position_In_Qc(target_pos[it]);
+                    break;
+
+                case Epos4::velocity_CSV:
+                    if ((current_pos[it] > -security_angle(target_vel[it], it) && target_vel[it] > 0) || (current_pos[it] < security_angle(target_vel[it], it) && target_vel[it] < 0)) {
+                        target_vel[it] = 0;
+                        cout << "QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ" << endl;
+                    }
+                    else {
+                        cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
+                        double dir = 1.0;
+                        double distance = current_pos[it];
+                        if (current_pos[it] > 0) dir = -1.0;
+                        target_vel[it] = dir*petit(it, distance)*max_velocity[it]*reduction[it];
+                        cout << "IIIIIIIIIIII" << target_vel[it] << "IIIIIIIIIIIIIIIII" << endl;
+                    }
+                    break;
+
+                case Epos4::profile_position_PPM:
+                    // TODO:
+                    break; 
+            }
+        }
+    }
+    cout << "IIIIIIIIIIII" << target_vel[0] << "IIIIIIIIIIIIIIIII" << endl;
+}
+
+
 void set_goals(vector<xcontrol::Epos4Extended*> chain) {
     if (command_too_old()) {
         stop(chain);
+    }
+    else if (resetting) {
+        cout << "RESETTTTTTTTTTTTTTTTTTTTTTTTTTTTT" << endl;
+        reset_position(chain);
     }
     else {
         update_targets(chain);
@@ -265,6 +336,8 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "hd_controller_motors");
     ros::NodeHandle n;
     ros::Subscriber man_cmd_sub = n.subscribe<std_msgs::Float32MultiArray>("/arm_control/manual_cmd", 10, manualCommandCallback);
+    ros::Subscriber reset_sub = n.subscribe<std_msgs::Bool>("/arm_control/reset_arm_pos", 10, resetCallback);
+    ros::Subscriber set_zero_sub = n.subscribe<std_msgs::Bool>("/arm_control/set_zero_arm_pos", 10, setZeroCallback);
     ros::Subscriber state_cmd_sub = n.subscribe<sensor_msgs::JointState>("/arm_control/joint_cmd", 10, stateCommandCallback);
     ros::Publisher telem_pub = n.advertise<sensor_msgs::JointState>("/arm_control/joint_telemetry", 1000);
     ros::Rate loop_rate(PERIOD);
@@ -274,7 +347,7 @@ int main(int argc, char **argv) {
     // 3-axis: 1st slot next to ETHERNET-IN
     xcontrol::OneAxisSlot epos_1(true, 0x000000fb, 0x60500000);
     xcontrol::OneAxisSlot epos_2(true, 0x000000fb, 0x65510000);
-    xcontrol::ThreeAxisSlot empty(false, 0x000000fb, 0x69500000), epos_3(true, 0x000000fb, 0x69500000), epos_4(true, 0x000000fb, 0x69500000);
+    xcontrol::ThreeAxisSlot empty(true, 0x000000fb, 0x69500000), epos_3(false, 0x000000fb, 0x69500000), epos_4(true, 0x000000fb, 0x69500000);
     xcontrol::ThreeAxisSlot epos_6(true, 0x000000fb, 0x69500000), epos_7(true, 0x000000fb, 0x69500000), epos_5(true, 0x000000fb, 0x69500000);
 
     //Epos4Extended epos_1(true);
@@ -312,7 +385,7 @@ int main(int argc, char **argv) {
         ethercat_master.switch_motors_to_enable_op();
         //epos_1.switch_to_enable_op();
 
-        if (!is_scanning && taking_commands) {
+        if (!is_scanning) { // && taking_commands) {
             set_goals(chain);
         }
 
@@ -325,12 +398,13 @@ int main(int argc, char **argv) {
                         cout << "State device : " << chain[it]->get_Device_State_In_String() << "\n";
                         cout << "Control mode = " << chain[it]->get_Control_Mode_In_String() << "\n";
                     }
-                    current_pos[it] = chain[it]->get_Actual_Position_In_Rad()/reduction[it];
+                    current_pos[it] = chain[it]->get_Actual_Position_In_Rad()/reduction[it] - offset[it];
                     if (is_scanning) {
                         target_pos[it] = current_pos[it];
                     }
                     if (PRINT_STATE) { 
-                        cout << "Actual position : " << std::dec << chain[it]->get_Actual_Position_In_Rad()/reduction[it] << " rad" << "\n";
+                        cout << "Actual position : " << std::dec << current_pos[it] << " rad" << "\n";
+                        cout << "Actual velocity : " << std::dec << chain[it]->get_Actual_Velocity_In_Rpm()/reduction[it] << " rpm" << "\n";
                         cout << "Actual current value = " << chain[it]->get_Actual_Current_In_A() << "A" << "\n";
                         cout << "\n";
                     }

@@ -14,11 +14,28 @@ FAIL = 17
 MOTOR_COUNT = 7
 
 
+class Pose(geometry_msgs.msg.Pose):
+    def __init__(self, deprecated=False):
+        super().__init__(self)
+        self._deprecated = deprecated
+    
+    def deprecated(self):
+        return self._deprecated
+
+    def forget(self):
+        self._deprecated = True
+
+
+class JointState:
+    pass
+
+
 class Planner:
     """recieves goals to reach and sends information to MoveIt in order for it to compute a trajectory"""
-    JOINT_GOAL = 0
-    POSE_GOAL = 1
-    CARTESIAN_GOAL = 2
+    NONE = 0
+    JOINT_GOAL = 1
+    POSE_GOAL = 2
+    CARTESIAN_GOAL = 3
 
     def __init__(self):
         # initialize ROS ===============================================================================================
@@ -51,10 +68,21 @@ class Planner:
         # ==============================================================================================================
         self.actual_joint_positions = [0.0]*MOTOR_COUNT
         self.moving = False
+        self.current_goal_type = Planner.NONE
+        self.current_goal = None
 
         self.objects = []
 
         self.set_max_velocity_and_acceleration(1, 1)
+
+    def get_end_effector_pose(self):
+        """
+        TODO
+        pose with respect to base the arm
+        """
+        pose = geometry_msgs.msg.Pose()
+        # TODO
+        return pose
 
     def set_max_velocity_and_acceleration(self, vel=0.1, acc=0.1):
         """
@@ -85,6 +113,7 @@ class Planner:
         """
         Listens to /arm_control/world_update topic
         """
+        # TODO
 
     def telemetry_callback(self, msg: sensor_msgs.msg.JointState):
         """
@@ -99,6 +128,8 @@ class Planner:
         :param goal_type: one of the following : JOINT_GOAL, POSE_GOAL, CARTESIAN_PATH
         :return: a tuple : a bool indicating if planning succeeded, the trajectory found
         """
+        self.current_goal_type = goal_type
+        self.current_goal = goal
         if goal_type == Planner.JOINT_GOAL:
             rospy.loginfo("PLANNING JOINT GOAL")
             self.move_group.set_joint_value_target(goal)
@@ -148,7 +179,24 @@ class Planner:
         self.move_group.execute(plan, wait=True)
         self.stop_movement()
 
+    def evaluate_execution_outcome(self):
+        """
+        TODO
+        """
+        if self.current_goal_type == Planner.JOINT_GOAL:
+            # TODO
+            pass
+        elif self.current_goal_type == Planner.POSE_GOAL:
+            actual_pose = self.get_end_effector_pose()
+            # compare it with self.goal
+        elif self.current_goal_type == Planner.CARTESIAN_GOAL:
+            # TODO 
+            pass
+
     def achieve_goal(self, goal, goal_type):
+        """
+        TODO
+        """
         success, plan = self.plan(goal, goal_type)
         if success:
             self.execute_plan(plan)

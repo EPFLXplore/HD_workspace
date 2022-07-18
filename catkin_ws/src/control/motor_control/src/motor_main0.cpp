@@ -66,7 +66,7 @@ double max_current[MAX_MOTOR_COUNT] = {0.155};
 float step_size[MAX_MOTOR_COUNT] = {0};
 Epos4::control_mode_t control_mode(Epos4::velocity_CSV);
 
-double offset[MAX_MOTOR_COUNT] = {0};
+double offset[MAX_MOTOR_COUNT] = {0};   // TODO: makes the max/min angles unusable : correct that
 
 
 bool taking_commands = true;
@@ -74,7 +74,7 @@ bool resetting = false;
 auto last_command_time = chrono::steady_clock::now();
 
 static const Epos4::control_mode_t direct_control_mode = Epos4::velocity_CSV;
-static const Epos4::control_mode_t automatic_control_mode = Epos4::profile_position_PPM;
+static const Epos4::control_mode_t autonomous_control_mode = Epos4::profile_position_PPM;
 static const double command_expiration = 200;
 static const int period = 25;
 static const float reference_step_size[MAX_MOTOR_COUNT] = {60.0*period};
@@ -83,12 +83,18 @@ static const float min_qc[MAX_MOTOR_COUNT] = {-474270};
 static const float max_angle[MAX_MOTOR_COUNT] = {9.77, 2.3, 411, 9.63, 7.26, INF, 0.395, INF};
 static const float min_angle[MAX_MOTOR_COUNT] = {-9.6, -1.393, -259, -9.54, -0.79, -INF, -0.14, -INF};
 static const double max_velocity[MAX_MOTOR_COUNT] = {5, 1, 700, 5, 6, 12, 1, 0};
-static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 676.0/49.0, 2*439, 2*439, 2*231, 1*16*700, 0};
+//static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 676.0/49.0, 2*439, 2*439, 2*231, 1*16*700, 0};
+static const double reduction[MAX_MOTOR_COUNT] = {1};
 static const double security_angle_coef[MAX_MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
 static const vector<int> order = {1, 2, 3, 8, 4, 5, 6, 7};
 //====================================================================================================
 
+static const double CCC(131.5);
 
+
+/*
+adapt target velocity and position for joint 6 given the ones for joint 5 
+*/
 void accountForJoint56Dependency() {
     if (MOTOR_COUNT >= 6) {
         double vel = target_vel[4]/reduction[4]*reduction[5];
@@ -130,6 +136,9 @@ void resetCallback(const std_msgs::Bool::ConstPtr& msg) {
 }
 
 
+/*
+sets zero position of the arm at the current position
+*/
 void set_zero_position() {
     for (size_t it = 0; it < MOTOR_COUNT; it++) {
         offset[it] += current_pos[it];
@@ -144,20 +153,26 @@ void setZeroCallback(const std_msgs::Bool::ConstPtr& msg) {
 
 void stateCommandCallback(const sensor_msgs::JointState::ConstPtr& msg) {
     last_command_time = chrono::steady_clock::now();
-    control_mode = automatic_control_mode;
+    control_mode = autonomous_control_mode;
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
-        target_pos[it] = double(msg->position[it]*RAD_TO_QC_CONVERSION);
-        target_vel[it] = double(msg->velocity[it]*RAD_TO_QC_CONVERSION); // TODO: maybe I need a different conversion constant here
+        target_pos[it] = double(msg->position[it]*CCC);
+        target_vel[it] = double(msg->velocity[it]*CCC); //RAD_TO_QC_CONVERSION TODO: maybe I need a different conversion constant here
     }
 }
 
 
+/*
+indicates if last received command is too old and should be ignored
+*/
 bool command_too_old() {
     auto now = chrono::steady_clock::now();
     return (chrono::duration_cast<chrono::milliseconds>(now-last_command_time).count() > command_expiration);
 }
 
 
+/*
+for velocity mode, calculates an angle at which the velocity must be set to zero in order for the motor not to overshoot its limit
+*/
 double security_angle(double vel, size_t it) {
     // TODO
     if (vel < 0) vel = -vel;
@@ -165,14 +180,17 @@ double security_angle(double vel, size_t it) {
 }
 
 
+/*
+makes sure the motor stays in its predefined limits (in velocity mode a slight exceeding of the limit may occur)
+*/
 void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
         if (chain[it]->get_has_motor()) {
             switch (control_mode) {
                 case Epos4::position_CSP:
                     if(target_pos[it] > max_qc[it]) {
-                    cout << "Motor " << it << " target_value over limit: " << std::dec <<target_pos[it] << " qc (max: " << max_qc[it] << ")\n";
-                    target_pos[it] = max_qc[it];
+                        cout << "Motor " << it << " target_value over limit: " << std::dec <<target_pos[it] << " qc (max: " << max_qc[it] << ")\n";
+                        target_pos[it] = max_qc[it];
                     }
                     if(target_pos[it] < min_qc[it]) {
                         cout << "Motor " << it << " target_value under limit: " << std::dec <<target_pos[it] << " qc (min: " << min_qc[it] << ")\n";
@@ -187,7 +205,12 @@ void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
                     break;
 
                 case Epos4::profile_position_PPM:
-                    // TODO:
+                    if (target_pos[it] > max_angle[it]) {
+                        target_pos[it] = max_angle[it];
+                    }
+                    if (target_pos[it] < min_angle[it]) {
+                        target_pos[it] = min_angle[it];
+                    }
                     break;
             }
         }
@@ -195,6 +218,10 @@ void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
 }
 
 
+/*
+updates the target positions and velocities
+TODO: decide wether to suppress this function or not
+*/
 void update_targets(vector<xcontrol::Epos4Extended*> chain) {
     for (size_t it=0; it<chain.size(); ++it) {
         if (chain[it]->get_has_motor()) {
@@ -219,6 +246,10 @@ void update_targets(vector<xcontrol::Epos4Extended*> chain) {
 }
 
 
+/*
+Updates the target positions and velocities in order to stop the motion.
+immediate stop is not guaranteed, particularly in velocity mode
+*/
 void stop(vector<xcontrol::Epos4Extended*> chain) {
     for (size_t it=0; it<chain.size(); ++it) {
         if (chain[it]->get_has_motor()) {
@@ -232,7 +263,7 @@ void stop(vector<xcontrol::Epos4Extended*> chain) {
                     break;
 
                 case Epos4::profile_position_PPM:
-                    // TODO:
+                    target_pos[it] = current_pos[it];
                     break;
             }
         }
@@ -250,13 +281,17 @@ double petit(size_t it, double distance) {
 }
 
 
+/*
+updates target positions and velocities in order to lead the motor to its home (zero) position
+*/
 void reset_position(vector<xcontrol::Epos4Extended*> chain) {
     last_command_time = chrono::steady_clock::now();
     for (size_t it=0; it<chain.size(); ++it) {
         if (chain[it]->get_has_motor()) {
             switch (control_mode) {
                 case Epos4::position_CSP:
-                    chain[it]->set_Target_Position_In_Qc(target_pos[it]);
+                    // chain[it]->set_Target_Position_In_Qc(target_pos[it]);
+                    // TODO:
                     break;
 
                 case Epos4::velocity_CSV:
@@ -284,8 +319,12 @@ void reset_position(vector<xcontrol::Epos4Extended*> chain) {
 }
 
 
+/*
+gives the target positions and velocities to the motors
+*/
 void set_goals(vector<xcontrol::Epos4Extended*> chain) {
     if (command_too_old()) {
+        cout << "COMMAND TOO OLD" << endl;
         stop(chain);
     }
     else if (resetting) {
@@ -311,10 +350,21 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain) {
 
                     case Epos4::velocity_CSV:
                         chain[it]->set_Target_Velocity_In_Rpm(target_vel[it]);
+                        cout << "set velocity       " << target_vel[it] << endl;
                         break;
 
                     case Epos4::profile_position_PPM:
-                        // TODO:
+                        // unlock axle
+                        chain[it]->halt_Axle(false);
+                        // Starting new positionning at receive new order (or wait finish before start new with "false state")
+                        chain[it]->change_Starting_New_Pos_Config(true);
+                        // normal mode (not in endless)
+                        chain[it]->active_Endless_Movement(false);
+                        //epos_1.active_Absolute_Positionning();
+                        chain[it]->active_Relative_Positionning();
+                        chain[it]->activate_Profile_Control(true);
+                        //chain[it]->set_Target_Velocity_In_Rpm(target_vel[it]);
+                        chain[it]->set_Target_Position_In_Rad(target_pos[it]);
                         break;
                 }
             }
@@ -362,12 +412,12 @@ int main(int argc, char **argv) {
     xcontrol::NetworkMaster ethercat_master(chain, network_interface_name);
 
 	std::vector<xcontrol::Epos4Extended*> temp;
-	for (size_t i = 0; i < chain.size(); i++) {
+	/*for (size_t i = 0; i < chain.size(); i++) {
         temp.push_back(chain[i]);
     }
 	for (size_t i = 0; i < order.size(); i++) {
         chain[order[i]-1] = temp[i];
-    }
+    }*/
 
     cout << "BBBBBBBBBBBBBBBBBBb" << endl;
     ethercat_master.init_network();
@@ -385,7 +435,7 @@ int main(int argc, char **argv) {
         ethercat_master.switch_motors_to_enable_op();
         //epos_1.switch_to_enable_op();
 
-        if (!is_scanning) { // && taking_commands) {
+        if (!is_scanning) { // && taking_commands) {    TODO
             set_goals(chain);
         }
 
@@ -398,7 +448,7 @@ int main(int argc, char **argv) {
                         cout << "State device : " << chain[it]->get_Device_State_In_String() << "\n";
                         cout << "Control mode = " << chain[it]->get_Control_Mode_In_String() << "\n";
                     }
-                    current_pos[it] = chain[it]->get_Actual_Position_In_Rad()/reduction[it] - offset[it];
+                    current_pos[it] = chain[it]->get_Actual_Position_In_Rad()/reduction[it]/CCC - offset[it];
                     if (is_scanning) {
                         target_pos[it] = current_pos[it];
                     }

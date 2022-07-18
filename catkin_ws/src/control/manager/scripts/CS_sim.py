@@ -44,8 +44,8 @@ def main():
     rospy.logwarn("CS_sim started")
     while not rospy.is_shutdown():
         get_inputs()
-        rospy.logwarn("state:    " + str(motor_state))
-        rospy.logwarn("vel:      " + str(vel))
+        #rospy.logwarn("state:    " + str(motor_state))
+        #rospy.logwarn("vel:      " + str(vel))
         publish_state()
         #publish_vel()
         rate.sleep()

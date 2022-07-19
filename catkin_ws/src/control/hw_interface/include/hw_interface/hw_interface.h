@@ -1,21 +1,21 @@
-#ifndef MY_ROS_CONTROL__SIM_HW_INTERFACE_H
-#define MY_ROS_CONTROL__SIM_HW_INTERFACE_H
+#ifndef ASTRA_HW_INTERFACE_H
+#define ASTRA_HW_INTERFACE_H
 
 #include <ros_control_boilerplate/generic_hw_interface.h>
 #include <sensor_msgs/JointState.h>
 
 
-namespace my_robot_ns
+namespace astra_ns
 {
 /** \brief Hardware interface for a robot */
-class MyHWInterface : public ros_control_boilerplate::GenericHWInterface
+class HWInterface : public ros_control_boilerplate::GenericHWInterface
 {
 public:
   /**
    * \brief Constructor
    * \param nh - Node handle for topics.
    */
-  MyHWInterface(ros::NodeHandle& nh, urdf::Model* urdf_model = NULL);
+  HWInterface(ros::NodeHandle& nh, urdf::Model* urdf_model = NULL);
 
   /** \brief Initialize the robot hardware interface */
   virtual void init();

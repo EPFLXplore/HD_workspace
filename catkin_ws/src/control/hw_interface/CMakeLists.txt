@@ -220,13 +220,13 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(my_hw_main
-    include/hw_interface/my_hw_interface.h
-    src/my_hw_interface.cpp
-    src/my_hw_main.cpp
+add_executable(hw_main
+    include/hw_interface/hw_interface.h
+    src/hw_interface.cpp
+    src/hw_main.cpp
 )
-add_dependencies(my_hw_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(my_hw_main 
+add_dependencies(hw_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(hw_main 
     ${catkin_LIBRARIES}
 )
 

@@ -1,17 +1,17 @@
-#include <hw_interface/my_hw_interface.h>
+#include <hw_interface/hw_interface.h>
 
 // ROS parameter loading
 #include <rosparam_shortcuts/rosparam_shortcuts.h>
 #include <iostream>
 
-namespace my_robot_ns
+namespace astra_ns
 {
-MyHWInterface::MyHWInterface(ros::NodeHandle& nh, urdf::Model* urdf_model)
+HWInterface::HWInterface(ros::NodeHandle& nh, urdf::Model* urdf_model)
   : ros_control_boilerplate::GenericHWInterface(nh, urdf_model)
 {
-  fdbk_sub = nh.subscribe("/arm_control/joint_telemetry", 1, &MyHWInterface::fdbkCallback, this);
+  fdbk_sub = nh.subscribe("/arm_control/joint_telemetry", 1, &HWInterface::fdbkCallback, this);
   cmd_pub = nh.advertise<sensor_msgs::JointState>("/arm_control/joint_cmd", 1);
-  ROS_INFO("MyHWInterface constructed");
+  ROS_INFO("HWInterface constructed");
 
   try
   {
@@ -28,7 +28,7 @@ MyHWInterface::MyHWInterface(ros::NodeHandle& nh, urdf::Model* urdf_model)
   ROS_WARN("ye error def not in constructor");
 }
 
-void MyHWInterface::fdbkCallback(const sensor_msgs::JointState::ConstPtr &msg)
+void HWInterface::fdbkCallback(const sensor_msgs::JointState::ConstPtr &msg)
 {
 
   for (int i=0; i<num_joints_; i++)
@@ -38,7 +38,7 @@ void MyHWInterface::fdbkCallback(const sensor_msgs::JointState::ConstPtr &msg)
   }
 }
 
-void MyHWInterface::init()
+void HWInterface::init()
 {
   // Call parent class version of this function
   GenericHWInterface::init();
@@ -46,13 +46,13 @@ void MyHWInterface::init()
   ROS_INFO("MyHWInterface Ready.");
 }
 
-void MyHWInterface::read(ros::Duration& elapsed_time)
+void HWInterface::read(ros::Duration& elapsed_time)
 {
   // No need to read since our write() command populates our state for us
   ros::spinOnce();
 }
 
-void MyHWInterface::write(ros::Duration& elapsed_time)
+void HWInterface::write(ros::Duration& elapsed_time)
 {
   // Safety
   //enforceLimits(elapsed_time);
@@ -96,7 +96,7 @@ void MyHWInterface::write(ros::Duration& elapsed_time)
 
 }
 
-void MyHWInterface::enforceLimits(ros::Duration& period)
+void HWInterface::enforceLimits(ros::Duration& period)
 {
   // Enforces position and velocity
   //pos_jnt_sat_interface_.enforceLimits(period);
@@ -104,4 +104,4 @@ void MyHWInterface::enforceLimits(ros::Duration& period)
 
 
 
-}  // namespace my_robot_ns
+}  // namespace atra_ns

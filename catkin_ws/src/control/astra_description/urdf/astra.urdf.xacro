@@ -252,7 +252,7 @@
 		<child link="link1"/>
 		<origin xyz="${base_link_attach_point}" />
 		<axis xyz="0 0 1"/>
-		<limit effort="1000" velocity="0.5" lower="${-(pi)}" upper="${pi}"/>
+		<limit effort="1000" velocity="2" lower="${-(pi)*2}" upper="${pi*2}"/>
 	</joint>
 
 	<!-- joint2 -->

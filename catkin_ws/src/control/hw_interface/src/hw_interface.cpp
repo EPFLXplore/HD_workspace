@@ -60,7 +60,7 @@ void HWInterface::write(ros::Duration& elapsed_time)
 
 
   sensor_msgs::JointState joint_cmd;
-  static motor_control::jointCmd sim_joint_cmd; // for simulation only
+  static motor_control::simJointState sim_joint_cmd; // for simulation only
 
   bool new_cmd = false;
   //ROS_WARN("entering HI write");

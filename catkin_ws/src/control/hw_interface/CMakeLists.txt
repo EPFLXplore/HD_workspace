@@ -25,7 +25,8 @@ find_package(catkin REQUIRED
         rviz_visual_tools
         moveit_visual_tools
         pluginlib
-        geometric_shapes)
+        geometric_shapes
+        motor_control)
 
 
 ## System dependencies are found with CMake's conventions

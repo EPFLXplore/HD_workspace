@@ -76,7 +76,7 @@ bool resetting = false;
 auto last_command_time = chrono::steady_clock::now();
 
 static const Epos4::control_mode_t direct_control_mode = Epos4::velocity_CSV;
-static const Epos4::control_mode_t autonomous_control_mode = Epos4::profile_position_PPM;
+static const Epos4::control_mode_t autonomous_control_mode = Epos4::position_CSP;
 static const double command_expiration = 200;
 static const int period = 25;
 static const float reference_step_size[MAX_MOTOR_COUNT] = {60.0*period};
@@ -154,9 +154,11 @@ void setZeroCallback(const std_msgs::Bool::ConstPtr& msg) {
 
 
 void stateCommandCallback(const sensor_msgs::JointState::ConstPtr& msg) {
+    cout << "================= COMMAND FROM HW INTERFACE ======================" << endl;
     last_command_time = chrono::steady_clock::now();
     control_mode = autonomous_control_mode;
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
+        cout << "position :     " << msg->position[it] << endl;
         target_pos[it] = double(msg->position[it]*CCC);
         target_vel[it] = double(msg->velocity[it]*CCC); //RAD_TO_QC_CONVERSION TODO: maybe I need a different conversion constant here
     }
@@ -190,14 +192,7 @@ void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
         if (chain[it]->get_has_motor()) {
             switch (control_mode) {
                 case Epos4::position_CSP:
-                    if(target_pos[it] > max_qc[it]) {
-                        cout << "Motor " << it << " target_value over limit: " << std::dec <<target_pos[it] << " qc (max: " << max_qc[it] << ")\n";
-                        target_pos[it] = max_qc[it];
-                    }
-                    if(target_pos[it] < min_qc[it]) {
-                        cout << "Motor " << it << " target_value under limit: " << std::dec <<target_pos[it] << " qc (min: " << min_qc[it] << ")\n";
-                        target_pos[it] = min_qc[it];
-                    }
+                    // TODO
                     break;
 
                 case Epos4::velocity_CSV:
@@ -232,7 +227,7 @@ void update_targets(vector<xcontrol::Epos4Extended*> chain) {
             if (chain[it]->get_Device_State_In_String() == "Operation enable") {
                 switch (control_mode) {
                     case Epos4::position_CSP:
-                        target_pos[it] += active[it] * step_size[it];
+                        // target_pos[it] += active[it] * step_size[it];
                         break;
 
                     case Epos4::velocity_CSV:
@@ -253,8 +248,10 @@ Updates the target positions and velocities in order to stop the motion.
 immediate stop is not guaranteed, particularly in velocity mode
 */
 void stop(vector<xcontrol::Epos4Extended*> chain) {
+    control_mode = Epos4::velocity_CSV;
     for (size_t it=0; it<chain.size(); ++it) {
         if (chain[it]->get_has_motor()) {
+            cout << "current_pos :     " << current_pos[it] << endl;
             switch (control_mode) {
                 case Epos4::position_CSP:
                     target_pos[it] = current_pos[it];
@@ -347,7 +344,7 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain) {
             if (chain[it]->get_Device_State_In_String() == "Operation enable") {
                 switch (control_mode) {
                     case Epos4::position_CSP:
-                        chain[it]->set_Target_Position_In_Qc(target_pos[it]);
+                        chain[it]->set_Target_Position_In_Rad(target_pos[it]);
                         break;
 
                     case Epos4::velocity_CSV:
@@ -469,12 +466,22 @@ int main(int argc, char **argv) {
         sensor_msgs::JointState msg;
         motor_control::simJointState sim_msg;   // for simulation only
         for (size_t it=0; it<chain.size(); ++it) {
-            msg.position.push_back(chain[it]->get_Actual_Position_In_Rad()/reduction[it]);
-            msg.velocity.push_back(chain[it]->get_Actual_Velocity_In_Rpm()/reduction[it]);
-            sim_msg.position[i] = chain[it]->get_Actual_Position_In_Rad()/reduction[it];
-            sim_msg.velocity[i] = chain[it]->get_Actual_Velocity_In_Rpm()/reduction[it];
+            msg.position.push_back(chain[it]->get_Actual_Position_In_Rad()/reduction[it]/CCC);
+            msg.velocity.push_back(chain[it]->get_Actual_Velocity_In_Rpm()/reduction[it]/CCC);
+            sim_msg.position[it] = chain[it]->get_Actual_Position_In_Rad()/reduction[it]/CCC;
+            sim_msg.velocity[it] = chain[it]->get_Actual_Velocity_In_Rpm()/reduction[it]/CCC;
+        }
+        if (chain.size() < 6) {
+            // populate the message with zeros if less than 6 actual motors
+            for (size_t it=chain.size(); it < 6; ++it) {
+                msg.position.push_back(0);
+                msg.velocity.push_back(0);
+                sim_msg.position[it] = 0;
+                sim_msg.velocity[it] = 0;
+            }
         }
         telem_pub.publish(msg);
+        sim_telem_pub.publish(sim_msg);
         ros::spinOnce();
         loop_rate.sleep();
         if (PRINT_STATE) {

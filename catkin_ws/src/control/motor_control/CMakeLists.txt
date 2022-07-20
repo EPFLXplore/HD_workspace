@@ -16,10 +16,10 @@ add_message_files(
  simJointState.msg
 )
 
-#generate_messages(
-#  DEPENDENCIES
-#  std_msgs
-#)
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 
 catkin_package(

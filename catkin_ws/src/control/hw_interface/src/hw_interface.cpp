@@ -11,6 +11,7 @@ HWInterface::HWInterface(ros::NodeHandle& nh, urdf::Model* urdf_model)
 {
   fdbk_sub = nh.subscribe("/arm_control/joint_telemetry", 1, &HWInterface::fdbkCallback, this);
   cmd_pub = nh.advertise<sensor_msgs::JointState>("/arm_control/joint_cmd", 1);
+  sim_cmd_pub = nh.advertise<motor_control::simJointState>("/arm_control/sim_joint_cmd", 1);
   ROS_INFO("HWInterface constructed");
 
   try
@@ -59,6 +60,7 @@ void HWInterface::write(ros::Duration& elapsed_time)
 
 
   sensor_msgs::JointState joint_cmd;
+  static motor_control::jointCmd sim_joint_cmd; // for simulation only
 
   bool new_cmd = false;
   //ROS_WARN("entering HI write");
@@ -69,12 +71,14 @@ void HWInterface::write(ros::Duration& elapsed_time)
   {
     //ROS_WARN("checkpoint2");
     joint_cmd.position.push_back(joint_position_command_[i]);
+    sim_joint_cmd.position[i] = joint_position_command_[i];
     //ROS_WARN("checkpoint2.5");
     if (previous_angle_command_[i] != joint_cmd.position[i])
     {
       //ROS_WARN("checkpoint3");
       new_cmd = true;
       joint_cmd.velocity.push_back((joint_cmd.position[i]-previous_angle_command_[i])/elapsed_time.toSec());
+      sim_joint_cmd.velocity[i] = (sim_joint_cmd.position[i]-previous_angle_command_[i])/elapsed_time.toSec();
       //ROS_WARN("checkpoint4");
       //ROS_WARN("checkpoint5");
       previous_angle_command_[i] = joint_cmd.position[i];
@@ -86,6 +90,7 @@ void HWInterface::write(ros::Duration& elapsed_time)
   {
     //ROS_WARN("new command");
     cmd_pub.publish(joint_cmd);
+    sim_cmd_pub.publish(sim_joint_cmd);
   }
   }
   catch (const std::exception& e)

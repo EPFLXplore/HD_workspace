@@ -3,6 +3,7 @@
 
 #include <ros_control_boilerplate/generic_hw_interface.h>
 #include <sensor_msgs/JointState.h>
+#include <motor_control/simJointState.h>  // for simulation only
 
 
 namespace astra_ns
@@ -35,6 +36,8 @@ protected:
   void fdbkCallback(const sensor_msgs::JointState::ConstPtr &msg);
 
   ros::Publisher cmd_pub;
+
+  ros::Publisher sim_cmd_pub; // for simulation only
 
   double previous_angle_command_[6];
 

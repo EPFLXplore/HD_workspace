@@ -5,6 +5,8 @@
 #include <std_msgs/Int32.h>
 #include <std_msgs/UInt8MultiArray.h>
 #include <std_msgs/Float32MultiArray.h>
+#include <motor_control/simJointState.h>    // for simulation only
+
 #include <string>
 #include "message_filters/subscriber.h"
 #include "message_filters/time_synchronizer.h"
@@ -390,6 +392,7 @@ int main(int argc, char **argv) {
     ros::Subscriber set_zero_sub = n.subscribe<std_msgs::Bool>("/arm_control/set_zero_arm_pos", 10, setZeroCallback);
     ros::Subscriber state_cmd_sub = n.subscribe<sensor_msgs::JointState>("/arm_control/joint_cmd", 10, stateCommandCallback);
     ros::Publisher telem_pub = n.advertise<sensor_msgs::JointState>("/arm_control/joint_telemetry", 1000);
+    ros::Publisher sim_telem_pub = n.advertise<motor_control::simJointState>("/arm_control/sim_joint_telemetry", 1000);  // for simulation only
     ros::Rate loop_rate(PERIOD);
     cout << "ROS node initialized" << endl;
 
@@ -464,9 +467,12 @@ int main(int argc, char **argv) {
         } //end of valid workcounter
 
         sensor_msgs::JointState msg;
+        motor_control::simJointState sim_msg;   // for simulation only
         for (size_t it=0; it<chain.size(); ++it) {
             msg.position.push_back(chain[it]->get_Actual_Position_In_Rad()/reduction[it]);
             msg.velocity.push_back(chain[it]->get_Actual_Velocity_In_Rpm()/reduction[it]);
+            sim_msg.position[i] = chain[it]->get_Actual_Position_In_Rad()/reduction[it];
+            sim_msg.velocity[i] = chain[it]->get_Actual_Velocity_In_Rpm()/reduction[it];
         }
         telem_pub.publish(msg);
         ros::spinOnce();

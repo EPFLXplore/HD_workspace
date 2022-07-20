@@ -11,9 +11,10 @@ message_filters
 message_generation
 )
 
-# add_message_files(
-# FILES
-# )
+add_message_files(
+ FILES
+ simJointState.msg
+)
 
 #generate_messages(
 #  DEPENDENCIES

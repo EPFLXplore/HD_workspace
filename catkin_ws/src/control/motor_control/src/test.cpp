@@ -34,9 +34,11 @@ using namespace std::chrono;
 using namespace ethercatcpp;
 using namespace pid;
 
-Epos4::control_mode_t control_mode = Epos4::profile_position_PPM;
+Epos4::control_mode_t control_mode = Epos4::position_CSP;
 std::string network_interface_name = "eth0";
-double target_value = 2*3.14159;
+double pi = 3.141592653589793;
+double rot_in_qc = 1<<18;
+double target_value = 0;
 
 static const int period = 25; // ms
 
@@ -80,6 +82,11 @@ int main(int argc, char** argv){
 		// Set type of control
 		epos_1.set_Control_Mode(control_mode);
 
+		if (control_mode == Epos4::position_CSP) {
+			if (epos_1.get_Device_State_In_String() == "Operation enable") {
+				epos_1.set_Target_Position_In_Rad(target_value);
+			}
+		}
 		if (control_mode == Epos4::profile_position_PPM){
 			// unlock axle
 			epos_1.halt_Axle(false);
@@ -97,7 +104,7 @@ int main(int argc, char** argv){
 				cout << "************************************** \n";
 				epos_1.activate_Profile_Control(true);
 				epos_1.set_Target_Velocity_In_Rpm(0.000001);
-				epos_1.set_Target_Position_In_Rad(target_value*131.5);
+				epos_1.set_Target_Position_In_Rad(target_value);//*131.5);
 				cout << "Desired position value = " << std::dec <<target_value << " rad" << "\n";
 			}
 		}                                                                             

@@ -57,7 +57,7 @@ class Planner:
         rospy.Subscriber("/arm_control/joint_telemetry", sensor_msgs.msg.JointState, self.telemetry_callback)
 
         # objects from MoveIt Commander needed to communicate with MoveIt ==============================================
-        group_name = "arm_group"    # the planning group of the arm
+        group_name = "astra_arm"    # the planning group of the arm
         self.move_group = moveit_commander.MoveGroupCommander(group_name)
         self.robot = moveit_commander.RobotCommander()
         self.scene = moveit_commander.PlanningSceneInterface()
@@ -93,7 +93,7 @@ class Planner:
         self.move_group.set_max_velocity_scaling_factor(vel)
         self.move_group.set_max_acceleration_scaling_factor(acc)
 
-    def pose_goal_callback(self, msg: geometry_msgs.msg.Pose):
+    def pose_goal_callback(self, msg):
         """
         Listens to /arm_control/pose_goal topic
         """
@@ -101,21 +101,21 @@ class Planner:
             return
         self.achieve_goal(msg, Planner.POSE_GOAL)
 
-    def joint_goal_callback(self, msg: std_msgs.msg.Float64MultiArray):
+    def joint_goal_callback(self, msg):
         """
         Listens to /arm_control/joint_goal topic.
         """
         if self.moving:
             return
-        self.achieve_goal(msg, Planner.JOINT_GOAL)
+        self.achieve_goal(msg.data, Planner.JOINT_GOAL)
 
-    def object_callback(self, msg: geometry_msgs.msg.Pose):
+    def object_callback(self, msg):
         """
         Listens to /arm_control/world_update topic
         """
         # TODO
 
-    def telemetry_callback(self, msg: sensor_msgs.msg.JointState):
+    def telemetry_callback(self, msg):
         """
         Listens to /arm_control/joint_telemetry topic
         """
@@ -133,11 +133,15 @@ class Planner:
         if goal_type == Planner.JOINT_GOAL:
             rospy.loginfo("PLANNING JOINT GOAL")
             self.move_group.set_joint_value_target(goal)
-            success, plan, planning_time, error_code = self.move_group.plan()
+            #success, plan, planning_time, error_code = self.move_group.plan()
+            plan = self.move_group.plan()
+            success = bool(plan.joint_trajectory.points)
         elif goal_type == Planner.POSE_GOAL:
             rospy.loginfo("PLANNING POSE GOAL")
             self.move_group.set_pose_target(goal)
-            success, plan, planning_time, error_code = self.move_group.plan()
+            #success, plan, planning_time, error_code = self.move_group.plan()
+            plan = self.move_group.plan()
+            success = bool(plan.joint_trajectory.points)
             self.move_group.clear_pose_targets()
         elif goal_type == Planner.CARTESIAN_GOAL:
             rospy.loginfo("PLANNING CARTESIAN PATH")

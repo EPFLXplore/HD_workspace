@@ -7,7 +7,13 @@ import geometry_msgs.msg
 import sensor_msgs.msg
 
 pose_goal_pub = rospy.Publisher("/arm_control/pose_goal", geometry_msgs.msg.Pose, queue_size=5)
+joint_goal_pub = rospy.Publisher("/arm_control/joint_goal", std_msgs.msg.Float64MultiArray, queue_size=5)
 
+
+def publish_joint_goal(angle):
+    msg = std_msgs.msg.Float64MultiArray()
+    msg.data = [angle,0,0,0,0,0]
+    joint_goal_pub.publish(msg)
 
 def publish_pose_goal():
     pose_goal = geometry_msgs.msg.Pose()
@@ -21,8 +27,8 @@ def publish_pose_goal():
 def main():
     rospy.init_node("trajectory_planner_node", anonymous=True)
 
-    publish_pose_goal()
-    rospy.spin()
+    publish_joint_goal(int(sys.argv[1]))
+    #rospy.spin()
 
 
 if __name__ == "__main__":

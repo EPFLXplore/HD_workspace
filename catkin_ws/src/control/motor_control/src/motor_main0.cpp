@@ -30,7 +30,7 @@ using namespace ethercatcpp;
 using namespace pid;
 //using namespace xcontrol;
 
-#define MOTOR_COUNT 1
+#define MOTOR_COUNT 8
 #define MAX_MOTOR_COUNT 8
 #define PRINT_STATE true
 #define QC_SPEED_CONVERSION 4000
@@ -67,11 +67,10 @@ static const float max_angle[MAX_MOTOR_COUNT] = {9.77, 2.3, 411, 9.63, 7.26, INF
 static const float min_angle[MAX_MOTOR_COUNT] = {-9.6, -1.393, -259, -9.54, -0.79, -INF, -0.14, -INF};
 static const double max_velocity[MAX_MOTOR_COUNT] = {5, 1, 700, 5, 6, 12, 1, 0};    // rotations per minute
 //static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 676.0/49.0, 2*439, 2*439, 2*231, 1*16*700, 0};
-static const double reduction[MAX_MOTOR_COUNT] = {1};
+static const double reduction[MAX_MOTOR_COUNT] = {1, 480*16, 676.0/49.0, 1, 2*439, 2*231, 1*16*700, 0};
 static const double security_angle_coef[MAX_MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
-static const vector<int> order = {1, 2, 3, 8, 4, 5, 6, 7};
+static const vector<int> order = {1, 2, 8, 4, 3, 5, 6, 7};
 
-static const double CCC(131.5);
 //====================================================================================================
 
 
@@ -343,28 +342,28 @@ int main(int argc, char **argv) {
     // Device definition
     // 3-axis: 1st slot next to ETHERNET-IN
     xcontrol::OneAxisSlot epos_1(true, 0x000000fb, 0x60500000);
-    //xcontrol::OneAxisSlot epos_2(true, 0x000000fb, 0x65510000);
-    //xcontrol::ThreeAxisSlot empty(true, 0x000000fb, 0x69500000), epos_3(false, 0x000000fb, 0x69500000), epos_4(true, 0x000000fb, 0x69500000);
-    //xcontrol::ThreeAxisSlot epos_6(true, 0x000000fb, 0x69500000), epos_7(true, 0x000000fb, 0x69500000), epos_5(true, 0x000000fb, 0x69500000);
+    xcontrol::OneAxisSlot epos_2(true, 0x000000fb, 0x65510000);
+    xcontrol::ThreeAxisSlot empty(true, 0x000000fb, 0x69500000), epos_3(true, 0x000000fb, 0x69500000), epos_4(true, 0x000000fb, 0x69500000);
+    xcontrol::ThreeAxisSlot epos_6(true, 0x000000fb, 0x69500000), epos_7(true, 0x000000fb, 0x69500000), epos_5(true, 0x000000fb, 0x69500000);
 
     //Epos4Extended epos_1(true);
     //epos_1.set_Id("EPOS4", 0x000000fb, 0x60500000);
     //xcontrol::OneAxisSlot epos_2(true);
     //xcontrol::ThreeAxisSlot epos_2(true), epos_3(true), epos_4(true);
     //xcontrol::ThreeAxisSlot epos_5(true), epos_6(true), epos_7(true);
-    vector<xcontrol::Epos4Extended*> chain = {&epos_1};//, &epos_2, &empty, &epos_3, &epos_4, &epos_6, &epos_7, &epos_5};
+    vector<xcontrol::Epos4Extended*> chain = {&epos_1, &epos_2, &empty, &epos_3, &epos_4, &epos_6, &epos_7, &epos_5};
 
     bool is_scanning = true;
 
     xcontrol::NetworkMaster ethercat_master(chain, network_interface_name);
 
 	std::vector<xcontrol::Epos4Extended*> temp;
-	/*for (size_t i = 0; i < chain.size(); i++) {
+	for (size_t i = 0; i < chain.size(); i++) {
         temp.push_back(chain[i]);
     }
 	for (size_t i = 0; i < order.size(); i++) {
         chain[order[i]-1] = temp[i];
-    }*/
+    }
 
     cout << "BBBBBBBBBBBBBBBBBBb" << endl;
     ethercat_master.init_network();
@@ -413,12 +412,15 @@ int main(int argc, char **argv) {
         sensor_msgs::JointState msg;
         motor_control::simJointState sim_msg;   // for simulation only
         for (size_t it=0; it<chain.size(); ++it) {
+            cout << "qqqqq"  << it << endl;
             msg.position.push_back(chain[it]->get_Actual_Position_In_Qc()/reduction[it]*2*PI/ROT_IN_QC);
             msg.velocity.push_back(chain[it]->get_Actual_Velocity_In_Rads()/reduction[it]);
-            sim_msg.position[it] = chain[it]->get_Actual_Position_In_Qc()/reduction[it]*2*PI/ROT_IN_QC;
-            sim_msg.velocity[it] = chain[it]->get_Actual_Velocity_In_Rads()/reduction[it];
+            //sim_msg.position[it] = chain[it]->get_Actual_Position_In_Qc()/reduction[it]*2*PI/ROT_IN_QC;
+            //sim_msg.velocity[it] = chain[it]->get_Actual_Velocity_In_Rads()/reduction[it];
         }
+        cout << "exit" << endl;
         if (chain.size() < 6) {
+            cout << "in if" << endl;
             // populate the message with zeros if less than 6 actual motors
             for (size_t it=chain.size(); it < 6; ++it) {
                 msg.position.push_back(0);
@@ -427,6 +429,7 @@ int main(int argc, char **argv) {
                 sim_msg.velocity[it] = 0;
             }
         }
+        cout << "finish if" << endl;
         telem_pub.publish(msg);
         sim_telem_pub.publish(sim_msg);
         ros::spinOnce();

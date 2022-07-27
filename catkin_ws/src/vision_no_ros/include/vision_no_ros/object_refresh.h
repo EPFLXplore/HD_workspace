@@ -183,7 +183,7 @@ void average_object_params(vision_no_ros::panel_object& object,int samples){
   }
 }
 
-void get_angle_from_polyfit(float& difference){
+void get_angle_from_polyfit(float& difference){ //use differential pixel length to deduce tilt
 
   
   float angle;

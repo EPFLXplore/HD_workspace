@@ -21,6 +21,7 @@ using namespace cv;
 static bool show_input_image(0);
 static bool show_output_image(1);
 #define SAMPLES 30
+#define TAG_SIZE 0.044f
 
 
 ////////////////////// vectors required for AR tag detection ///////////////////////////////////
@@ -81,9 +82,9 @@ int main(int argc, char **argv) try {
         
         if (ids.size()>0){
             
-            cv::aruco::estimatePoseSingleMarkers(corners, 0.044, cameraMatrix, distCoeffs, rvecs, tvecs);// dont forget to modify the ar tag size!! //this function might become obsolete this will need to be added inside the ifs because the ar tag size changes
+            cv::aruco::estimatePoseSingleMarkers(corners, TAG_SIZE, cameraMatrix, distCoeffs, rvecs, tvecs);// dont forget to modify the ar tag size!! //this function might become obsolete this will need to be added inside the ifs because the ar tag size changes
             
-            uint command=0;// test variable , replaces the topic I should be subscribed to to know which on=bject to manipulate
+            uint command=0;// test variable , replaces the topic I should be subscribed to to know which object to manipulate
             static int active_sample=0;
             ///////////////////////////////////////////////// start refreshing the objects ///////////////////////////////////          
             vision_no_ros::object_list objects;//decalre objects list
@@ -161,7 +162,7 @@ int main(int argc, char **argv) try {
                 cv::Mat output_image=image.clone();
                 cv::aruco::drawDetectedMarkers(output_image,corners,ids);
                 //for(int i=0; i<ids.size(); i++){ 
-                //  cv::aruco::drawAxis(output_image, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.1); removed his for the jetson (uses a version thats not compatible with this)
+                //  cv::aruco::drawAxis(output_image, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.1); removed this for the jetson (uses a version thats not compatible with this)
                 //} 
                 imshow("output image", output_image);
                 waitKey(1);

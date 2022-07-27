@@ -75,7 +75,7 @@ namespace cntrl_pnl {
         PNLA.artg1.pos.x_coor= -Dist2;   //modified panel one for new rules
         PNLA.artg1.pos.y_coor= Dist1;    
         PNLA.artg1.width=Wdth1;
-        PNLA.artg1.id = 0;              // need to put the right Id's!! maybe make a setup function with a camera so we can create the panle with just a picture
+        PNLA.artg1.id = 1;              // need to put the right Id's!! maybe make a setup function with a camera so we can create the panel with just a picture
  
         /*//this Ar tag no longer exists
         strcpy(PNLA.artg2.name, "ARTG2"); 
@@ -88,23 +88,27 @@ namespace cntrl_pnl {
         strcpy(PNLA.switchMain.name, "SWTCMain");
         PNLA.switchMain.pos.x_coor= Dist2;
         PNLA.switchMain.pos.y_coor= Dist1;
-        PNLA.switchMain.id = 50;
+        PNLA.switchMain.id = 5;
 
         strcpy(PNLA.switch1.name, "SWTC1");
         PNLA.switch1.pos.x_coor= -Dist2; 
         PNLA.switch1.pos.y_coor= 0;
+        PNLA.switch1.id = 10;
 
         strcpy(PNLA.switch2.name, "SWTC2");
         PNLA.switch2.pos.x_coor= Dist2;
         PNLA.switch2.pos.y_coor= 0;
+        PNLA.switch2.id = 15;
 
         strcpy(PNLA.switch3.name, "SWTC3");
         PNLA.switch3.pos.x_coor= -Dist2;
         PNLA.switch3.pos.y_coor= -Dist1;
+        PNLA.switch3.id = 20;
 
         strcpy(PNLA.switch4.name, "SWTC4");
         PNLA.switch4.pos.x_coor= Dist2;
         PNLA.switch4.pos.y_coor= -Dist1;
+        PNLA.switch4.id = 25;
 
         control_panel.panelA = PNLA;
 
@@ -128,14 +132,17 @@ namespace cntrl_pnl {
         strcpy(PNLB1.outlet.name, "OUTLET");
         PNLB1.outlet.pos.x_coor= 0;
         PNLB1.outlet.pos.y_coor= -Dist1/2.0;
+        PNLB1.outlet.id = 30;
 
         strcpy(PNLB1.button.name, "BUTTON");
         PNLB1.button.pos.x_coor= 0;
         PNLB1.button.pos.y_coor= Dist1/2.0;
+        PNLB1.button.id = 35;
 
         strcpy(PNLB1.emagLock.name, "EMAGLOCK");
         PNLB1.emagLock.pos.x_coor= -123.5;
         PNLB1.emagLock.pos.y_coor= -Dist1/2.0+6.0;
+        PNLB1.emagLock.id = 40;
 
 
 
@@ -155,6 +162,7 @@ namespace cntrl_pnl {
         strcpy(PNLB2.ethernet.name, "ETHRN");
         PNLB2.ethernet.pos.x_coor= 0;
         PNLB2.ethernet.pos.y_coor= Dist1/2.0;
+        PNLB2.ethernet.id = 45;
 
         control_panel.panelB2 = PNLB2;
     // Verification prints for Panel A 

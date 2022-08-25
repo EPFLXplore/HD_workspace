@@ -9,9 +9,9 @@ project(vision_no_ros)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   #geometry_msgs  
-  #cv_bridge
-  #image_transport
-  #sensor_msgs
+  cv_bridge
+  image_transport
+  sensor_msgs
   roscpp
   rospy
   std_msgs
@@ -123,7 +123,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 ##set(OpenCV_DIR "/usr/lib/opencv")
 ##set(DEPENDENCIES realsense2)
-find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui aruco videoio imgcodecs)  ## amybe remove the 4 (version 4 of opencv)
+find_package(OpenCV 3 REQUIRED COMPONENTS core imgproc highgui aruco videoio imgcodecs)  ## amybe remove the 4 (version 4 of opencv)
 set(DEPENDENCIES realsense2 ${OpenCV_LIBS})
 
 include_directories(

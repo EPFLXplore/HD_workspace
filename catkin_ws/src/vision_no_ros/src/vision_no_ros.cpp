@@ -6,6 +6,9 @@
 
 #include <iostream>
 #include "std_msgs/Int16.h"
+#include <image_transport/image_transport.h>
+#include <cv_bridge/cv_bridge.h>
+
 
 //includes for my headers
 #include <vision_no_ros/cntrl_pnl.h> //included in  object_refresh
@@ -22,7 +25,7 @@
 using namespace std;
 using namespace cv;
 
-static bool show_input_image(1);
+static bool show_input_image(0);
 static bool show_output_image(0);
 #define SAMPLES 30
 #define TAG_SIZE 0.044f
@@ -41,7 +44,7 @@ void fsm_callback(const std_msgs::Int16& msg){
 
         cout << msg.data << endl;
 }
- 
+
 
 int main(int argc, char **argv) try {   
     
@@ -50,6 +53,10 @@ int main(int argc, char **argv) try {
     ros::NodeHandle n;
     ros::Publisher pub = n.advertise<vision_no_ros::object_list>("detected_elements", 1);
     ros::Subscriber sub = n.subscribe("vision_FSM", 1000, fsm_callback);
+    
+    image_transport::ImageTransport it(n);
+    image_transport::Publisher image_pub = it.advertise("intel_D405/color_image", 1);
+
     //ros::spin();//this is needed for the calbacks to be actually called its an infinite loop...
 
     //////////// control panel initialisation ////////////
@@ -75,14 +82,28 @@ int main(int argc, char **argv) try {
         data = align_to_color.process(data); //for aligning the depth and color frames
         rs2::frame color = data.get_color_frame();
         rs2::depth_frame depth =data.get_depth_frame();
-       
+
 
         ///////////////// AR tag detection and camera calibration /////////////////////////
         rs2_intrinsics intrinsics = get_field_of_view(pipe,cameraMatrix,distCoeffs); //function to get the camera intrinsics and copy them into the right matrices
+        //cout<<"pblm is affter conversion" << endl;
         cv::Mat image = frame_to_mat(color);  //using the cv helpers to convert an rs2 frame to a cv mat
+        //cout<<"pblm is after detection of ar tags" << endl;
+       
+       ///////////publishig the video feed on the ros network ///////////////
+        Point pt1(0,0); //contours[k][0];
+        Point pt2(400,400); //contours[k][2];
+        rectangle(image,pt1,pt2,Scalar(255,0,0),2);
+        sensor_msgs::ImagePtr image_msg;
+        image_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8",image).toImageMsg();
+        image_pub.publish(image_msg);
+        cv::waitKey(1);
+        //ros::spinOnce();  //not sure cuz there's another one
+
+       ////////////////find AR tags ///////////////////////////
         cv::aruco::detectMarkers(image,dictionary,corners,ids);
         
-         find_plaque(image);
+        //find_plaque(image);
         
         
         if (ids.size()>0){
@@ -152,7 +173,7 @@ int main(int argc, char **argv) try {
 
             /////////////////////////////////////////////// end object referesh /////////////////////////////////////////////////
 
-            cout << "active command is : "<< get_command() <<endl;
+            //cout << "active command is : "<< get_command() <<endl;
 
             if (active_sample < SAMPLES ){
                 ++active_sample;
@@ -175,7 +196,7 @@ int main(int argc, char **argv) try {
                 waitKey(1);
             }
         }else {
-            // no ar tags are visible call the blind functions
+            cout<< "no visible AR tags" <<endl; // no ar tags are visible call the blind functions
         }
         if(show_input_image){
             imshow("input feed",image);

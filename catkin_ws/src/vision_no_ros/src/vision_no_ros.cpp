@@ -11,15 +11,19 @@
 #include <vision_no_ros/cntrl_pnl.h> //included in  object_refresh
 #include <vision_no_ros/cv-helpers.hpp>
 #include <vision_no_ros/object_refresh.h>
+#include <vision_no_ros/plaque_detection.h>
+#include <vision_no_ros/serial_commander.h>
 //custom messages includes
 #include <vision_no_ros/panel_object.h> //even though this file doesnt exist, the .msg one does
 #include <vision_no_ros/object_list.h>
 
+
+
 using namespace std;
 using namespace cv;
 
-static bool show_input_image(0);
-static bool show_output_image(1);
+static bool show_input_image(1);
+static bool show_output_image(0);
 #define SAMPLES 30
 #define TAG_SIZE 0.044f
 
@@ -78,39 +82,41 @@ int main(int argc, char **argv) try {
         cv::Mat image = frame_to_mat(color);  //using the cv helpers to convert an rs2 frame to a cv mat
         cv::aruco::detectMarkers(image,dictionary,corners,ids);
         
+         find_plaque(image);
         
         
         if (ids.size()>0){
             
             cv::aruco::estimatePoseSingleMarkers(corners, TAG_SIZE, cameraMatrix, distCoeffs, rvecs, tvecs);// dont forget to modify the ar tag size!! //this function might become obsolete this will need to be added inside the ifs because the ar tag size changes
             
-            uint command=0;// test variable , replaces the topic I should be subscribed to to know which object to manipulate
+            //uint command=0;// test variable , replaces the topic I should be subscribed to to know which object to manipulate
+           
             static int active_sample=0;
             ///////////////////////////////////////////////// start refreshing the objects ///////////////////////////////////          
             vision_no_ros::object_list objects;//decalre objects list
             
             //// panel A
             
-            if (command==0 or command==1){
+            if (get_command()==0 or get_command()==1){
                 //declare object and refresh it
                 vision_no_ros::panel_object main_switch;
                 refresh_object(main_switch,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switchMain,depth,corners,intrinsics,SAMPLES);//need to make a function that gets the rvecs and tvecs for the ar tag with id hard coded
                 //push back the object to the list to be published
                 if (active_sample==SAMPLES) objects.detected_objects.push_back(main_switch);
             }
-            if (command==0 or command==2){
+            if (get_command()==0 or get_command()==2){
                 vision_no_ros::panel_object switch_1;
                 refresh_object(switch_1,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch1,depth,corners,intrinsics,SAMPLES);
                 if (active_sample==SAMPLES) objects.detected_objects.push_back(switch_1);
             }
 
-            if (command==0 or command==3){
+            if (get_command()==0 or get_command()==3){
                 vision_no_ros::panel_object switch_2;
                 refresh_object(switch_2,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch2,depth,corners,intrinsics,SAMPLES);
                 if (active_sample==SAMPLES) objects.detected_objects.push_back(switch_2);
             }
 
-            if (command==0 or command==4){
+            if (get_command()==0 or get_command()==4){
                 vision_no_ros::panel_object switch_3;
                 refresh_object(switch_3,ids,rvecs,tvecs,my_panel.panelA.artg1,my_panel.panelA.switch3,depth,corners,intrinsics,SAMPLES);
                 if (active_sample==SAMPLES) objects.detected_objects.push_back(switch_3);
@@ -118,19 +124,19 @@ int main(int argc, char **argv) try {
 
             //// panel B1
 
-            if (command==0 or command==5){
+            if (get_command()==0 or get_command()==5){
                 vision_no_ros::panel_object button;
                 refresh_object(button,ids,rvecs,tvecs,my_panel.panelB1.artg2,my_panel.panelB1.button,depth,corners,intrinsics,SAMPLES);
                 if (active_sample==SAMPLES) objects.detected_objects.push_back(button);
             }
 
-            if (command==0 or command==6){
+            if (get_command()==0 or get_command()==6){
                 vision_no_ros::panel_object outlet;
                 refresh_object(outlet,ids,rvecs,tvecs,my_panel.panelB1.artg3,my_panel.panelB1.outlet,depth,corners,intrinsics,SAMPLES);
                 if (active_sample==SAMPLES) objects.detected_objects.push_back(outlet);
             }
 
-            if (command==0 or command==7){
+            if (get_command()==0 or get_command()==7){
                 vision_no_ros::panel_object emagLock;
                 refresh_object(emagLock,ids,rvecs,tvecs,my_panel.panelB1.artg3,my_panel.panelB1.emagLock,depth,corners,intrinsics,SAMPLES);
                 if (active_sample==SAMPLES) objects.detected_objects.push_back(emagLock);
@@ -138,7 +144,7 @@ int main(int argc, char **argv) try {
 
             //// panel B2
 
-            if (command==0 or command==8){
+            if (get_command()==0 or get_command()==8){
                 vision_no_ros::panel_object ethernet;
                 refresh_object(ethernet,ids,rvecs,tvecs,my_panel.panelB2.artg4,my_panel.panelB2.ethernet,depth,corners,intrinsics,SAMPLES);
                 if (active_sample==SAMPLES) objects.detected_objects.push_back(ethernet);
@@ -146,11 +152,12 @@ int main(int argc, char **argv) try {
 
             /////////////////////////////////////////////// end object referesh /////////////////////////////////////////////////
 
-
+            cout << "active command is : "<< get_command() <<endl;
 
             if (active_sample < SAMPLES ){
                 ++active_sample;
             }else {
+               // set_command(); //that way you reask every 30 frames
                 active_sample=0;
                 //publish the list               
                 pub.publish(objects);

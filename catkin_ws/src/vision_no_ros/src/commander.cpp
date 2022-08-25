@@ -1,11 +1,14 @@
 #include "ros/ros.h"
 #include "std_msgs/Int16.h"
 
+#include <iostream>
+
 #include <sstream>
 
 /**
  * This tutorial demonstrates simple sending of messages over the ROS system.
  */
+
 int main(int argc, char **argv)
 {
   /**
@@ -53,12 +56,13 @@ int main(int argc, char **argv)
    * a unique string for each message.
    */
   int command = 0;
+  std_msgs::Int16 msg;
   while (ros::ok())
   {
     /**
      * This is a message object. You stuff it with data, and then publish it.
      */
-    std_msgs::Int16 msg;
+    std::cin >> command ; //add check for a valid command !!
     msg.data = command;
 
     /**
@@ -72,9 +76,9 @@ int main(int argc, char **argv)
     ros::spinOnce();
 
     loop_rate.sleep();
-    ++command;
   }
 
 
   return 0;
 }
+

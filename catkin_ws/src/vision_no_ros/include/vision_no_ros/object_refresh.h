@@ -32,6 +32,8 @@ void average_object_params(vision_no_ros::panel_object& object,int samples);
 
 void get_angle_from_polyfit(float& difference);
 
+void draw_object(cv::Mat& image,const vision_no_ros::panel_object& object,const rs2_intrinsics& intrinsics);
+
 //#define USE_RS2_PROJECTION
 
 /*
@@ -61,7 +63,7 @@ void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,c
       #ifdef USE_RS2_PROJECTION
         float pixel[2]= {tag_center_x,tag_center_y};
         float point[3];
-        //canter of AR Tag
+        //center of AR Tag
         rs2_deproject_pixel_to_point(point,&intrinsics,pixel,dist);
         object.x_pos =offset.x_coor+point[0]*1000; //.
         object.y_pos =offset.y_coor-point[1]*1000;//minus because the camera yaxis points down
@@ -199,6 +201,14 @@ void get_angle_from_polyfit(float& difference){ //use differential pixel length 
   return;
 }
 
+
+void draw_object(cv::Mat& image,const vision_no_ros::panel_object& object,const rs2_intrinsics& intrinsics){
+  float pixel[2];
+  float point[3]={object.x_pos,-object.y_pos,object.z_pos}; //added - sign to the object y coordinate beause the axes are inverted (non euclidian repere)
+  rs2_project_point_to_pixel(pixel,&intrinsics,point);
+  Point center (pixel[0],pixel[1]);
+  cv::circle(image,center,20,Scalar(0,255,0),2);
+}
 
 
 #endif

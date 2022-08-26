@@ -33,12 +33,19 @@ void find_plaque(const Mat& image){
     cv::Mat output_image=image.clone();
 
     for (size_t k=0 ; k<contours.size() ; ++k){
-        approxPolyDP(Mat(contours[k]),approx_contours[k],3,true);    // i need a bad approximation for this to work, blurring the edgeds might work I need a low pass filtered image to have the rectangluar shape without any irregu;arities
+        approxPolyDP(Mat(contours[k]),approx_contours[k],50,true); //the bigger the number the worse the approx which is better for me   // i need a bad approximation for this to work, blurring the edgeds might work I need a low pass filtered image to have the rectangluar shape without any irregu;arities
         if (approx_contours[k].size()==4){
+            //for (size_t i=0 ; i<approx_contours.size() ; ++i){
+
+               // circle(output_image,approx_contours[k][i],50,Scalar(0,0,255),1);
+            //}
+            circle(output_image,approx_contours[k][0],50,Scalar(0,0,255),1);
+            circle(output_image,approx_contours[k][2],50,Scalar(255,0,255),1);
+
             cout<< "contour number : " << k << "has four sides" <<endl;
-            Point pt1(contours[k][0].x,contours[k][0].y); //contours[k][0];
-            Point pt2(contours[k][2].x,contours[k][2].x); //contours[k][2];
-            rectangle(output_image,pt1,pt2,Scalar(255,0,0),2);
+            //Point pt1(contours[k][0].x,contours[k][0].y); //contours[k][0];
+            //Point pt2(contours[k][2].x,contours[k][2].y); //contours[k][2];
+            rectangle(output_image,approx_contours[k][0],approx_contours[k][2],Scalar(0,255,0),5);
             ++count_rectangles;
         }
     }

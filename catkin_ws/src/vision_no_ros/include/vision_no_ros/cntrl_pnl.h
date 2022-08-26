@@ -4,13 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <opencv2/opencv.hpp>
+
 
 #define Dist1 71
 #define Dist2 42
 #define Dist3 62
-#define Wdth1 50
+#define Wdth1 50  //this is also the width of the individual objects
 #define Wdth2 32 
-
+#define Switch_width 25
 
 namespace cntrl_pnl {
     
@@ -37,7 +39,7 @@ namespace cntrl_pnl {
     struct PanelA {
         char name[6];
         ArTag artg1; //removed artag 2, it no longer exists
-        Object switchMain, switch1, switch2, switch3, switch4; //added main switch
+        Object switchMain, switch1, switch2, switch3, switch4, switch5, switch6, switch7, switch8, switch9; //added main switch
 
     };
 
@@ -75,7 +77,7 @@ namespace cntrl_pnl {
         PNLA.artg1.pos.x_coor= -Dist2;   //modified panel one for new rules
         PNLA.artg1.pos.y_coor= Dist1;    
         PNLA.artg1.width=Wdth1;
-        PNLA.artg1.id = 1;              // need to put the right Id's!! maybe make a setup function with a camera so we can create the panel with just a picture
+        PNLA.artg1.id = 0;//this should be 2              // need to put the right Id's!! maybe make a setup function with a camera so we can create the panel with just a picture
  
         /*//this Ar tag no longer exists
         strcpy(PNLA.artg2.name, "ARTG2"); 
@@ -84,31 +86,56 @@ namespace cntrl_pnl {
         PNLA.artg2.width=Wdth1;
         PNLA.artg2.id = 2;
         */
-        
+        //distances are taken from the center of each panel
         strcpy(PNLA.switchMain.name, "SWTCMain");
-        PNLA.switchMain.pos.x_coor= Dist2;
+        PNLA.switchMain.pos.x_coor= Dist2-Switch_width;
         PNLA.switchMain.pos.y_coor= Dist1;
         PNLA.switchMain.id = 5;
 
         strcpy(PNLA.switch1.name, "SWTC1");
-        PNLA.switch1.pos.x_coor= -Dist2; 
-        PNLA.switch1.pos.y_coor= 0;
+        PNLA.switch1.pos.x_coor= Dist2+Switch_width; 
+        PNLA.switch1.pos.y_coor= Dist1;
         PNLA.switch1.id = 10;
 
         strcpy(PNLA.switch2.name, "SWTC2");
-        PNLA.switch2.pos.x_coor= Dist2;
+        PNLA.switch2.pos.x_coor= -Dist2-Switch_width;
         PNLA.switch2.pos.y_coor= 0;
         PNLA.switch2.id = 15;
 
         strcpy(PNLA.switch3.name, "SWTC3");
-        PNLA.switch3.pos.x_coor= -Dist2;
-        PNLA.switch3.pos.y_coor= -Dist1;
+        PNLA.switch3.pos.x_coor= -Dist2+Switch_width;
+        PNLA.switch3.pos.y_coor= 0;
         PNLA.switch3.id = 20;
 
         strcpy(PNLA.switch4.name, "SWTC4");
-        PNLA.switch4.pos.x_coor= Dist2;
-        PNLA.switch4.pos.y_coor= -Dist1;
+        PNLA.switch4.pos.x_coor= Dist2-Switch_width;
+        PNLA.switch4.pos.y_coor= 0;
         PNLA.switch4.id = 25;
+
+        strcpy(PNLA.switch4.name, "SWTC5");
+        PNLA.switch5.pos.x_coor= Dist2+Switch_width;
+        PNLA.switch5.pos.y_coor= 0;
+        PNLA.switch5.id = 30;
+
+        strcpy(PNLA.switch4.name, "SWTC6");
+        PNLA.switch6.pos.x_coor= -Dist2-Switch_width;
+        PNLA.switch6.pos.y_coor= -Dist1;
+        PNLA.switch6.id = 35;
+
+        strcpy(PNLA.switch4.name, "SWTC7");
+        PNLA.switch7.pos.x_coor= -Dist2+Switch_width;
+        PNLA.switch7.pos.y_coor= -Dist1;
+        PNLA.switch7.id = 40;
+
+        strcpy(PNLA.switch4.name, "SWTC8");
+        PNLA.switch8.pos.x_coor= Dist2-Switch_width;
+        PNLA.switch8.pos.y_coor= -Dist1;
+        PNLA.switch8.id = 45;
+
+        strcpy(PNLA.switch4.name, "SWTC9");
+        PNLA.switch9.pos.x_coor= Dist2+Switch_width;
+        PNLA.switch9.pos.y_coor= -Dist1;
+        PNLA.switch9.id = 50;
 
         control_panel.panelA = PNLA;
 
@@ -121,28 +148,28 @@ namespace cntrl_pnl {
         PNLB1.artg2.pos.x_coor= Dist3;
         PNLB1.artg2.pos.y_coor= Dist1/2.0;
         PNLB1.artg2.width=Wdth2;
-        PNLB1.artg2.id = 2;
+        PNLB1.artg2.id = 1;
 
         strcpy(PNLB1.artg3.name, "ARTG3");
         PNLB1.artg3.pos.x_coor= Dist3;
         PNLB1.artg3.pos.y_coor= -Dist1/2.0;
         PNLB1.artg3.width=Wdth2;
-        PNLB1.artg3.id = 3;
+        PNLB1.artg3.id = 0;
 
         strcpy(PNLB1.outlet.name, "OUTLET");
         PNLB1.outlet.pos.x_coor= 0;
         PNLB1.outlet.pos.y_coor= -Dist1/2.0;
-        PNLB1.outlet.id = 30;
+        PNLB1.outlet.id = 55;
 
         strcpy(PNLB1.button.name, "BUTTON");
         PNLB1.button.pos.x_coor= 0;
         PNLB1.button.pos.y_coor= Dist1/2.0;
-        PNLB1.button.id = 35;
+        PNLB1.button.id = 60;
 
         strcpy(PNLB1.emagLock.name, "EMAGLOCK");
         PNLB1.emagLock.pos.x_coor= -123.5;
         PNLB1.emagLock.pos.y_coor= -Dist1/2.0+6.0;
-        PNLB1.emagLock.id = 40;
+        PNLB1.emagLock.id = 65;
 
 
 
@@ -157,12 +184,12 @@ namespace cntrl_pnl {
         PNLB2.artg4.pos.x_coor= 0;
         PNLB2.artg4.pos.y_coor= -Dist1/2.0;
         PNLB2.artg4.width=Wdth1;
-        PNLB2.artg4.id=4;
+        PNLB2.artg4.id=3;
 
         strcpy(PNLB2.ethernet.name, "ETHRN");
         PNLB2.ethernet.pos.x_coor= 0;
         PNLB2.ethernet.pos.y_coor= Dist1/2.0;
-        PNLB2.ethernet.id = 45;
+        PNLB2.ethernet.id = 70;
 
         control_panel.panelB2 = PNLB2;
     // Verification prints for Panel A 

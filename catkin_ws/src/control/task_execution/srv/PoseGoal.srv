@@ -1,0 +1,4 @@
+uint16 id
+sensor_msgs/Pose goal
+---
+bool ok

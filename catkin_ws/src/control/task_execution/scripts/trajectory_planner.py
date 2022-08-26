@@ -7,6 +7,8 @@ import moveit_msgs.msg
 import std_msgs.msg
 import geometry_msgs.msg
 import sensor_msgs.msg
+import task_execution.msg
+from task_execution.srv import PoseGoal, PoseGoalResponse, JointGoal, JointGoalResponse
 
 
 SUCCESS = 5
@@ -43,7 +45,7 @@ class Planner:
         rospy.init_node("trajectory_planner_node", anonymous=True)
 
         # publishers ===================================================================================================
-        self.end_of_mvt_pub = rospy.Publisher("/arm_control/end_of_movement", std_msgs.msg.UInt8, queue_size=5)
+        self.end_of_mvt_pub = rospy.Publisher("/arm_control/end_of_movement", task_execution.msg.cmdOutcome, queue_size=5)
         self.display_trajectory_pub = rospy.Publisher(
             "/move_group/display_planned_path",
             moveit_msgs.msg.DisplayTrajectory,
@@ -93,21 +95,24 @@ class Planner:
         self.move_group.set_max_velocity_scaling_factor(vel)
         self.move_group.set_max_acceleration_scaling_factor(acc)
 
-    def pose_goal_callback(self, msg):
+    def handle_pose_goal(self, req):
         """
         Listens to /arm_control/pose_goal topic
         """
         if self.moving:
-            return
-        self.achieve_goal(msg, Planner.POSE_GOAL)
+            # TODO: send message to indicate non execution
+            return PoseGoalResponse(False)
+        self.achieve_goal(req.id, req.goal, Planner.POSE_GOAL)
+        return PoseGoalResponse(True)
 
     def joint_goal_callback(self, msg):
         """
         Listens to /arm_control/joint_goal topic.
         """
         if self.moving:
+            # TODO: send message to indicate non execution
             return
-        self.achieve_goal(msg.data, Planner.JOINT_GOAL)
+        self.achieve_goal(cmd_id, msg.data, Planner.JOINT_GOAL)
 
     def object_callback(self, msg):
         """
@@ -133,15 +138,21 @@ class Planner:
         if goal_type == Planner.JOINT_GOAL:
             rospy.loginfo("PLANNING JOINT GOAL")
             self.move_group.set_joint_value_target(goal)
-            #success, plan, planning_time, error_code = self.move_group.plan()
-            plan = self.move_group.plan()
-            success = bool(plan.joint_trajectory.points)
+            result = self.move_group.plan()
+            if len(result) > 0 and isinstance(result[0], bool):
+                success, plan, planning_time, error_code = result
+            else:
+                plan = result
+                success = bool(plan.joint_trajectory.points)
         elif goal_type == Planner.POSE_GOAL:
             rospy.loginfo("PLANNING POSE GOAL")
             self.move_group.set_pose_target(goal)
-            #success, plan, planning_time, error_code = self.move_group.plan()
-            plan = self.move_group.plan()
-            success = bool(plan.joint_trajectory.points)
+            result = self.move_group.plan()
+            if len(result) > 0 and isinstance(result[0], bool):
+                success, plan, planning_time, error_code = result
+            else:
+                plan = result
+                success = bool(plan.joint_trajectory.points)
             self.move_group.clear_pose_targets()
         elif goal_type == Planner.CARTESIAN_GOAL:
             rospy.loginfo("PLANNING CARTESIAN PATH")
@@ -192,19 +203,19 @@ class Planner:
             pass
         elif self.current_goal_type == Planner.POSE_GOAL:
             actual_pose = self.get_end_effector_pose()
-            # compare it with self.goal
+            # TODO: compare it with self.goal
         elif self.current_goal_type == Planner.CARTESIAN_GOAL:
             # TODO 
             pass
 
-    def achieve_goal(self, goal, goal_type):
+    def achieve_goal(self, cmd_id, goal, goal_type):
         """
         TODO
         """
         success, plan = self.plan(goal, goal_type)
         if success:
             self.execute_plan(plan)
-        self.send_feedback(success)
+        self.send_feedback(cmd_id, success)     # TODO: use evaluate_execution_outcome instead
 
     def display_trajectory(self, plan):
         """
@@ -237,13 +248,15 @@ class Planner:
         """
         Remove all added objects.
         """
+        # TODO
 
-    def send_feedback(self, success):
+    def send_feedback(self, cmd_id, success):
         """
         Send feedback about the outcome of a movement.
         """
-        outcome = std_msgs.msg.UInt8()
-        outcome.data = (SUCCESS if success else FAIL)
+        outcome = task_execution.msg.cmdOutcome()
+        outcome.id = cmd_id
+        outcome.code = (SUCCESS if success else FAIL)
         self.end_of_mvt_pub.publish(outcome)
     
     def spin(self):

@@ -27,8 +27,10 @@ def publish_pose_goal():
 def main():
     rospy.init_node("trajectory_planner_node", anonymous=True)
 
-    publish_joint_goal(int(sys.argv[1]))
-    #rospy.spin()
+    if int(sys.argv[1]) == 1:
+        publish_joint_goal(int(sys.argv[2]))
+    else:
+        publish_pose_goal()
 
 
 if __name__ == "__main__":

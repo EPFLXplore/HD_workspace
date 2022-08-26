@@ -5,6 +5,7 @@ import moveit_msgs.msg
 import std_msgs.msg
 import geometry_msgs.msg
 import sensor_msgs.msg
+from task_execution.srv import PoseGoal, JointGoal
 
 
 pose_goal_pub = rospy.Publisher("/arm_control/pose_goal", geometry_msgs.msg.Pose, queue_size=5)
@@ -22,15 +23,22 @@ class Command:
 
 class PoseCommand(Command):
     """moves the arm to a requested pose (position + orientation of the end effector)"""
-    def __init__(self, pose=None):
-        self.pose = pose
-    
-    def set_pose(self, pose):
-        self.pose = pose
+    def __init__(self, pose=None, cartesian=False):
+        self.pose = pose    # geometry_msgs.msg.Pose
+        self.cartesian = cartesian
+        self.finished = False
 
     def execute(self) -> bool:
         """publishes on /arm_control/pose_goal topic for the trajectory planner"""
-
+        rospy.wait_for_service('/arm_control/pose_goal')
+        try:
+            proxy = rospy.ServiceProxy('/arm_control/pose_goal', PoseGoal)
+            cmd_id = 0  # TODO: increment id at each command
+            resp = proxy(cmd_id, self.pose, self.cartesian)
+            self.finished = resp.ok
+        except rospy.ServiceException as e:
+            # TODO: handle the exception (maybe)
+            print("Service call failed: %s"%e)
 
 
 class StraightMoveCommand(Command):

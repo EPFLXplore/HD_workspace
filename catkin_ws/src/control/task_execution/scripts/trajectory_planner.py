@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import sys
+import copy
+import time
 import rospy
 import moveit_commander
 import moveit_msgs.msg
@@ -53,8 +55,8 @@ class Planner:
         )
 
         # subscribers ==================================================================================================
-        rospy.Subscriber("/arm_control/pose_goal", geometry_msgs.msg.Pose, self.pose_goal_callback)
-        rospy.Subscriber("/arm_control/joint_goal", std_msgs.msg.Float64MultiArray, self.joint_goal_callback)
+        rospy.Service("/arm_control/pose_goal", PoseGoal, self.handle_pose_goal)
+        rospy.Service("/arm_control/joint_goal", JointGoal, self.handle_joint_goal)
         rospy.Subscriber("/arm_control/world_update", geometry_msgs.msg.Pose, self.object_callback)
         rospy.Subscriber("/arm_control/joint_telemetry", sensor_msgs.msg.JointState, self.telemetry_callback)
 
@@ -99,20 +101,33 @@ class Planner:
         """
         Listens to /arm_control/pose_goal topic
         """
+        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
         if self.moving:
             # TODO: send message to indicate non execution
             return PoseGoalResponse(False)
-        self.achieve_goal(req.id, req.goal, Planner.POSE_GOAL)
+        goal_type = Planner.CARTESIAN_GOAL if req.cartesian else Planner.POSE_GOAL
+        x = req.aaaa
+        goal = copy.deepcopy(self.move_group.get_current_pose().pose)
+        if x == "x":
+            goal.orientation.x = req.goal.orientation.x
+        elif x == "y":
+            goal.orientation.y = req.goal.orientation.y
+        elif x == "z":
+            goal.orientation.z = req.goal.orientation.z
+        elif x == "w":
+            goal.orientation.w = req.goal.orientation.w
+        self.achieve_goal(req.id, goal, goal_type)
         return PoseGoalResponse(True)
 
-    def joint_goal_callback(self, msg):
+    def handle_joint_goal(self, req):
         """
         Listens to /arm_control/joint_goal topic.
         """
         if self.moving:
             # TODO: send message to indicate non execution
-            return
-        self.achieve_goal(cmd_id, msg.data, Planner.JOINT_GOAL)
+            return JointGoalResponse(False)
+        self.achieve_goal(req.id, req.goal.data, Planner.JOINT_GOAL)
+        return JointGoalResponse(True)
 
     def object_callback(self, msg):
         """
@@ -157,8 +172,12 @@ class Planner:
         elif goal_type == Planner.CARTESIAN_GOAL:
             rospy.loginfo("PLANNING CARTESIAN PATH")
             # set orientation of the end effector to be the same as current
-            goal.orientation = self.move_group.get_current_pose().pose.orientation
-            waypoints = [goal]
+            goal.orientation = self.move_group.get_current_pose().pose.orientation  # TODO: is this needed ? I don't remember the purpose of it
+            wpose = copy.deepcopy(self.move_group.get_current_pose().pose)
+            wpose.position.x = goal.position.x
+            wpose.position.y = goal.position.y
+            wpose.position.z = goal.position.z
+            waypoints = [wpose]
             plan, fraction = self.move_group.compute_cartesian_path(waypoints, eef_step=0.01, jump_threshold=0.0)  # TODO: change the jump_threshold
             success = fraction == 1
         else:
@@ -260,7 +279,14 @@ class Planner:
         self.end_of_mvt_pub.publish(outcome)
     
     def spin(self):
-        rospy.spin()
+        rate = rospy.Rate(25)   # 25hz
+        t = time.time()
+        while not rospy.is_shutdown():
+            if time.time()-t > 1:
+                t = time.time()
+                rospy.logwarn(str(self.move_group.get_current_pose().pose.orientation))
+            rate.sleep()
+        # rospy.spin()
 
 
 if __name__ == "__main__":

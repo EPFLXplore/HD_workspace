@@ -1,4 +1,4 @@
 uint16 id
-std_msgs/float64multiarray goal
+std_msgs/Float64MultiArray goal
 ---
 bool ok

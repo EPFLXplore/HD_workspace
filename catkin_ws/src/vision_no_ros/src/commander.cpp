@@ -62,10 +62,16 @@ int main(int argc, char **argv)
     /**
      * This is a message object. You stuff it with data, and then publish it.
      */
+    
     std::cout <<"enter new command" << std::endl;
     std::cin >> command ; //add check for a valid command !!
-    msg.data = command;
-
+    
+    if (command>=-1 && command<=14){ 
+      msg.data = command;
+    }else{
+      std::cout<< "invalid command " << std::endl;
+      msg.data= -1;
+    }
     /**
      * The publish() function is how you send messages. The parameter
      * is the message object. The type of this object must agree with the type

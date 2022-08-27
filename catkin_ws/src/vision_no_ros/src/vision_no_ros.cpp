@@ -64,7 +64,11 @@ int main(int argc, char **argv) try {
     cntrl_pnl::setup_control_panel(my_panel);
     
     ////////// RealSense pipeline initialisation /////////
+    //rs2::context ctx;
     rs2::pipeline pipe;
+    rs2::config cfg;
+    cfg.enable_device("135322062945"); //device serial number , d405:123622270224
+    pipe.start(cfg);
     //setup custom streaming configuration 
     /*
     rs2::config cfg;
@@ -72,7 +76,7 @@ int main(int argc, char **argv) try {
     cfg.enable_stream(RS2_STREAM_COLOR,1280, 720, RS2_FORMAT_BGR8, 30);
     pipe.start(cfg);
     */
-    pipe.start(); // Start streaming with default recommended configuration//maybe should try to optimze the start parameters for bandwidth gains and other stuff when integratingg
+    //pipe.start(); // Start streaming with default recommended configuration//maybe should try to optimze the start parameters for bandwidth gains and other stuff when integratingg
     rs2::align align_to_color(RS2_STREAM_COLOR);//expensive keep it outside the loop
 
 
@@ -246,9 +250,9 @@ int main(int argc, char **argv) try {
                 if (show_output_image){
                     cv::Mat output_image=image.clone();
                     cv::aruco::drawDetectedMarkers(output_image,corners,ids);
-                    //for(int i=0; i<ids.size(); i++){ 
-                    //  cv::aruco::drawAxis(output_image, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.1); removed this for the jetson (uses a version thats not compatible with this)
-                    //}
+                    for(int i=0; i<ids.size(); i++){ 
+                      cv::aruco::drawAxis(output_image, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.1);// removed this for the jetson (uses a version thats not compatible with this)
+                    }  //X: red, Y: green, Z: blue.
                     //add draw objects here
                     sensor_msgs::ImagePtr output_image_msg;
                     output_image_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8",output_image).toImageMsg();

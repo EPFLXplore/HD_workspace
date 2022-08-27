@@ -9,6 +9,8 @@
 #include <ros/ros.h>
 #include <vision_no_ros/panel_object.h> 
 
+#include <vision_no_ros/quaternion.h>
+
 using namespace std;
 using namespace cv;
 
@@ -110,6 +112,8 @@ void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,c
       object.y_rot =yaw;//rvecs[i][1]*180/M_PI; //add rotation relative to gripper
       object.z_rot =roll;//rvecs[i][2]*180/M_PI; //add rotation relative to gripper
       average_object_params(object,samples);
+      vector<double> quaternion (4);
+      convert_rvec_to_quaternion(rvecs[i],quaternion);
       break;
     }
     else { //send an error message or a reset arm position command

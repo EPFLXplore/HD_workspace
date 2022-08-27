@@ -145,7 +145,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
- add_executable(${PROJECT_NAME}_node src/vision_no_ros.cpp include/vision_no_ros/cv-helpers.hpp include/vision_no_ros/cntrl_pnl.h include/vision_no_ros/object_refresh.h include/vision_no_ros/serial_commander.h include/vision_no_ros/plaque_detection.h)
+ add_executable(${PROJECT_NAME}_node src/vision_no_ros.cpp include/vision_no_ros/cv-helpers.hpp include/vision_no_ros/cntrl_pnl.h include/vision_no_ros/object_refresh.h include/vision_no_ros/serial_commander.h include/vision_no_ros/plaque_detection.h include/vision_no_ros/quaternion.h)
  add_executable(commander_node src/commander.cpp include/vision_no_ros/cv-helpers.hpp include/vision_no_ros/cntrl_pnl.h include/vision_no_ros/object_refresh.h)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

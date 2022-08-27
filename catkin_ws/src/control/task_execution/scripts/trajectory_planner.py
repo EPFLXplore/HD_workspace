@@ -110,12 +110,16 @@ class Planner:
         goal = copy.deepcopy(self.move_group.get_current_pose().pose)
         if x == "x":
             goal.orientation.x = req.goal.orientation.x
+            rospy.logwarn("xxxxxxxxxxxxxxxxx :       " + str(goal.orientation.x))
         elif x == "y":
             goal.orientation.y = req.goal.orientation.y
+            rospy.logwarn("yyyyyyyyyyyyyyyyy :       " + str(goal.orientation.y))
         elif x == "z":
             goal.orientation.z = req.goal.orientation.z
+            rospy.logwarn("zzzzzzzzzzzzzzzzz :       " + str(goal.orientation.z))
         elif x == "w":
             goal.orientation.w = req.goal.orientation.w
+            rospy.logwarn("wwwwwwwwwwwwwwwww :       " + str(goal.orientation.w))
         self.achieve_goal(req.id, goal, goal_type)
         return PoseGoalResponse(True)
 
@@ -282,9 +286,9 @@ class Planner:
         rate = rospy.Rate(25)   # 25hz
         t = time.time()
         while not rospy.is_shutdown():
-            if time.time()-t > 1:
+            if time.time()-t > 3:
                 t = time.time()
-                rospy.logwarn(str(self.move_group.get_current_pose().pose.orientation))
+                rospy.logwarn(str(self.move_group.get_current_pose().pose.orientation)+"\n")
             rate.sleep()
         # rospy.spin()
 

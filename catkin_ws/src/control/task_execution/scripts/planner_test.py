@@ -67,7 +67,7 @@ def main():
     if int(sys.argv[1]) == 1:
         req_joint_goal(int(sys.argv[2]))
     else:
-        req_pose_goal(sys.argv[2], int(sys.argv[3]))
+        req_pose_goal(sys.argv[2], float(sys.argv[3]))
 
 
 if __name__ == "__main__":

@@ -25,7 +25,7 @@ message_runtime
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -55,6 +55,7 @@ message_runtime
 add_message_files(
   FILES
   cmdOutcome.msg
+  Task.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -76,6 +77,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs  # Or other packages containing msgs
   sensor_msgs
+  geometry_msgs
 )
 
 ################################################
@@ -167,6 +169,7 @@ ${catkin_INCLUDE_DIRS}
 catkin_install_python(PROGRAMS
    scripts/trajectory_planner.py
    scripts/planner_test.py
+   scripts/task_executor.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

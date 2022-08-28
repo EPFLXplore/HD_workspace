@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import sys
 import rospy
 import time
@@ -9,7 +7,7 @@ import std_msgs.msg
 import geometry_msgs.msg
 import sensor_msgs.msg
 from task_execution.srv import PoseGoal, JointGoal
-import quaternion_arithmetic as qa
+import task_execution.quaternion_arithmetic as qa
 
 
 class Command:
@@ -35,7 +33,7 @@ class PoseCommand(Command):
         try:
             proxy = rospy.ServiceProxy('/arm_control/pose_goal', PoseGoal)
             cmd_id = 0  # TODO: increment id at each command
-            resp = proxy(cmd_id, self.pose, self.cartesian)
+            resp = proxy(cmd_id, self.pose, self.cartesian, False, False, "aaaaaaa")
             self.finished = resp.ok
         except rospy.ServiceException as e:
             # TODO: handle the exception (maybe)
@@ -109,6 +107,7 @@ class Task:
 
 class PressButton(Task):
     def __init__(self, btn_pose):
+        super(PressButton, self).__init__()
         self.btn_pose = btn_pose
         self.press_distance = 0.1
         self.pause_time = 2
@@ -119,7 +118,13 @@ class PressButton(Task):
     def getPressPosition(self):
         p = qa.point_image([0, 0, 1], self.btn_pose.orientation)
         p = qa.mul(self.press_distance, p)
-        return qa.quat_to_point(qa.add(self.btn_pose.position, p))
+        p = qa.mul(-1, p)   # TODO: direction is reversed for some reason
+        res = qa.quat_to_point(qa.add(self.btn_pose.position, p))
+        print("p is " + str(qa.quat_to_point(p)))
+        print("btn position is " + str(self.btn_pose.position))
+        print("result is " + str(res))
+        print()
+        return res
     
     def getPressOrientation(self):
         # for now

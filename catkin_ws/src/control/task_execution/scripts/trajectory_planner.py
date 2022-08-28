@@ -3,6 +3,7 @@
 import sys
 import copy
 import time
+import math
 import rospy
 import moveit_commander
 import moveit_msgs.msg
@@ -97,6 +98,20 @@ class Planner:
         self.move_group.set_max_velocity_scaling_factor(vel)
         self.move_group.set_max_acceleration_scaling_factor(acc)
 
+    def quaternion(self, axis, angle):
+        orientation = geometry_msgs.msg.Quaternion()
+        axis = self.normalize(axis)
+        orientation.w = math.cos(angle/2)
+        orientation.x = axis[0]*math.sin(angle/2)
+        orientation.y = axis[1]*math.sin(angle/2)
+        orientation.z = axis[2]*math.sin(angle/2)
+        return orientation
+
+    def normalize(self, axis):
+        n = math.sqrt(axis[0]**2 + axis[1]**2 + axis[2]**2)
+        axis = (axis[0]/n, axis[1]/2, axis[2]/n)
+        return axis
+        
     def handle_pose_goal(self, req):
         """
         Listens to /arm_control/pose_goal topic
@@ -106,8 +121,10 @@ class Planner:
             # TODO: send message to indicate non execution
             return PoseGoalResponse(False)
         goal_type = Planner.CARTESIAN_GOAL if req.cartesian else Planner.POSE_GOAL
-        x = req.aaaa
+        goal = req.goal
+        """x = req.aaaa
         goal = copy.deepcopy(self.move_group.get_current_pose().pose)
+        goal.orientation = req.goal.orientation
         if x == "x":
             goal.orientation.x = req.goal.orientation.x
             rospy.logwarn("xxxxxxxxxxxxxxxxx :       " + str(goal.orientation.x))
@@ -119,7 +136,7 @@ class Planner:
             rospy.logwarn("zzzzzzzzzzzzzzzzz :       " + str(goal.orientation.z))
         elif x == "w":
             goal.orientation.w = req.goal.orientation.w
-            rospy.logwarn("wwwwwwwwwwwwwwwww :       " + str(goal.orientation.w))
+            rospy.logwarn("wwwwwwwwwwwwwwwww :       " + str(goal.orientation.w))"""
         self.achieve_goal(req.id, goal, goal_type)
         return PoseGoalResponse(True)
 

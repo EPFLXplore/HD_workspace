@@ -90,7 +90,7 @@ class Origin:
                 rpy_s = str(self.rpy)
             else:
                 raise
-            s += 'rpy="%s"' % rpy_s
+            s += ' rpy="%s"' % rpy_s
         if s:
             return self.LAYOUT % s
         return ""
@@ -297,6 +297,30 @@ class Limit:
         return self.LAYOUT % (effort_s, velocity_s, lower_s, upper_s)
 
 
+class Mimic:
+    LAYOUT = '<mimic %s %s %s/>\n'
+    JOINT_LAYOUT = 'joint="%s"'
+    MULTIPLIER_LAYOUT = 'multiplier="%s"'
+    OFFSET_LAYOUT = 'offset="%s"'
+
+    def __init__(self, joint, multiplier=UNDEFINED, offset=UNDEFINED):
+        self.joint = joint
+        self.multiplier = multiplier
+        self.offset = offset
+    
+    def write(self):
+        joint_s = ""
+        multiplier_s = ""
+        offset_s = ""
+        if self.joint != UNDEFINED:
+            joint_s = self.JOINT_LAYOUT % str(self.joint)
+        if self.multiplier != UNDEFINED:
+            multiplier_s = self.MULTIPLIER_LAYOUT % str(self.multiplier)
+        if self.offset != UNDEFINED:
+            offset_s = self.OFFSET_LAYOUT % str(self.offset)
+        return self.LAYOUT % (joint_s, multiplier_s, offset_s)
+
+
 class Joint:
     REVOLUTE = "revolute"
     CONTINUOUS = "continuous"
@@ -349,7 +373,8 @@ class Joint:
                 axis_s = indent(self.AXIS_LAYOUT % str(self.axis))
         if self.limit != UNDEFINED:
             limit_s = indent(self.limit.write())
-
+        if self.mimic != UNDEFINED:
+            mimic_s = indent(self.mimic.write())
         # TODO: calibration, dynamics, mimic, safety_controller
 
         return self.LAYOUT % (self.name, self.type, parent_s, child_s, origin_s, axis_s,
@@ -365,5 +390,10 @@ class RevoluteJoint(Joint):
 class PrismaticJoint(Joint):
     def __init__(self, name, parent, child, origin=UNDEFINED, axis=UNDEFINED, limit=UNDEFINED, calibration=UNDEFINED, dynamics=UNDEFINED, mimic=UNDEFINED, safety_controller=UNDEFINED):
         type = Joint.PRISMATIC
+        super().__init__(type, name, parent, child, origin, axis, limit, calibration, dynamics, mimic, safety_controller)
+
+class FixedJoint(Joint):
+    def __init__(self, name, parent, child, origin=UNDEFINED, axis=UNDEFINED, limit=UNDEFINED, calibration=UNDEFINED, dynamics=UNDEFINED, mimic=UNDEFINED, safety_controller=UNDEFINED):
+        type = Joint.FIXED
         super().__init__(type, name, parent, child, origin, axis, limit, calibration, dynamics, mimic, safety_controller)
 

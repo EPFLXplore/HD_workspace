@@ -5,19 +5,19 @@ from std_msgs.msg import Float32MultiArray, Int8MultiArray, Float32, Int8
 import keyboard
 
 
-MOTOR_COUNT = 4
-CONTROL_KEYS = ["q", "w", "e", "r", "t", "z", "u"]
+MOTOR_COUNT = 8
+CONTROL_KEYS = ["q", "w", "e", "r", "t", "z", "u", "i"]
 
 motor_state = [0]*MOTOR_COUNT
 vel = 0
 
-angles_pub = rospy.Publisher('HD_angles', Int8MultiArray, queue_size=10)
+angles_pub = rospy.Publisher('HD_joints', Int8MultiArray, queue_size=10)
 vel_pub = rospy.Publisher('HD_ManualVelocity', Float32, queue_size=10)
 
 
 def publish_state():
     msg = Int8MultiArray()
-    msg.data = motor_state[:]
+    msg.data = [int(100*vel*x) for x in motor_state]
     angles_pub.publish(msg)
 
 
@@ -38,18 +38,20 @@ def get_inputs():
         vel = max(vel-vel_step, -1)
 
 
-def talker():
+def main():
     rospy.init_node('CS_sim_node', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     rospy.logwarn("CS_sim started")
     while not rospy.is_shutdown():
         get_inputs()
+        #rospy.logwarn("state:    " + str(motor_state))
+        #rospy.logwarn("vel:      " + str(vel))
         publish_state()
-        publish_vel()
+        #publish_vel()
         rate.sleep()
 
 if __name__ == '__main__':
     try:
-        talker()
+        main()
     except rospy.ROSInterruptException:
         pass

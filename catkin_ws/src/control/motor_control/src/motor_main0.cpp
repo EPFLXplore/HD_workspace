@@ -67,9 +67,9 @@ static const float max_angle[MAX_MOTOR_COUNT] = {9.77, 2.3, 411, 9.63, 7.26, INF
 static const float min_angle[MAX_MOTOR_COUNT] = {-9.6, -1.393, -259, -9.54, -0.79, -INF, -0.14, -INF};
 static const double max_velocity[MAX_MOTOR_COUNT] = {3, 1, 700, 5, 6, 12, 1, 0};    // rotations per minute
 //static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 676.0/49.0, 2*439, 2*439, 2*231, 1*16*700, 0};
-static const double reduction[MAX_MOTOR_COUNT] = {1, 1, 1, 1, 1, 1, 1, 0};
+static const double reduction[MAX_MOTOR_COUNT] = {1000, 200, 1, 100, 50*1.5, 50*1.5, 10000, 100};
 static const double security_angle_coef[MAX_MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
-static const vector<int> order = {1, 2, 8, 4, 3, 5, 6, 7};
+static const vector<int> order = {1, 2, 8, 3, 4, 5, 6, 7};
 
 //====================================================================================================
 
@@ -102,7 +102,7 @@ void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
     cout << endl;
     
     if (JOINT56_DEPENDENT) {
-        accountForJoint56Dependency();
+        //accountForJoint56Dependency();
     }
 
     if (!empty_command) {
@@ -327,7 +327,7 @@ void definitive_stop(vector<xcontrol::Epos4Extended*> chain) {
 
 int main(int argc, char **argv) {
 
-    std::string network_interface_name("eth1");
+    std::string network_interface_name("eth0");
     ros::init(argc, argv, "hd_controller_motors");
     ros::NodeHandle n;
     ros::Subscriber man_cmd_sub = n.subscribe<std_msgs::Float32MultiArray>("/arm_control/manual_cmd", 10, manualCommandCallback);
@@ -401,6 +401,7 @@ int main(int argc, char **argv) {
                     if (PRINT_STATE) { 
                         cout << "Actual position : " << std::dec << current_pos[it] << " rad" << "\n";
                         cout << "Actual velocity : " << std::dec << chain[it]->get_Actual_Velocity_In_Rads()/reduction[it] << " rad/s" << "\n";
+                        cout << "Request velocity : " << std::dec << target_vel[it] << " rad/s" << "\n";
                         cout << "Actual current value = " << chain[it]->get_Actual_Current_In_A() << "A" << "\n";
                         cout << "\n";
                     }
@@ -412,7 +413,6 @@ int main(int argc, char **argv) {
         sensor_msgs::JointState msg;
         motor_control::simJointState sim_msg;   // for simulation only
         for (size_t it=0; it<chain.size(); ++it) {
-            cout << "qqqqq"  << it << endl;
             msg.position.push_back(chain[it]->get_Actual_Position_In_Qc()/reduction[it]*2*PI/ROT_IN_QC);
             msg.velocity.push_back(chain[it]->get_Actual_Velocity_In_Rads()/reduction[it]);
             //sim_msg.position[it] = chain[it]->get_Actual_Position_In_Qc()/reduction[it]*2*PI/ROT_IN_QC;

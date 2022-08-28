@@ -67,7 +67,7 @@ static const float max_angle[MAX_MOTOR_COUNT] = {9.77, 2.3, 411, 9.63, 7.26, INF
 static const float min_angle[MAX_MOTOR_COUNT] = {-9.6, -1.393, -259, -9.54, -0.79, -INF, -0.14, -INF};
 static const double max_velocity[MAX_MOTOR_COUNT] = {3, 1, 700, 5, 6, 12, 1, 0};    // rotations per minute
 //static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 676.0/49.0, 2*439, 2*439, 2*231, 1*16*700, 0};
-static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 676.0/49.0, 1, 2*439, 2*231, 1*16*700, 0};
+static const double reduction[MAX_MOTOR_COUNT] = {1, 1, 1, 1, 1, 1, 1, 0};
 static const double security_angle_coef[MAX_MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
 static const vector<int> order = {1, 2, 8, 4, 3, 5, 6, 7};
 

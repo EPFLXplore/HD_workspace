@@ -12,9 +12,9 @@ import task_execution.quaternion_arithmetic as qa
 
 class Command:
     """abstract class representing a command"""
-    def finished(self) -> bool:
+    def finished(self):
         """indicates if the command can be considered as executed"""
-    def execute(self) -> bool:
+    def execute(self):
         """attempts to execute command
         returns a bool indicating if it succeeded"""
     def abort(self):
@@ -27,7 +27,7 @@ class PoseCommand(Command):
         self.cartesian = cartesian
         self.finished = False
 
-    def execute(self) -> bool:
+    def execute(self):
         """publishes on /arm_control/pose_goal topic for the trajectory planner"""
         rospy.wait_for_service('/arm_control/pose_goal')
         try:
@@ -42,16 +42,16 @@ class PoseCommand(Command):
 
 class StraightMoveCommand(Command):
     """moves the end effector in a straight line by a certain distance in a certain direction without affecting its orientation"""
-    def execute(self) -> bool:
+    def execute(self):
         """publishes on /arm_control/pose_goal topic for the trajectory planner"""
 
 class GripperManipulationCommand(Command):
     """opens/closes the gripper to a desired position"""
-    def execute(self) -> bool:
+    def execute(self):
         """publishes on /arm_control/joint_cmd topic for the motor controller"""
 
 
-class Task:
+class Task(object):
     """abstract class representing a task"""
     def __init__(self):
         self.cmd_counter = 0
@@ -63,7 +63,7 @@ class Task:
     def constructCommandChain(self):
         """constructs the chain of the commands that constitue the task"""
 
-    def finished(self) -> bool:
+    def finished(self):
         """indicates if task has finished"""
     
     def update_world(self):
@@ -80,7 +80,7 @@ class Task:
         """indicates if task should be stopped because a command can't be executed"""
         return False
 
-    def executeNextCommand(self) -> bool:
+    def executeNextCommand(self):
         """attempts to execute next command on the command chain
         returns a bool indicating if it succeeded"""
         self.setupNextCommand()

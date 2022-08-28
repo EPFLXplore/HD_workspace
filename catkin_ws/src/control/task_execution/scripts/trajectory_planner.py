@@ -175,7 +175,7 @@ class Planner:
             rospy.loginfo("PLANNING JOINT GOAL")
             self.move_group.set_joint_value_target(goal)
             result = self.move_group.plan()
-            if len(result) > 0 and isinstance(result[0], bool):
+            if isinstance(result, (tuple, list)):
                 success, plan, planning_time, error_code = result
             else:
                 plan = result
@@ -184,7 +184,7 @@ class Planner:
             rospy.loginfo("PLANNING POSE GOAL")
             self.move_group.set_pose_target(goal)
             result = self.move_group.plan()
-            if len(result) > 0 and isinstance(result[0], bool):
+            if isinstance(result, (tuple, list)):
                 success, plan, planning_time, error_code = result
             else:
                 plan = result

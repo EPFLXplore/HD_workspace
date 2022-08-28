@@ -9,7 +9,7 @@ class Executor:
     def __init__(self):
         self.task = None
 
-    def taskAssignementCallback(self, msg: Task):
+    def taskAssignementCallback(self, msg):
         """listens to /arm_control/task_assignment topic"""
         if 0 and self.task is not None:
             return
@@ -18,7 +18,7 @@ class Executor:
             self.initiateTask()
             self.task = None
 
-    def assignTask(self, task: Task):
+    def assignTask(self, task):
         """assigns the task"""
     def initiateTask(self):
         """starts assigned task"""

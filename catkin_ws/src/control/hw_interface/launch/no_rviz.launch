@@ -1,5 +1,8 @@
 <launch>
 
+    <!-- Load the URDF to the parameter server -->
+    <param name="astra_description" textfile="$(find astra_description)/urdf/astra.urdf.xacro"/>
+    
  <!-- CORE  -->
 
 <!-- Load the default controllers -->

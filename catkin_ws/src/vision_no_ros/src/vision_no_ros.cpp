@@ -67,7 +67,7 @@ int main(int argc, char **argv) try {
     //rs2::context ctx;
     rs2::pipeline pipe;
     rs2::config cfg;
-    cfg.enable_device("135322062945"); //device serial number , d405:123622270224
+    cfg.enable_device("123622270224"); //devices serial numbers , d405:123622270224, d415:135322062945
     pipe.start(cfg);
     //setup custom streaming configuration 
     /*
@@ -107,11 +107,16 @@ int main(int argc, char **argv) try {
         //cv::waitKey(1);
         //ros::spinOnce();  //not sure cuz there's another one
         }
+       
+       
+        //find_plaque(image,depth,intrinsics);
+       
+
        ////////////////find AR tags ///////////////////////////
         if (get_command()!=-1){
             cv::aruco::detectMarkers(image,dictionary,corners,ids);
 
-            //find_plaque(image);
+            
 
 
             if (ids.size()>0){

@@ -113,7 +113,12 @@ void refresh_object(vision_no_ros::panel_object& object,const vector<int>& ids,c
       object.z_rot =roll;//rvecs[i][2]*180/M_PI; //add rotation relative to gripper
       average_object_params(object,samples);
       vector<double> quaternion (4);
-      convert_rvec_to_quaternion(rvecs[i],quaternion);
+      convert_rvec_to_quaternion(rvecs[i],quaternion);//quaternions wont be averaged beacuae of the +/- transition at 0.7
+      object.w_quaternion =quaternion[0];
+      object.x_quaternion =quaternion[1];
+      object.y_quaternion =quaternion[2];
+      object.z_quaternion =quaternion[3];
+      
       break;
     }
     else { //send an error message or a reset arm position command

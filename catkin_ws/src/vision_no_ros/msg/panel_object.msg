@@ -6,3 +6,7 @@ float32 z_pos
 float32 x_rot
 float32 y_rot
 float32 z_rot
+float32 w_quaternion
+float32 x_quaternion
+float32 y_quaternion
+float32 z_quaternion

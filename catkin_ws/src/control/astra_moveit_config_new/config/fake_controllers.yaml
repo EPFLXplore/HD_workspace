@@ -11,6 +11,7 @@ controller_list:
   - name: fake_astra_gripper_controller
     type: $(arg fake_execution_type)
     joints:
+      - joint6
       - gripper_left_finger_joint
 initial:  # Define initial robot poses.
   - group: astra_arm

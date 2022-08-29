@@ -117,7 +117,7 @@ class PressButton(Task):
 
     def getPressPosition(self):
         p = qa.point_image([0, 0, 1], self.btn_pose.orientation)
-        d = 0.045*0
+        d = 0.001
         if self.cmd_counter != 1:
             d += self.press_distance
         p = qa.mul(d, p)
@@ -154,9 +154,9 @@ class PressButton(Task):
     def constructCommandChain(self):
         self.command_chain = [
             PoseCommand(),
-            PoseCommand(),]
-        #    PoseCommand()
-        #]
+            PoseCommand(),
+            PoseCommand()
+        ]
         """self.command_chain = [
             PoseCommand(),   # go at a predetermined position in front of the button with gripper facing towards it
             StraightMoveCommand(),   # go forward enough to press the button

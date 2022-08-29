@@ -5,7 +5,7 @@ from utils import *
 
 class Test(RobotURDF):
     def __init__(self):
-        super().__init__("bonk")
+        super().__init__("astra")
         self.comment("="*10 + "CONSANTS" + "="*10)
         self.comment("base_link is rover")
         self.box_link_dim("base_link", (0.6, 0.5, 0.16125))   # base_linnk is rover
@@ -42,12 +42,12 @@ class Test(RobotURDF):
         self.box_link_origin("link5",
                              btm_shift=(0, 0, self.link5_dim_z/2-0.0318),
                              top_shift=(0, 0, self.link5_dim_z/2))
-
+        
         self.box_link_dim("gripper_base", (0.1565, 0.125, 0.103))
         self.box_link_origin("gripper_base",
                              btm_shift=((self.gripper_base_dim_x/2-0.076), -(0.0671-self.gripper_base_dim_y/2), self.gripper_base_dim_z/2),
                              top_shift=(-(self.gripper_base_dim_x/2-0.076), 0.0671-self.gripper_base_dim_y/2, self.gripper_base_dim_z/2))
-        
+
         self.box_link_dim("gripper_left_finger", (0.0215, 0.016, 0.045))
         self.box_link_origin("gripper_left_finger",
                              btm_shift=(0, self.gripper_left_finger_dim_y/2, self.gripper_left_finger_dim_z/2),

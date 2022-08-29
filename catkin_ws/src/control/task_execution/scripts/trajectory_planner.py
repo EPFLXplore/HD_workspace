@@ -82,12 +82,12 @@ class Planner:
         self.set_max_velocity_and_acceleration(1, 1)
 
         pose = geometry_msgs.msg.Pose()
-        pose.position.x = 0.7
+        pose.position.x = 0.9
         pose.position.y = 0.1
         pose.position.z = 0.6
         pose.orientation = qa.quat([1, 1, 0], math.pi/3)
         dims = (0.2, 0.2, 0.0001)
-        self.add_box_to_world(pose, dims)
+        #self.add_box_to_world(pose, dims)
 
     def get_end_effector_pose(self):
         """
@@ -282,7 +282,7 @@ class Planner:
         TODO: modify this function
         Add and object to the world that will be used to compute collision free trajectories.
         """
-        rospy.sleep(0.2)    # crucial for some reason
+        rospy.sleep(0.2*5)    # crucial for some reason
 
         p = geometry_msgs.msg.PoseStamped()
         p.header.frame_id = self.robot.get_planning_frame()
@@ -291,7 +291,7 @@ class Planner:
         self.scene.add_box(name, p, dimensions)
         self.objects.append(name)
         rospy.logwarn("KNOWN OBJECTS : " + str(self.scene.get_known_object_names()))
-        rospy.sleep(.1)
+        rospy.sleep(.1*5)
 
     def clear_world(self):
         """

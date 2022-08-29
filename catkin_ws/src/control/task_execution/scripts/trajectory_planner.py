@@ -12,6 +12,7 @@ import geometry_msgs.msg
 import sensor_msgs.msg
 import task_execution.msg
 from task_execution.srv import PoseGoal, PoseGoalResponse, JointGoal, JointGoalResponse
+import task_execution.quaternion_arithmetic as qa
 
 
 SUCCESS = 5
@@ -79,6 +80,14 @@ class Planner:
         self.objects = []
 
         self.set_max_velocity_and_acceleration(1, 1)
+
+        pose = geometry_msgs.msg.Pose()
+        pose.position.x = 0.7
+        pose.position.y = 0.1
+        pose.position.z = 0.6
+        pose.orientation = qa.quat([1, 1, 0], math.pi/3)
+        dims = (0.2, 0.2, 0.0001)
+        self.add_box_to_world(pose, dims)
 
     def get_end_effector_pose(self):
         """
@@ -278,10 +287,10 @@ class Planner:
         p = geometry_msgs.msg.PoseStamped()
         p.header.frame_id = self.robot.get_planning_frame()
         p.pose = pose
-        name = "aaaaa"
+        name = "aaaaaaa"
         self.scene.add_box(name, p, dimensions)
         self.objects.append(name)
-
+        rospy.logwarn("KNOWN OBJECTS : " + str(self.scene.get_known_object_names()))
         rospy.sleep(.1)
 
     def clear_world(self):

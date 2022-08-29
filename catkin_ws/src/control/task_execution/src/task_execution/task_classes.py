@@ -117,7 +117,10 @@ class PressButton(Task):
 
     def getPressPosition(self):
         p = qa.point_image([0, 0, 1], self.btn_pose.orientation)
-        p = qa.mul(self.press_distance, p)
+        d = 0.045*0
+        if self.cmd_counter != 1:
+            d += self.press_distance
+        p = qa.mul(d, p)
         p = qa.mul(-1, p)   # TODO: direction is reversed for some reason
         res = qa.quat_to_point(qa.add(self.btn_pose.position, p))
         print("p is " + str(qa.quat_to_point(p)))
@@ -140,7 +143,7 @@ class PressButton(Task):
         elif self.cmd_counter == 1:
             cmd.pose = geometry_msgs.msg.Pose()
             cmd.pose.orientation = self.getPressOrientation()
-            cmd.pose.position = self.btn_pose.position
+            cmd.pose.position = self.getPressPosition()
             cmd.cartesian = True
         elif self.cmd_counter == 2:
             cmd.pose = geometry_msgs.msg.Pose()
@@ -151,9 +154,9 @@ class PressButton(Task):
     def constructCommandChain(self):
         self.command_chain = [
             PoseCommand(),
-            PoseCommand(),
-            PoseCommand()
-        ]
+            PoseCommand(),]
+        #    PoseCommand()
+        #]
         """self.command_chain = [
             PoseCommand(),   # go at a predetermined position in front of the button with gripper facing towards it
             StraightMoveCommand(),   # go forward enough to press the button

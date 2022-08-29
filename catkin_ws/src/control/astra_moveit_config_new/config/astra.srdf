@@ -19,7 +19,6 @@
         <joint name="joint6" />
     </group>
     <group name="astra_gripper">
-        <link name="gripper_base" />
         <link name="gripper_left_finger" />
         <link name="gripper_right_finger" />
     </group>
@@ -33,7 +32,7 @@
         <joint name="joint6" value="0" />
     </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
-    <end_effector name="astra_end_effector" parent_link="link5" group="astra_gripper" />
+    <end_effector name="astra_end_effector" parent_link="gripper_base" group="astra_gripper" />
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
     <virtual_joint name="astra_virtual_joint" type="fixed" parent_frame="world" child_link="base_link" />
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->

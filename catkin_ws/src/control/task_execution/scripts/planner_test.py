@@ -84,9 +84,9 @@ def publish_press_btn_task():
     task = Task()
     task.description = "btn"
     task.pose = geometry_msgs.msg.Pose()
-    task.pose.position.x = 0.4
+    task.pose.position.x = 0.7
     task.pose.position.y = 0.1
-    task.pose.position.z = 0.4
+    task.pose.position.z = 0.6
     task.pose.orientation = qa.quat([1, 1, 0], math.pi/3)
     press_btn_pub.publish(task)
 

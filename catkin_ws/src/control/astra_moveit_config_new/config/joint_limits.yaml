@@ -14,12 +14,12 @@ joint_limits:
     max_acceleration: 0
   joint1:
     has_velocity_limits: true
-    max_velocity: 0.2
+    max_velocity: 0.4
     has_acceleration_limits: false
     max_acceleration: 0
   joint2:
     has_velocity_limits: true
-    max_velocity: 0.2
+    max_velocity: 0.4
     has_acceleration_limits: false
     max_acceleration: 0
   joint3:
@@ -29,16 +29,16 @@ joint_limits:
     max_acceleration: 0
   joint4:
     has_velocity_limits: true
-    max_velocity: 0.2
+    max_velocity: 0.4
     has_acceleration_limits: false
     max_acceleration: 0
   joint5:
     has_velocity_limits: true
-    max_velocity: 0.2
+    max_velocity: 0.4
     has_acceleration_limits: false
     max_acceleration: 0
   joint6:
     has_velocity_limits: true
-    max_velocity: 0.2
+    max_velocity: 0.6
     has_acceleration_limits: false
     max_acceleration: 0

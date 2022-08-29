@@ -21,8 +21,8 @@ void cmdCallback(const sensor_msgs::JointState::ConstPtr &msg)
         sim_feedback.velocity[i] = msg->velocity[i];
     }
 
-    feedback_pub.publish(feedback);
-    sim_feedback_pub.publish(sim_feedback);
+    //feedback_pub.publish(feedback);
+    //sim_feedback_pub.publish(sim_feedback);
 }
 
 

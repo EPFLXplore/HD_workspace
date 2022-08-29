@@ -47,10 +47,10 @@ using namespace pid;
 //====================================================================================================
 double current_pos_rad[MAX_MOTOR_COUNT] = {0,0};
 double current_pos_qc[MAX_MOTOR_COUNT] = {0};
-double target_pos[MAX_MOTOR_COUNT] = {0,0};
+double target_pos[MAX_MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0};
 double target_vel[MAX_MOTOR_COUNT] = {0,0};
 double max_current[MAX_MOTOR_COUNT] = {0.155};
-Epos4::control_mode_t control_mode(Epos4::velocity_CSV);
+Epos4::control_mode_t control_mode(Epos4::position_CSP);
 
 double offset[MAX_MOTOR_COUNT] = {0};   // TODO: makes the max/min angles unusable -> correct that
 
@@ -70,7 +70,9 @@ static const double min_qc[MAX_MOTOR_COUNT] = {-(2<<18), -840000, -1250, -((2<<1
 static const double max_qc[MAX_MOTOR_COUNT] = {2<<18, 60000, 1000, (2<<18)/16, 160000, (2<<13)/2, 10000000000};
 static const double max_velocity[MAX_MOTOR_COUNT] = {3, 1, 700, 5, 6, 12, 1, 0};    // rotations per minute
 //static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 676.0/49.0, 2*439, 2*439, 2*231, 1*16*700, 0};
-static const double reduction[MAX_MOTOR_COUNT] = {1000, 200, 1, 50, 50*1.5, 50*1.5, 10000, 100};
+static const double reduction[MAX_MOTOR_COUNT] = {1000, 200, 0.5, 50, 50*1.5, 50*1.5, 10000, 100};
+static const double full_circle[MAX_MOTOR_COUNT] = {2<<17, 2<<17, 2<<12, 2<<17, 2<<18, 2<<12, 1/2*PI};
+static const double rotation_dir_for_moveit[MAX_MOTOR_COUNT] = {1, -1, -1, 1, -1, -1, 1};
 static const double security_angle_coef[MAX_MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
 static const vector<int> order = {1, 2, 8, 3, 4, 5, 6, 7};
 
@@ -114,25 +116,25 @@ void manualCommandCallback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
 }
 
 
-void resetCallback(const std_msgs::Bool::ConstPtr& msg) {
+/*void resetCallback(const std_msgs::Bool::ConstPtr& msg) {
     taking_commands = !msg->data;
     resetting = msg->data;
-}
+}*/
 
 
 /*
 sets zero position of the arm at the current position
 */
-void set_zero_position() {
+/*void set_zero_position() {
     for (size_t it = 0; it < MOTOR_COUNT; it++) {
         offset[it] += current_pos_rad[it];
     }
-}
+}*/
 
 
-void setZeroCallback(const std_msgs::Bool::ConstPtr& msg) {
+/*void setZeroCallback(const std_msgs::Bool::ConstPtr& msg) {
     set_zero_position();
-}
+}*/
 
 
 void stateCommandCallback(const sensor_msgs::JointState::ConstPtr& msg) {
@@ -141,7 +143,7 @@ void stateCommandCallback(const sensor_msgs::JointState::ConstPtr& msg) {
     control_mode = autonomous_control_mode;
     for (size_t it=0; it<MOTOR_COUNT; ++it) {
         cout << "position :     " << msg->position[it] << endl;
-        target_pos[it] = int32_t(msg->position[it]*ROT_IN_QC/2/PI);
+        target_pos[it] = int32_t(msg->position[it]*full_circle[it]/2/PI*rotation_dir_for_moveit[it]);
         target_vel[it] = double(msg->velocity[it]/2); //RAD_TO_QC_CONVERSION TODO: maybe I need a different conversion constant here
     }
 }
@@ -218,14 +220,14 @@ void stop(vector<xcontrol::Epos4Extended*> chain) {
 }
 
 
-double petit(size_t it, double distance) {
+/*double petit(size_t it, double distance) {
     static const double critical_angle[MAX_MOTOR_COUNT] = {0.087, 0.087, 10.0, 0.087, 0.087, 0.087, 0.087};
     distance = abs(distance);
     double speed = 0.5;
     if (distance > critical_angle[it]) return speed;
     double k = speed/critical_angle[it];
     return distance*k;
-}
+}*/
 
 
 /*
@@ -272,7 +274,7 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain) {
     stopped = false;
     if (command_too_old()) {
         cout << "COMMAND TOO OLD" << endl;
-        stop(chain);
+        //stop(chain);  TODO: uncomment this
     }
     else if (resetting) {
         cout << "RESETTTTTTTTTTTTTTTTTTTTTTTTTTTTT" << endl;
@@ -291,6 +293,7 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain) {
                     case Epos4::position_CSP:
                         if (!stopped) {
                             chain[it]->set_Target_Position_In_Qc(target_pos[it]);
+                            cout << "set position       " << target_pos[it] << endl;
                         }
                         break;
 
@@ -334,8 +337,8 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "hd_controller_motors");
     ros::NodeHandle n;
     ros::Subscriber man_cmd_sub = n.subscribe<std_msgs::Float32MultiArray>("/arm_control/manual_cmd", 10, manualCommandCallback);
-    ros::Subscriber reset_sub = n.subscribe<std_msgs::Bool>("/arm_control/reset_arm_pos", 10, resetCallback);
-    ros::Subscriber set_zero_sub = n.subscribe<std_msgs::Bool>("/arm_control/set_zero_arm_pos", 10, setZeroCallback);
+    //ros::Subscriber reset_sub = n.subscribe<std_msgs::Bool>("/arm_control/reset_arm_pos", 10, resetCallback);
+    //ros::Subscriber set_zero_sub = n.subscribe<std_msgs::Bool>("/arm_control/set_zero_arm_pos", 10, setZeroCallback);
     ros::Subscriber state_cmd_sub = n.subscribe<sensor_msgs::JointState>("/arm_control/joint_cmd", 10, stateCommandCallback);
     ros::Publisher telem_pub = n.advertise<sensor_msgs::JointState>("/arm_control/joint_telemetry", 1000);
     ros::Publisher sim_telem_pub = n.advertise<motor_control::simJointState>("/arm_control/sim_joint_telemetry", 1000);  // for simulation only
@@ -356,7 +359,7 @@ int main(int argc, char **argv) {
     //xcontrol::ThreeAxisSlot epos_5(true), epos_6(true), epos_7(true);
     vector<xcontrol::Epos4Extended*> chain = {&epos_1, &epos_2, &empty, &epos_3, &epos_4, &epos_6, &epos_7, &epos_5};
 
-    bool is_scanning = true;
+    bool is_scanning = false; // true;
 
     xcontrol::NetworkMaster ethercat_master(chain, network_interface_name);
 
@@ -379,6 +382,8 @@ int main(int argc, char **argv) {
 
     cout << "Ethercat network online" << endl;
 
+    //sleep(1);
+
     while (ros::ok()){
         // check device status
         ethercat_master.switch_motors_to_enable_op();
@@ -398,13 +403,13 @@ int main(int argc, char **argv) {
                         cout << "Control mode = " << chain[it]->get_Control_Mode_In_String() << "\n";
                     }
                     current_pos_qc[it] = chain[it]->get_Actual_Position_In_Qc();
-                    current_pos_rad[it] = chain[it]->get_Actual_Position_In_Qc()/reduction[it]*2*PI/ROT_IN_QC - offset[it];
+                    current_pos_rad[it] = chain[it]->get_Actual_Position_In_Qc()/full_circle[it]*2*PI;
                     if (is_scanning) {
-                        target_pos[it] = current_pos_rad[it];
+                        target_pos[it] = current_pos_qc[it];
                     }
                     if (PRINT_STATE) { 
                         cout << "Actual position : " << std::dec << current_pos_qc[it] << " rad" << "\n";
-                        cout << "Actual velocity : " << std::dec << chain[it]->get_Actual_Velocity_In_Rads()/reduction[it] << " rad/s" << "\n";
+                        cout << "Actual velocity : " << std::dec << chain[it]->get_Actual_Average_Velocity_In_Rads()/reduction[it] << " rad/s" << "\n";
                         cout << "Actual current value = " << chain[it]->get_Actual_Current_In_A() << "A" << "\n";
                         cout << "\n";
                     }
@@ -415,15 +420,13 @@ int main(int argc, char **argv) {
 
         sensor_msgs::JointState msg;
         motor_control::simJointState sim_msg;   // for simulation only
-        for (size_t it=0; it<chain.size(); ++it) {
-            msg.position.push_back(chain[it]->get_Actual_Position_In_Qc()/reduction[it]*2*PI/ROT_IN_QC);
+        for (size_t it=0; it<chain.size()-2; ++it) {
+            msg.position.push_back(chain[it]->get_Actual_Position_In_Qc()/full_circle[it]*2*PI*rotation_dir_for_moveit[it]);
             msg.velocity.push_back(chain[it]->get_Actual_Velocity_In_Rads()/reduction[it]);
             //sim_msg.position[it] = chain[it]->get_Actual_Position_In_Qc()/reduction[it]*2*PI/ROT_IN_QC;
             //sim_msg.velocity[it] = chain[it]->get_Actual_Velocity_In_Rads()/reduction[it];
         }
-        cout << "exit" << endl;
         if (chain.size() < 6) {
-            cout << "in if" << endl;
             // populate the message with zeros if less than 6 actual motors
             for (size_t it=chain.size(); it < 6; ++it) {
                 msg.position.push_back(0);
@@ -432,7 +435,6 @@ int main(int argc, char **argv) {
                 sim_msg.velocity[it] = 0;
             }
         }
-        cout << "finish if" << endl;
         telem_pub.publish(msg);
         sim_telem_pub.publish(sim_msg);
         ros::spinOnce();

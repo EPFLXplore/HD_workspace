@@ -1,3 +1,6 @@
+#ifndef PLAQUE_DETECTION_H
+#define PLAQUE_DETECTION_H
+
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -68,3 +71,5 @@ void find_plaque(const Mat& image,const rs2::depth_frame& depth,const rs2_intrin
     waitKey(1);
    // destroyAllWindows();
 }
+
+#endif

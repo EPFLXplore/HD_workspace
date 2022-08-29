@@ -1,4 +1,6 @@
 //quaternion_conversion
+#ifndef QUATERNION_H
+#define QUATERNION_H
 #include <opencv2/opencv.hpp>
 #include <cmath>
 #include <vector>
@@ -47,3 +49,5 @@ void getQuaternion(const cv::Mat& R, vector<double>& Q){
         Q[k] = (R.at<double>(k,i) + R.at<double>(i,k)) * s;
     }
 }
+
+#endif

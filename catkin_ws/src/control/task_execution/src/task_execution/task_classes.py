@@ -278,7 +278,7 @@ class PositionManualMotion:
         """calls setNextGoal to set the first goal"""
         self.axis = axis
         self.velocity_scaling = velocity_scaling
-        self.max_step_distance = 0.1
+        self.max_step_distance = 0.05
         self.pursue = True
         self.finished = False
         

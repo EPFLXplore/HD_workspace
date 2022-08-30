@@ -31,7 +31,6 @@ HWInterface::HWInterface(ros::NodeHandle& nh, urdf::Model* urdf_model)
 
 void HWInterface::fdbkCallback(const sensor_msgs::JointState::ConstPtr &msg)
 {
-
   for (int i=0; i<num_joints_; i++)
   {
     joint_position_[i] = msg->position[i];

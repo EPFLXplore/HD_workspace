@@ -96,13 +96,13 @@ def publish_press_btn_task():
 
 def manual_inverse():
     pos_axis = [0, 0, 0]
-    if keyboard.is_pressed("a"):
+    if keyboard.is_pressed("q"):
         pos_axis[0] = 1
-    if keyboard.is_pressed("z"):
+    if keyboard.is_pressed("w"):
         pos_axis[1] = 1
     if keyboard.is_pressed("e"):
         pos_axis[2] = 1
-    if keyboard.is_pressed("q"):
+    if keyboard.is_pressed("a"):
         pos_axis[0] = -1
     if keyboard.is_pressed("s"):
         pos_axis[1] = -1
@@ -110,7 +110,7 @@ def manual_inverse():
         pos_axis[2] = -1
     if sum(map(lambda x: x**2, pos_axis)):
         array = std_msgs.msg.Float32MultiArray()
-        array.data = [*pos_axis, 1]
+        array.data = pos_axis + [1,]
         print("PUBLISHING")
         pos_manual_cmd_pub.publish(array)
     
@@ -129,9 +129,9 @@ def manual_inverse():
         orient_axis[2] = -1
     if sum(map(lambda x: x**2, orient_axis)):
         array = std_msgs.msg.Float32MultiArray()
-        array.data = [*pos_axis, 1]
+        array.data = orient_axis + [1,]
         print("PUBLISHING")
-        orient_manual_cmd_pub.publish(array)
+        #orient_manual_cmd_pub.publish(array)
 
 
 def main():

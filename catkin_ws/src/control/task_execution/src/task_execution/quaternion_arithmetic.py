@@ -1,5 +1,4 @@
 import math
-from tkinter import N
 from geometry_msgs.msg import Quaternion, Point
 
 

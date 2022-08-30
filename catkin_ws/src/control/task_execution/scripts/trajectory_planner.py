@@ -94,7 +94,7 @@ class Planner:
         pose.position.z = 0.6
         pose.orientation = qa.quat([1, 1, 0], math.pi/3)
         dims = (0.2, 0.2, 0.0001)
-        self.add_box_to_world(pose, dims)
+        #self.add_box_to_world(pose, dims)
 
     def get_end_effector_pose(self):
         """

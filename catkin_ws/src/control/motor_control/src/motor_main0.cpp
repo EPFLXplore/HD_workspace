@@ -274,7 +274,7 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain) {
     stopped = false;
     if (command_too_old()) {
         cout << "COMMAND TOO OLD" << endl;
-        //stop(chain);  TODO: uncomment this
+        //stop(chain);  //TODO: uncomment this
     }
     else if (resetting) {
         cout << "RESETTTTTTTTTTTTTTTTTTTTTTTTTTTTT" << endl;
@@ -383,8 +383,13 @@ int main(int argc, char **argv) {
     cout << "Ethercat network online" << endl;
 
     //sleep(1);
+    auto t = chrono::steady_clock::now();
 
     while (ros::ok()){
+        auto now = chrono::steady_clock::now();
+        if (chrono::duration_cast<chrono::milliseconds>(now-t).count() > 5000) {
+            control_mode = Epos4::position_CSP;
+        }
         // check device status
         ethercat_master.switch_motors_to_enable_op();
         //epos_1.switch_to_enable_op();
@@ -420,12 +425,14 @@ int main(int argc, char **argv) {
 
         sensor_msgs::JointState msg;
         motor_control::simJointState sim_msg;   // for simulation only
-        for (size_t it=0; it<chain.size()-2; ++it) {
+        for (size_t it=0; it<chain.size()-1; ++it) {
             msg.position.push_back(chain[it]->get_Actual_Position_In_Qc()/full_circle[it]*2*PI*rotation_dir_for_moveit[it]);
             msg.velocity.push_back(chain[it]->get_Actual_Velocity_In_Rads()/reduction[it]);
             //sim_msg.position[it] = chain[it]->get_Actual_Position_In_Qc()/reduction[it]*2*PI/ROT_IN_QC;
             //sim_msg.velocity[it] = chain[it]->get_Actual_Velocity_In_Rads()/reduction[it];
         }
+        msg.position[6] = 0;
+        msg.velocity[6] = 0;
         if (chain.size() < 6) {
             // populate the message with zeros if less than 6 actual motors
             for (size_t it=chain.size(); it < 6; ++it) {

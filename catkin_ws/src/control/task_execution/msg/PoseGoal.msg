@@ -1,5 +1,5 @@
 uint16 id
 geometry_msgs/Pose goal
 bool cartesian
----
-bool ok
+bool keep_position
+bool keep_orientation

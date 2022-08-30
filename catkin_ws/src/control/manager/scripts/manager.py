@@ -39,22 +39,6 @@ class Manager:
         self.direct_command = [float(x)/max_speed for x in msg.data]
         self.received_direct_cmd_at = time.time()
 
-    def manualVelocityCallback(self, msg):# Float32):
-        """DEPRECATED
-        listens to HD_ManualVelocity topic"""
-        #rospy.logwarn("received velocity   " + str(msg.data))
-        self.velocity = msg.data
-        self.received_velocity_at = time.time()
-    
-    def resetCallback(self, msg):
-        self.reset_arm_pos = not(self.reset_arm_pos)
-        msg = Bool()
-        msg.data = self.reset_arm_pos
-        self.reset_arm_pos_pub.publish(msg)
-
-    def setZeroCallback(self, msg):
-        self.set_zero_arm_pos_pub.publish(msg)
-
     def send_task_cmd(self):
         """sends the last task command to the task executor and locks any other command until completion"""
     def send_manual_cmd(self):
@@ -111,10 +95,9 @@ class Manager:
         self.reset_arm_pos_pub = rospy.Publisher('/arm_control/reset_arm_pos', Bool, queue_size=10)
         self.set_zero_arm_pos_pub = rospy.Publisher('/arm_control/set_zero_arm_pos', Bool, queue_size=10)
         rospy.Subscriber("HD_joints", Int8MultiArray, self.directCmdCallback)
-        rospy.Subscriber("HD_ManualVelocity", Float32, self.manualVelocityCallback)
-        rospy.Subscriber("HD_reset_arm_pos", Bool, self.resetCallback)
-        rospy.Subscriber("HD_set_zero_arm_pos", Bool, self.setZeroCallback)
-        #rospy.init_node('HD_control_manager', anonymous=True)
+        #rospy.Subscriber("HD_ManualVelocity", Float32, self.manualVelocityCallback)
+        #rospy.Subscriber("HD_reset_arm_pos", Bool, self.resetCallback)
+        #rospy.Subscriber("HD_set_zero_arm_pos", Bool, self.setZeroCallback)
         rate = rospy.Rate(25)   # 25hz
         rospy.logwarn("manager started")
         while not rospy.is_shutdown():

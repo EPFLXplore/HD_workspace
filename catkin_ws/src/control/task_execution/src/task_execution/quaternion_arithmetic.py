@@ -1,11 +1,25 @@
 import math
+from tkinter import N
 from geometry_msgs.msg import Quaternion, Point
 
 
 def normalize(axis):
+    if isinstance(axis, (Point, Quaternion)):
+        axis = (axis.x, axis.y, axis.z)
     n = math.sqrt(axis[0]**2 + axis[1]**2 + axis[2]**2)
+    if n == 0:
+        return axis
     axis = (axis[0]/n, axis[1]/n, axis[2]/n)
     return axis
+
+
+def quat_normalize(q):
+    n = math.sqrt(q.x**2+q.y**2+q.z**2+q.w**2)
+    q.x /= n
+    q.y /= n
+    q.z /= n
+    q.w /= n
+    return q
 
 
 def quat(axis, angle):

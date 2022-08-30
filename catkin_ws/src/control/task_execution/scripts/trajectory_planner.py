@@ -10,6 +10,7 @@ import moveit_msgs.msg
 import std_msgs.msg
 import geometry_msgs.msg
 import sensor_msgs.msg
+#from task_execution.msg import JointGoal, PoseGoal
 import task_execution.msg
 from task_execution.srv import PoseGoal, PoseGoalResponse, JointGoal, JointGoalResponse
 import task_execution.quaternion_arithmetic as qa
@@ -49,7 +50,8 @@ class Planner:
         rospy.init_node("trajectory_planner_node", anonymous=True)
 
         # publishers ===================================================================================================
-        self.end_of_mvt_pub = rospy.Publisher("/arm_control/end_of_movement", task_execution.msg.cmdOutcome, queue_size=5)
+        self.end_of_mvt_pub = rospy.Publisher("/arm_control/end_of_movement", task_execution.msg.cmdOutcome, queue_size=5)  # TODO: probably remove this
+        self.end_effector_pose_pub = rospy.Publisher("/arm_control/end_effector_pose", geometry_msgs.msg.Pose, queue_size=5)
         self.display_trajectory_pub = rospy.Publisher(
             "/move_group/display_planned_path",
             moveit_msgs.msg.DisplayTrajectory,
@@ -59,8 +61,12 @@ class Planner:
         # subscribers ==================================================================================================
         rospy.Service("/arm_control/pose_goal", PoseGoal, self.handle_pose_goal)
         rospy.Service("/arm_control/joint_goal", JointGoal, self.handle_joint_goal)
+        #rospy.Subscriber("/arm_control/pose_goal", PoseGoal, self.handle_pose_goal)
+        #rospy.Subscriber("/arm_control/joint_goal", JointGoal, self.handle_joint_goal)
         rospy.Subscriber("/arm_control/world_update", geometry_msgs.msg.Pose, self.object_callback)
+        #rospy.Subscriber("/arm_control/add_box_to_world", )
         rospy.Subscriber("/arm_control/joint_telemetry", sensor_msgs.msg.JointState, self.telemetry_callback)
+        rospy.Subscriber("/arm_control/show_lidar", std_msgs.msg.Bool, self.show_lidar_callback)
 
         # objects from MoveIt Commander needed to communicate with MoveIt ==============================================
         group_name = "astra_arm"    # the planning group of the arm
@@ -79,7 +85,8 @@ class Planner:
 
         self.objects = []
 
-        self.set_max_velocity_and_acceleration(1, 1)
+        self.set_max_velocity_scaling_factor(1)
+        self.set_max_acceleration_scaling_factor(1)
 
         pose = geometry_msgs.msg.Pose()
         pose.position.x = 0.9
@@ -87,39 +94,31 @@ class Planner:
         pose.position.z = 0.6
         pose.orientation = qa.quat([1, 1, 0], math.pi/3)
         dims = (0.2, 0.2, 0.0001)
-        #self.add_box_to_world(pose, dims)
+        self.add_box_to_world(pose, dims)
 
     def get_end_effector_pose(self):
         """
-        TODO
+        TODO: modify or delete this function
         pose with respect to base the arm
         """
-        pose = geometry_msgs.msg.Pose()
-        # TODO
+        pose = copy.deepcopy(self.move_group.get_current_pose().pose)
         return pose
 
-    def set_max_velocity_and_acceleration(self, vel=0.1, acc=0.1):
+    def set_max_velocity_scaling_factor(self, vel=1):
         """
-        Sets maximal velocity and acceleration scaling factors
+        Set maximal velocity scaling factor for the joints.
         Allowed values are in (0,1].
         The default value is set in the joint_limits.yaml of the robot_config package
         """
         self.move_group.set_max_velocity_scaling_factor(vel)
+    
+    def set_max_acceleration_scaling_factor(self, acc=1):
+        """
+        Set maximal acceleration scaling factor for the joints.
+        Allowed values are in (0,1].
+        The default value is set in the joint_limits.yaml of the robot_config package
+        """
         self.move_group.set_max_acceleration_scaling_factor(acc)
-
-    def quaternion(self, axis, angle):
-        orientation = geometry_msgs.msg.Quaternion()
-        axis = self.normalize(axis)
-        orientation.w = math.cos(angle/2)
-        orientation.x = axis[0]*math.sin(angle/2)
-        orientation.y = axis[1]*math.sin(angle/2)
-        orientation.z = axis[2]*math.sin(angle/2)
-        return orientation
-
-    def normalize(self, axis):
-        n = math.sqrt(axis[0]**2 + axis[1]**2 + axis[2]**2)
-        axis = (axis[0]/n, axis[1]/2, axis[2]/n)
-        return axis
         
     def handle_pose_goal(self, req):
         """
@@ -131,21 +130,6 @@ class Planner:
             return PoseGoalResponse(False)
         goal_type = Planner.CARTESIAN_GOAL if req.cartesian else Planner.POSE_GOAL
         goal = req.goal
-        """x = req.aaaa
-        goal = copy.deepcopy(self.move_group.get_current_pose().pose)
-        goal.orientation = req.goal.orientation
-        if x == "x":
-            goal.orientation.x = req.goal.orientation.x
-            rospy.logwarn("xxxxxxxxxxxxxxxxx :       " + str(goal.orientation.x))
-        elif x == "y":
-            goal.orientation.y = req.goal.orientation.y
-            rospy.logwarn("yyyyyyyyyyyyyyyyy :       " + str(goal.orientation.y))
-        elif x == "z":
-            goal.orientation.z = req.goal.orientation.z
-            rospy.logwarn("zzzzzzzzzzzzzzzzz :       " + str(goal.orientation.z))
-        elif x == "w":
-            goal.orientation.w = req.goal.orientation.w
-            rospy.logwarn("wwwwwwwwwwwwwwwww :       " + str(goal.orientation.w))"""
         self.achieve_goal(req.id, goal, goal_type)
         return PoseGoalResponse(True)
 
@@ -170,6 +154,12 @@ class Planner:
         Listens to /arm_control/joint_telemetry topic
         """
         self.actual_joint_positions = msg.position
+    
+    def show_lidar_callback(self, msg):
+        if msg.data:
+            self.add_lidar_to_world()
+        else:
+            self.remove_lidar_from_world()
 
     def plan(self, goal, goal_type):
         """
@@ -208,7 +198,7 @@ class Planner:
             wpose.position.y = goal.position.y
             wpose.position.z = goal.position.z
             waypoints = [wpose]
-            plan, fraction = self.move_group.compute_cartesian_path(waypoints, eef_step=0.01, jump_threshold=0.0)  # TODO: change the jump_threshold
+            plan, fraction = self.move_group.compute_cartesian_path(waypoints, eef_step=0.01, jump_threshold=5)  # TODO: change the jump_threshold
             success = fraction == 1
         else:
             raise   # TODO
@@ -277,21 +267,48 @@ class Planner:
         # Publish
         self.display_trajectory_pub.publish(display_trajectory)
 
-    def add_box_to_world(self, pose, dimensions):
+    def add_lidar_to_world(self):
+        """
+        Add the lidar as a collision object to the world
+        """
+        pose = geometry_msgs.msg.Pose()
+        pose.orientation.w = 1
+        pose.position.x = -0.15
+        pose.position.y = 0.15
+        pose.position.z = 0
+        dim = (0.1, 0.1, 1)
+        self.add_box_to_world(pose, dim, name="lidar", add_to_objects=False)
+
+    def remove_lidar_from_world(self):
+        """
+        Remove the lidar from the world
+        """
+        self.remove_object_from_world("lidar")
+
+    def add_box_to_world(self, pose, dimensions, name=None, add_to_objects=True):
         """
         TODO: modify this function
         Add and object to the world that will be used to compute collision free trajectories.
         """
+        if name is None:
+            name = "object%d" % len(self.objects)
         rospy.sleep(0.2*5)    # crucial for some reason
 
         p = geometry_msgs.msg.PoseStamped()
         p.header.frame_id = self.robot.get_planning_frame()
         p.pose = pose
-        name = "aaaaaaa"
         self.scene.add_box(name, p, dimensions)
-        self.objects.append(name)
+        if add_to_objects:
+            self.objects.append(name)
         rospy.logwarn("KNOWN OBJECTS : " + str(self.scene.get_known_object_names()))
         rospy.sleep(.1*5)
+    
+    def remove_object_from_world(self, name=None):
+        if name is None:
+            if len(self.objects) == 0:
+                return
+            name = "object%d" % (len(self.objects)-1)
+        self.scene.remove_world_object(name)
 
     def clear_world(self):
         """
@@ -310,13 +327,9 @@ class Planner:
     
     def spin(self):
         rate = rospy.Rate(25)   # 25hz
-        t = time.time()
         while not rospy.is_shutdown():
-            if time.time()-t > 3:
-                t = time.time()
-                rospy.logwarn(str(self.move_group.get_current_pose().pose.orientation)+"\n")
+            self.end_effector_pose_pub.publish(self.move_group.get_current_pose().pose)
             rate.sleep()
-        # rospy.spin()
 
 
 if __name__ == "__main__":

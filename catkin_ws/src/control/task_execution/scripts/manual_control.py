@@ -1,4 +1,5 @@
 class ManualController:
+    def __init__(self, )
     def cmdCallback(msg: std_msgs/Int8MultiArray):
         """listens to /arm_control/manual_axis_command topic"""
     def initiateTask():

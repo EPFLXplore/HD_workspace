@@ -10,11 +10,14 @@ from task_execution.srv import PoseGoal, PoseGoalResponse, JointGoal, JointGoalR
 from task_execution.msg import Task
 import task_execution.quaternion_arithmetic as qa
 from task_execution.quaternion_arithmetic import normalize
+import keyboard
 
 
 pose_goal_pub = rospy.Publisher("/arm_control/pose_goal", geometry_msgs.msg.Pose, queue_size=5)
 joint_goal_pub = rospy.Publisher("/arm_control/joint_goal", std_msgs.msg.Float64MultiArray, queue_size=5)
 press_btn_pub = rospy.Publisher("/arm_control/task_assignment", Task, queue_size=5)
+pos_manual_cmd_pub = rospy.Publisher("/arm_control/pos_manual_cmd", std_msgs.msg.Float32MultiArray, queue_size=1)
+orient_manual_cmd_pub = rospy.Publisher("/arm_control/orient_manual_cmd", std_msgs.msg.Float32MultiArray, queue_size=1)
 
 
 """def quaternion(axis, angle):
@@ -90,14 +93,60 @@ def publish_press_btn_task():
     task.pose.orientation = qa.quat([1, 1, 0], math.pi/3)
     press_btn_pub.publish(task)
 
-def main():
-    rospy.init_node("trajectory_planner_node", anonymous=True)
 
-    publish_press_btn_task()
+def manual_inverse():
+    pos_axis = [0, 0, 0]
+    if keyboard.is_pressed("a"):
+        pos_axis[0] = 1
+    if keyboard.is_pressed("z"):
+        pos_axis[1] = 1
+    if keyboard.is_pressed("e"):
+        pos_axis[2] = 1
+    if keyboard.is_pressed("q"):
+        pos_axis[0] = -1
+    if keyboard.is_pressed("s"):
+        pos_axis[1] = -1
+    if keyboard.is_pressed("d"):
+        pos_axis[2] = -1
+    if sum(map(lambda x: x**2, pos_axis)):
+        array = std_msgs.msg.Float32MultiArray()
+        array.data = [*pos_axis, 1]
+        print("PUBLISHING")
+        pos_manual_cmd_pub.publish(array)
+    
+    orient_axis = [0, 0, 0]
+    if keyboard.is_pressed("7"):
+        orient_axis[0] = 1
+    if keyboard.is_pressed("8"):
+        orient_axis[1] = 1
+    if keyboard.is_pressed("9"):
+        orient_axis[2] = 1
+    if keyboard.is_pressed("4"):
+        orient_axis[0] = -1
+    if keyboard.is_pressed("5"):
+        orient_axis[1] = -1
+    if keyboard.is_pressed("6"):
+        orient_axis[2] = -1
+    if sum(map(lambda x: x**2, orient_axis)):
+        array = std_msgs.msg.Float32MultiArray()
+        array.data = [*pos_axis, 1]
+        print("PUBLISHING")
+        orient_manual_cmd_pub.publish(array)
+
+
+def main():
+    rospy.init_node("planner_test_node", anonymous=True)
+
+    # publish_press_btn_task()
     """if sys.argv[1] == "j":
         req_joint_goal(int(sys.argv[2]))
     else:
         req_pose_goal((float(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4])), float(sys.argv[5]))"""
+    
+    rate = rospy.Rate(25)   # 25hz
+    while not rospy.is_shutdown():
+        manual_inverse()
+        rate.sleep()
 
 
 if __name__ == "__main__":

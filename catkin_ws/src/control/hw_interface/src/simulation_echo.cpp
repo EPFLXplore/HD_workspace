@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(25);
 
-    double default_pos[] = {1, 0, 0, 0, 0, 0, 0.03};
+    double default_pos[] = {1, 0, 0, 0, 0, 0, 0};
     double default_vel[] = {0, 0, 0, 0, 0, 0, 0};
     for (int i=0; i < 6; i++) {
         feedback.position.push_back(default_pos[i]);

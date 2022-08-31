@@ -64,6 +64,7 @@ class Planner:
         #rospy.Subscriber("/arm_control/pose_goal", PoseGoal, self.handle_pose_goal)
         #rospy.Subscriber("/arm_control/joint_goal", JointGoal, self.handle_joint_goal)
         rospy.Subscriber("/arm_control/world_update", geometry_msgs.msg.Pose, self.object_callback)
+        rospy.Subscriber("/arm_control/remove_box", std_msgs.msg.Bool, self.remove_object_from_world)
         #rospy.Subscriber("/arm_control/add_box_to_world", )
         rospy.Subscriber("/arm_control/joint_telemetry", sensor_msgs.msg.JointState, self.telemetry_callback)
         rospy.Subscriber("/arm_control/show_lidar", std_msgs.msg.Bool, self.show_lidar_callback)
@@ -148,6 +149,8 @@ class Planner:
         Listens to /arm_control/world_update topic
         """
         # TODO
+        dims = (0.2, 0.2, 0.0001)
+        self.add_box_to_world(msg, dims)
 
     def telemetry_callback(self, msg):
         """
@@ -305,9 +308,9 @@ class Planner:
     
     def remove_object_from_world(self, name=None):
         if name is None:
-            if len(self.objects) == 0:
-                return
-            name = "object%d" % (len(self.objects)-1)
+            if len(self.objects) > 0:
+                self.scene.remove_world_object(self.objects[-1])
+            return
         self.scene.remove_world_object(name)
 
     def clear_world(self):

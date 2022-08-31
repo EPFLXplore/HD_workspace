@@ -52,7 +52,7 @@ double target_vel[MAX_MOTOR_COUNT] = {0,0};
 double max_current[MAX_MOTOR_COUNT] = {0.155};
 Epos4::control_mode_t control_mode(Epos4::position_CSP);
 
-double offset[MAX_MOTOR_COUNT] = {0};   // TODO: makes the max/min angles unusable -> correct that
+//double offset[MAX_MOTOR_COUNT] = {0};   // TODO: makes the max/min angles unusable -> correct that
 
 
 bool taking_commands = true;
@@ -66,7 +66,7 @@ static const double command_expiration = 200;
 static const int period = 25;
 static const float max_angle[MAX_MOTOR_COUNT] = {9.77, 2.3, 411, 9.63, 7.26, INF, 0.395, INF};
 static const float min_angle[MAX_MOTOR_COUNT] = {-9.6, -1.393, -259, -9.54, -0.79, -INF, -0.14, -INF};
-static const double min_qc[MAX_MOTOR_COUNT] = {-(2<<18), -840000, -1250, -((2<<18)/16), -160000, -((2<<13)/2), -10000000000};
+static const double min_qc[MAX_MOTOR_COUNT] = {-(2<<18), -84000, -1250, -((2<<18)/16), -160000, -((2<<13)/2), -10000000000};
 static const double max_qc[MAX_MOTOR_COUNT] = {2<<18, 60000, 1000, (2<<18)/16, 160000, (2<<13)/2, 10000000000};
 static const double max_velocity[MAX_MOTOR_COUNT] = {3, 1, 700, 5, 6, 12, 1, 0};    // rotations per minute
 //static const double reduction[MAX_MOTOR_COUNT] = {2*231, 480*16, 676.0/49.0, 2*439, 2*439, 2*231, 1*16*700, 0};
@@ -75,6 +75,8 @@ static const double full_circle[MAX_MOTOR_COUNT] = {2<<17, 2<<17, 2<<12, 2<<17, 
 static const double rotation_dir_for_moveit[MAX_MOTOR_COUNT] = {1, -1, -1, 1, -1, -1, 1};
 static const double security_angle_coef[MAX_MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
 static const vector<int> order = {1, 2, 8, 3, 4, 5, 6, 7};
+
+static const int32_t joint2_offset = 0;
 
 //====================================================================================================
 
@@ -146,6 +148,7 @@ void stateCommandCallback(const sensor_msgs::JointState::ConstPtr& msg) {
         target_pos[it] = int32_t(msg->position[it]*full_circle[it]/2/PI*rotation_dir_for_moveit[it]);
         target_vel[it] = double(msg->velocity[it]/2); //RAD_TO_QC_CONVERSION TODO: maybe I need a different conversion constant here
     }
+    target_pos[1] += joint2_offset;
 }
 
 
@@ -180,8 +183,16 @@ void enforce_limits(vector<xcontrol::Epos4Extended*> chain){
                     break;
 
                 case Epos4::velocity_CSV:
-                    if ((current_pos_qc[it] > max_qc[it]-security_angle(target_vel[it], it) && target_vel[it] > 0) || (current_pos_qc[it] < min_qc[it]+security_angle(target_vel[it], it) && target_vel[it] < 0)) {
-                        target_vel[it] = 0;
+                    // TODO
+                    if (it == 1) {
+                        if ((current_pos_qc[it]-joint2_offset > max_qc[it]-security_angle(target_vel[it], it) && target_vel[it] > 0) || (current_pos_qc[it]-joint2_offset < min_qc[it]+security_angle(target_vel[it], it) && target_vel[it] < 0)) {
+                            target_vel[it] = 0;
+                        }
+                    }
+                    else {
+                        if ((current_pos_qc[it] > max_qc[it]-security_angle(target_vel[it], it) && target_vel[it] > 0) || (current_pos_qc[it] < min_qc[it]+security_angle(target_vel[it], it) && target_vel[it] < 0)) {
+                            target_vel[it] = 0;
+                        }
                     }
                     break;
 
@@ -267,6 +278,38 @@ updates target positions and velocities in order to lead the motor to its home (
 }*/
 
 
+void account_for_joint2_home_loss(vector<xcontrol::Epos4Extended*> chain) {
+    int32_t pos = chain[1].get_Actual_Position_In_Qc();
+    if (pos > 2<<18) {
+        joint2_offset = 2<<19;
+        if (target_pos[1] < -2<<18) {
+            target_pos[1] += 2<<20;
+        }
+        else if (target_pos[1] < 2<<18) {
+            target_pos[1] += 2<<19;
+        }
+    }
+    else if (pos < -2<<18) {
+        joint2_offset = -2<<19;
+        if (target_pos[1] > 2<<18) {
+            target_pos[1] -= 2<<20;
+        }
+        else if (target_pos[1] > -2<<18) {
+            target_pos[1] -= 2<<19;
+        }
+    }
+    else {
+        joint2_offset = 0;
+        if (target_pos[1] > 2<<18) {
+            target_pos[1] -= 2<<19;
+        }
+        else if (target_pos[it] < -2<<18) {
+            target_pos[1] += 2<<19;
+        }
+    }
+}
+
+
 /*
 gives the target positions and velocities to the motors
 */
@@ -280,6 +323,8 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain) {
         cout << "RESETTTTTTTTTTTTTTTTTTTTTTTTTTTTT" << endl;
         //reset_position(chain);
     }
+    
+    account_for_joint2_home_loss(chain);
 
     enforce_limits(chain);
 
@@ -292,7 +337,12 @@ void set_goals(vector<xcontrol::Epos4Extended*> chain) {
                 switch (control_mode) {
                     case Epos4::position_CSP:
                         if (!stopped) {
-                            chain[it]->set_Target_Position_In_Qc(target_pos[it]);
+                            if (it == 1) {
+                                chain[it]->set_Target_Position_In_Qc(target_pos[it]-joint2_offset);
+                            }
+                            else {
+                                chain[it]->set_Target_Position_In_Qc(target_pos[it]);
+                            }
                             cout << "set position       " << target_pos[it] << endl;
                         }
                         break;
@@ -336,7 +386,7 @@ int main(int argc, char **argv) {
     std::string network_interface_name("eth0");
     ros::init(argc, argv, "hd_controller_motors");
     ros::NodeHandle n;
-    ros::Subscriber man_cmd_sub = n.subscribe<std_msgs::Float32MultiArray>("/arm_control/manual_cmd", 10, manualCommandCallback);
+    ros::Subscriber man_cmd_sub = n.subscribe<std_msgs::Float32MultiArray>("/arm_control/manual_direct_cmd", 10, manualCommandCallback);
     //ros::Subscriber reset_sub = n.subscribe<std_msgs::Bool>("/arm_control/reset_arm_pos", 10, resetCallback);
     //ros::Subscriber set_zero_sub = n.subscribe<std_msgs::Bool>("/arm_control/set_zero_arm_pos", 10, setZeroCallback);
     ros::Subscriber state_cmd_sub = n.subscribe<sensor_msgs::JointState>("/arm_control/joint_cmd", 10, stateCommandCallback);
@@ -433,6 +483,7 @@ int main(int argc, char **argv) {
         }
         msg.position[6] = 0;
         msg.velocity[6] = 0;
+        msg.position[1] -= joint2_offset/full_circle[1]*2*PI*rotation_dir_for_moveit[1];
         if (chain.size() < 6) {
             // populate the message with zeros if less than 6 actual motors
             for (size_t it=chain.size(); it < 6; ++it) {

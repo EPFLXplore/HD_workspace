@@ -5,6 +5,9 @@ import rospy
 from std_msgs.msg import Float32MultiArray, Int8MultiArray, Float32, Int8, Bool
 
 
+VERBOSE = True
+
+
 class Manager:
     AUTONOMOUS = 0
     SEMIAUTONOMOUS = 1
@@ -13,10 +16,12 @@ class Manager:
 
     def __init__(self):
         self.velocity = 0
-        self.received_direct_cmd_at = time.time()
+        self.received_manual_direct_cmd_at = time.time()
+        self.received_manual_inverse_cmd_at = time.time()
         self.command_expiration = .5   # seconds
         motor_count = 8
-        self.direct_command = [0]*motor_count
+        self.manual_direct_command = [0]*motor_count
+        self.manual_inverse_command = [0]*motor_count
         self.mode = self.MANUAL_DIRECT
         self.target_mode = self.MANUAL_DIRECT
         self.mode_transitioning = False
@@ -31,55 +36,75 @@ class Manager:
         """listens to task assignement topic published by detection"""
 
     def manualCmdCallback(self, msg):# Int8MultiArray):
-        """listens to HD_InvManual_Coord topic"""
-
-    def directCmdCallback(self, msg):# Int8MultiArray):
-        """listens to HD_Angles topic"""
-        max_speed = 100
-        self.direct_command = [float(x)/max_speed for x in msg.data]
-        self.received_direct_cmd_at = time.time()
+        """listens to HD_joints topic"""
+        if self.mode == self.MANUAL_DIRECT:
+            max_speed = 100
+            self.manual_direct_command = [float(x)/max_speed for x in msg.data]
+            self.received_manual_direct_cmd_at = time.time()
+        elif self.mode == self.MANUAL_INVERSE:
+            max_speed = 100
+            self.manual_inverse_command = [float(x)/max_speed for x in msg.data]
+            self.received_manual_inverse_cmd_at = time.time()
 
     def send_task_cmd(self):
         """sends the last task command to the task executor and locks any other command until completion"""
-    def send_manual_cmd(self):
-        """sends the last manual command to the manual control and locks any other command until completion"""
 
-    def send_direct_cmd(self):
+    def send_manual_direct_cmd(self):
         """sends the last direct command to the motor control and locks any other command until completion"""
-        if self.direct_command_old(): 
+        if self.manual_direct_command_old(): 
             return
         msg = Float32MultiArray()
-        msg.data = self.direct_command
-        rospy.logwarn("manager :   " + str(msg.data))
-        self.manual_cmd_pub.publish(msg)
-        """if not self.velocity_command_old():
+        msg.data = self.manual_direct_command
+        if VERBOSE:
+            rospy.loginfo("manager direct cmd :   " + str(msg.data))
+        self.manual_direct_cmd_pub.publish(msg)
+
+    def send_manual_inverse_cmd(self):
+        """sends the last manual command to the manual control and locks any other command until completion"""
+        if self.manual_inverse_command_old():
+            return
+        cmd = self.manual_inverse_command
+        if cmd[0] != 0 or cmd[1] != 0 or cmd[2] != 0:
             msg = Float32MultiArray()
-            msg.data = self.format_direct_command()
-            #rospy.logwarn(str(msg.data))
-            self.manual_cmd_pub.publish(msg)"""        
+            msg.data = cmd[:3]
+            msg.data.append(max(cmd[:3]))
+            if VERBOSE:
+                rospy.loginfo("manager pos man inv cmd :   " + str(msg.data))
+            self.pos_manual_inverse_cmd_pub.publish(msg)
+        elif cmd[3] != 0 or cmd[4] != 0 or cmd[5] != 0:
+            msg = Float32MultiArray()
+            msg.data = cmd[3:6]
+            msg.data.append(max(cmd[3:6]))
+            if VERBOSE:
+                rospy.loginfo("manager orient man inv cmd :   " + str(msg.data))
+            self.orient_manual_inverse_cmd_pub.publish(msg)
 
     def updateWorld(self):
         """sends a world update to the trajectory planner"""
+        # TODO
 
-    def direct_command_old(self):
-        return time.time()-self.received_direct_cmd_at > self.command_expiration
-
-    def format_direct_command(self):
-        """DEPRECATED"""
-        return [cmd*self.velocity for cmd in self.direct_command]
+    def manual_direct_command_old(self):
+        return time.time()-self.received_manual_direct_cmd_at > self.command_expiration
+    
+    def manual_inverse_command_old(self):
+        return time.time()-self.received_manual_inverse_cmd_at > self.command_expiration
 
     def normal_loop_action(self):
         if self.mode == self.AUTONOMOUS:
             pass
-        elif self.mode == self.MANUAL_INVERSE or self.mode == self.SEMIAUTONOMOUS:
+        elif self.mode == self.SEMIAUTONOMOUS:
             pass
+        elif self.mode == self.MANUAL_INVERSE:
+            self.send_manual_inverse_cmd()
         elif self.mode == self.MANUAL_DIRECT:
-            self.send_direct_cmd()
+            self.send_manual_direct_cmd()
 
     def transition_loop_action(self):
         if self.mode == self.AUTONOMOUS:
             pass
-        elif self.mode == self.MANUAL_INVERSE or self.mode == self.SEMIAUTONOMOUS:
+        elif self.mode == self.SEMIAUTONOMOUS:
+            pass
+        elif self.mode == self.MANUAL_INVERSE:
             pass
         elif self.mode == self.MANUAL_INVERSE:
             pass
@@ -91,15 +116,19 @@ class Manager:
 
     def run(self):
         """main"""
-        self.manual_cmd_pub = rospy.Publisher('/arm_control/manual_cmd', Float32MultiArray, queue_size=10)
-        self.reset_arm_pos_pub = rospy.Publisher('/arm_control/reset_arm_pos', Bool, queue_size=10)
-        self.set_zero_arm_pos_pub = rospy.Publisher('/arm_control/set_zero_arm_pos', Bool, queue_size=10)
-        rospy.Subscriber("HD_joints", Int8MultiArray, self.directCmdCallback)
+        self.manual_direct_cmd_pub = rospy.Publisher('/arm_control/manual_direct_cmd', Float32MultiArray, queue_size=10)
+        self.pos_manual_inverse_cmd_pub = rospy.Publisher('/arm_control/pos_manual_inverse_cmd', Float32MultiArray, queue_size=10)
+        self.orient_manual_inverse_cmd_pub = rospy.Publisher('/arm_control/orient_manual_inverse_cmd', Float32MultiArray, queue_size=10)
+        #self.reset_arm_pos_pub = rospy.Publisher('/arm_control/reset_arm_pos', Bool, queue_size=10)
+        #self.set_zero_arm_pos_pub = rospy.Publisher('/arm_control/set_zero_arm_pos', Bool, queue_size=10)
+        rospy.Subscriber("HD_joints", Int8MultiArray, self.manualCmdCallback)
+        rospy.Subscriber("HD_mode", Int8, self.modeCallback)
         #rospy.Subscriber("HD_ManualVelocity", Float32, self.manualVelocityCallback)
         #rospy.Subscriber("HD_reset_arm_pos", Bool, self.resetCallback)
         #rospy.Subscriber("HD_set_zero_arm_pos", Bool, self.setZeroCallback)
         rate = rospy.Rate(25)   # 25hz
-        rospy.logwarn("manager started")
+        if VERBOSE:
+            rospy.logwarn("manager started")
         while not rospy.is_shutdown():
             if self.mode_transitioning:
                 self.transition_loop_action()
@@ -113,7 +142,8 @@ if __name__ == '__main__':
         rospy.init_node('HD_control_manager', anonymous=True)
         m = Manager()
         m.run()
-        rospy.logwarn("manager finished ????")
+        if VERBOSE:
+            rospy.logwarn("manager finished")
     except rospy.ROSInterruptException:
-        rospy.logwarns("manager crashed")
+        rospy.logerr("manager crashed")
         pass

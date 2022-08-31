@@ -46,6 +46,7 @@ class Executor:
     
     def orientationManualTaskCallback(self, msg):
         """listens to /arm_control/orient_manual_cmd topic"""
+        return  # TODO: remove return if feasible
         if self.task is not None and not isinstance(self.task, OrientationManualMotion):
             return
         if self.task is None or self.task.finished:
@@ -76,8 +77,8 @@ class Executor:
     def run(self):
         rospy.Subscriber("/arm_control/task_assignment", Task, self.taskAssignementCallback)
         rospy.Subscriber("/arm_control/end_effector_pose", geometry_msgs.msg.Pose, register_end_effector_pose)
-        rospy.Subscriber("/arm_control/pos_manual_cmd", std_msgs.msg.Float32MultiArray, self.positionManualTaskCallback)
-        rospy.Subscriber("/arm_control/orient_manual_cmd", std_msgs.msg.Float32MultiArray, self.orientationManualTaskCallback)
+        rospy.Subscriber("/arm_control/pos_manual_inverse_cmd", std_msgs.msg.Float32MultiArray, self.positionManualTaskCallback)
+        rospy.Subscriber("/arm_control/orient_manual_inverse_cmd", std_msgs.msg.Float32MultiArray, self.orientationManualTaskCallback)
         rate = rospy.Rate(25)   # 25hz
         while not rospy.is_shutdown():
             if self.new_task:

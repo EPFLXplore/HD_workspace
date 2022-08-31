@@ -76,7 +76,7 @@ static const double rotation_dir_for_moveit[MAX_MOTOR_COUNT] = {1, -1, -1, 1, -1
 static const double security_angle_coef[MAX_MOTOR_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
 static const vector<int> order = {1, 2, 8, 3, 4, 5, 6, 7};
 
-static const int32_t joint2_offset = 0;
+int32_t joint2_offset = 0;
 
 //====================================================================================================
 
@@ -279,7 +279,7 @@ updates target positions and velocities in order to lead the motor to its home (
 
 
 void account_for_joint2_home_loss(vector<xcontrol::Epos4Extended*> chain) {
-    int32_t pos = chain[1].get_Actual_Position_In_Qc();
+    int32_t pos = chain[1]->get_Actual_Position_In_Qc();
     if (pos > 2<<18) {
         joint2_offset = 2<<19;
         if (target_pos[1] < -2<<18) {
@@ -303,7 +303,7 @@ void account_for_joint2_home_loss(vector<xcontrol::Epos4Extended*> chain) {
         if (target_pos[1] > 2<<18) {
             target_pos[1] -= 2<<19;
         }
-        else if (target_pos[it] < -2<<18) {
+        else if (target_pos[1] < -2<<18) {
             target_pos[1] += 2<<19;
         }
     }

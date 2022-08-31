@@ -19,11 +19,9 @@ class ToyRover():
 
         #first thing is gonna be having the FSM send out the current state
         rospy.Subscriber("detection/state", UInt8, self.hdStateCallback)
-        rospy.Subscriber("detection/current_element", String, self.scienceMeasurementCallback)
-        rospy.Subscriber("detection/status", String, self.scienceInfoCallback)
 
         #now we need to have the toyrover handle the input output
-        self.first_input = rospy.Publisher("Task", Int8, queue_size=1)
+        self.first_input = rospy.Publisher("av_task", Int8, queue_size=1)
         #opening command is [1,3]
 
     def scienceMeasurementCallback(self, data):

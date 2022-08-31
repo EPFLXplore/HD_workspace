@@ -133,7 +133,6 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/detection_manager.cpp)
-add_executable(ctrl_sim src/ctrl_sim.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -207,5 +206,3 @@ catkin_install_python(PROGRAMS
 #add_executable(detection_manager src/detection_manager.cpp)
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES} ${DEPENDENCIES})
 
-#add_executable(ctrl_sim src/ctrl_sim.cpp)
-target_link_libraries(ctrl_sim ${catkin_LIBRARIES} ${DEPENDENCIES})

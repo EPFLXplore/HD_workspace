@@ -27,6 +27,7 @@ using namespace cv;
 
 static bool show_input_image(0); //for showing the images directly on the jetson, not through a ros topic
 static bool show_output_image(1);//need to turn it on to activate the corresponding ros topic
+static bool show_depth_image(1);
 #define SAMPLES 30
 #define TAG_SIZE 0.044f
 
@@ -86,7 +87,22 @@ int main(int argc, char **argv) try {
         data = align_to_color.process(data); //for aligning the depth and color frames
         rs2::frame color = data.get_color_frame();
         rs2::depth_frame depth =data.get_depth_frame();
+       
+        if (show_depth_image){  //ADDING DEPTH VISUALISATION OPTION
+            
+            rs2::colorizer color_map;
+            rs2::frame depth_frame=data.get_depth_frame().apply_filter(color_map);
+            //cv::Mat depth_image = frame_to_mat(depth);
+             // Query frame size (width and height)
+            const int w = depth_frame.as<rs2::video_frame>().get_width();
+            const int h = depth_frame.as<rs2::video_frame>().get_height();
 
+            // Create OpenCV matrix of size (w,h) from the colorized depth data
+            Mat depth_image(Size(w, h), CV_8UC3, (void*)depth_frame.get_data(), Mat::AUTO_STEP);
+            
+            
+            imshow("colored depth image",depth_image);
+        } 
 
         ///////////////// camera calibration and image conversion from rs2 frame to cv mat /////////////////////////
         rs2_intrinsics intrinsics = get_field_of_view(pipe,cameraMatrix,distCoeffs); //function to get the camera intrinsics and copy them into the right matrices
@@ -109,7 +125,7 @@ int main(int argc, char **argv) try {
         }
        
        
-        //find_plaque(image,depth,intrinsics);
+        find_plaque(image,depth,intrinsics);
        
 
        ////////////////find AR tags ///////////////////////////

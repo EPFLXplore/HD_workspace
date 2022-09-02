@@ -28,13 +28,13 @@ using namespace cv;
 
 static bool show_input_image(0); //for showing the images directly on the jetson, not through a ros topic
 static bool show_output_image(1);//need to turn it on to activate the corresponding ros topic
-static bool show_depth_image(1);
+static bool show_depth_image(0);
 #define SAMPLES 30
 #define TAG_SIZE 0.044f
 
 
 ////////////////////// vectors required for AR tag detection ///////////////////////////////////
-cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_7X7_250);
+cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
 static cv::Mat cameraMatrix ;
 static cv::Mat distCoeffs ;
 static vector<int> ids;
@@ -126,7 +126,7 @@ int main(int argc, char **argv) try {
         }
        
        
-        find_plaque(image,depth,intrinsics);
+        //find_plaque(image,depth,intrinsics);
        
 
        ////////////////find AR tags ///////////////////////////
@@ -291,6 +291,18 @@ int main(int argc, char **argv) try {
                     if (active_sample==SAMPLES) {
                         offset_to_fingers(ethernet);
                         objects.detected_objects.push_back(ethernet);
+                    }
+                }
+
+                //////////////////// send AR tag positions and corner limits//////////////////
+                if (get_command()==0 or get_command()==15){
+                    vision_no_ros::panel_object artag_panelA;
+                    
+                    refresh_ar_tag_pos(artag_panelA,ids,rvecs,tvecs,my_panel.panelA.artg1,depth,corners,SAMPLES);
+                    //draw_object(image,ethernet,intrinsics);
+                    if (active_sample==SAMPLES) {
+                        offset_to_fingers(artag_panelA);
+                        objects.detected_objects.push_back(artag_panelA);
                     }
                 }
 

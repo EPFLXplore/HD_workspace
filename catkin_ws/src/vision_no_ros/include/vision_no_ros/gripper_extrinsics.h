@@ -26,10 +26,10 @@ void offset_to_fingers(vision_no_ros::panel_object& object){
     object.x_pos+=FINGERS_CAMERA_X;
     object.y_pos+=FINGERS_CAMERA_Y;
     object.z_pos-=FINGERS_CAMERA_Z;
-    //reorient axes for control software
-    //5alas no need
+    
     // fix quaternions
     fix_quaternions_for_control(object);
+
 
 }
 
@@ -38,7 +38,6 @@ void offset_to_voltmeter(vision_no_ros::panel_object& object){
     object.x_pos+=VOLTMETER_CAMERA_X;
     object.y_pos+=VOLTMETER_CAMERA_Y;
     object.z_pos+=VOLTMETER_CAMERA_Z;
-    //reorient axes for control software
     
     // fix quaternions
     fix_quaternions_for_control(object);

@@ -324,7 +324,7 @@ int main(int argc, char **argv) try {
 
                 if (show_output_image){
                     cv::Mat output_image=image.clone();
-                    //cv::aruco::drawDetectedMarkers(output_image,corners,ids);
+                    cv::aruco::drawDetectedMarkers(output_image,corners,ids);
                     for(int i=0; i<ids.size(); i++){ 
                       cv::aruco::drawAxis(output_image, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.1);// removed this for the jetson (uses a version thats not compatible with this)
                     }  //X: red, Y: green, Z: blue.

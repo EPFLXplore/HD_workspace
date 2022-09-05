@@ -26,7 +26,7 @@
 using namespace std;
 using namespace cv;
 
-static bool show_input_image(0); //for showing the images directly on the jetson, not through a ros topic
+static bool show_input_image(1); //for showing the images directly on the jetson, not through a ros topic
 static bool show_output_image(1);//need to turn it on to activate the corresponding ros topic
 static bool show_depth_image(0);
 #define SAMPLES 30
@@ -69,15 +69,14 @@ int main(int argc, char **argv) try {
     //rs2::context ctx;
     rs2::pipeline pipe;
     rs2::config cfg;
-    cfg.enable_device("135322062945"); //devices serial numbers , d405:123622270224, d415:135322062945
-    pipe.start(cfg);
+    cfg.enable_device("123622270224"); //devices serial numbers , d405:123622270224, d415:135322062945
+    //pipe.start(cfg);
     //setup custom streaming configuration 
-    /*
-    rs2::config cfg;
-    cfg.enable_stream(RS2_STREAM_DEPTH,1280, 720, RS2_FORMAT_Z16, 30); //this is the best resolutio for the depth stream to be accurate
-    cfg.enable_stream(RS2_STREAM_COLOR,1280, 720, RS2_FORMAT_BGR8, 30);
+    
+    cfg.enable_stream(RS2_STREAM_DEPTH,1280, 720, RS2_FORMAT_Z16, 5); //this is the best resolutio for the depth stream to be accurate
+    cfg.enable_stream(RS2_STREAM_COLOR,1280, 720, RS2_FORMAT_BGR8, 5);
     pipe.start(cfg);
-    */
+    
     //pipe.start(); // Start streaming with default recommended configuration//maybe should try to optimze the start parameters for bandwidth gains and other stuff when integratingg
     rs2::align align_to_color(RS2_STREAM_COLOR);//expensive keep it outside the loop
 
@@ -131,6 +130,10 @@ int main(int argc, char **argv) try {
 
        ////////////////find AR tags ///////////////////////////
         if (get_command()!=-1){
+            //apply filters on image to enhance edges and reduce noise ///
+
+            //cvtColor(image, image,CV_BGR2GRAY);
+            
             cv::aruco::detectMarkers(image,dictionary,corners,ids);
 
             
@@ -306,7 +309,21 @@ int main(int argc, char **argv) try {
                         objects.detected_objects.push_back(artag_panelA);
                     }
                 }
-                
+                /*
+                if (get_command()==0 or get_command()==16){
+                   
+                   cv::Vec3d hard_code_tvec;
+                   hard_code_tvec[0]= distance_from_ARtag(my_panel.panelA.artg1,my_panel.panelA.switchMain).x_coor;
+                   hard_code_tvec[1]= distance_from_ARtag(my_panel.panelA.artg1,my_panel.panelA.switchMain).y_coor;
+                   hard_code_tvec[2]=0;
+                   cv::Vec3d hard_code_rvec;
+                   hard_code_rvec[0]=0;
+                   hard_code_rvec[1]=0;
+                   hard_code_rvec[2]=0;
+                   vision_no_ros::panel_object main_switch;
+                   fix_rotation(rvecs[0],tvecs[0]/1000,hard_code_rvec,hard_code_tvec,main_switch);
+                }
+                */
                 /////////////////////////////////////////////// end object referesh /////////////////////////////////////////////////
 
                 //cout << "active command is : "<< get_command() <<endl;
